@@ -6,9 +6,14 @@ import {
     Scripts,
     ScrollRestoration,
 } from 'react-router';
+import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import { mainnet, base, baseSepolia } from 'wagmi/chains';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import type { Route } from './+types/root';
 import './app.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -22,6 +27,15 @@ export const links: Route.LinksFunction = () => [
         href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
     },
 ];
+
+const queryClient = new QueryClient();
+
+const config = getDefaultConfig({
+    appName: 'MiniMart',
+    projectId: 'YOUR_PROJECT_ID',
+    chains: [base, baseSepolia, mainnet],
+    ssr: false,
+});
 
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -42,7 +56,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-    return <Outlet />;
+    return (
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <RainbowKitProvider theme={darkTheme()} initialChain={base}>
+                    <Outlet />{' '}
+                </RainbowKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
+    );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
