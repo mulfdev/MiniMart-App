@@ -11,6 +11,7 @@ import { WagmiProvider } from 'wagmi';
 import { mainnet, base, baseSepolia } from 'wagmi/chains';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
+import { sdk } from '@farcaster/frame-sdk';
 import type { Route } from './+types/root';
 import './app.css';
 import '@rainbow-me/rainbowkit/styles.css';
@@ -66,6 +67,9 @@ export default function App() {
         </WagmiProvider>
     );
 }
+
+await sdk.actions.ready();
+await sdk.actions.ready({ disableNativeGestures: true });
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     let message = 'Oops!';

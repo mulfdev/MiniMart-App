@@ -9,6 +9,7 @@
         "typecheck": "react-router typegen && tsc"
     },
     "dependencies": {
+        "@farcaster/frame-sdk": "^0.0.63",
         "@rainbow-me/rainbowkit": "^2.2.7",
         "@react-router/node": "^7.5.3",
         "@react-router/serve": "^7.5.3",
