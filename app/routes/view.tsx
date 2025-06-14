@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Shield, Sparkles } from 'lucide-react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Navigation } from '~/components/Navigation';
 
 interface Nft {
     collection: string;
@@ -19,9 +19,15 @@ interface Nft {
     updated_at: string; // ISO 8601 datetime string
 }
 
+const OPENSEA_API_KEY = import.meta.env.VITE_OPENSEA_API_KEY;
+
+if (typeof OPENSEA_API_KEY !== 'string') {
+    throw new Error('OPENSEA_API_KEY must be set');
+}
+
 async function fetchNfts() {
     const headers = new Headers();
-    headers.set('x-api-key', '6e06d98a48754bebb50d0c4c60b5ba18');
+    headers.set('x-api-key', OPENSEA_API_KEY);
 
     const res = await fetch(
         `https://api.opensea.io/api/v2/chain/base/account/0x75A6085Bbc25665B6891EA94475E6120897BA90b/nfts`,
@@ -35,7 +41,7 @@ async function fetchNfts() {
     return erc721s;
 }
 
-const NFTCard = ({ nft }) => {
+const NFTCard = ({ nft }: { nft: Nft }) => {
     return (
         <div className="group relative">
             {/* Main Card Container with responsive heights */}
@@ -212,24 +218,8 @@ export default function ViewNfts() {
 
     return (
         <div className="min-h-screen" style={backgroundStyle}>
+            <Navigation />
             <main className="container mx-auto px-4 py-8 sm:py-16">
-                {/* Enhanced Header */}
-                <header className="text-center mb-8 sm:mb-16 space-y-4 sm:space-y-6">
-                    <div className="flex justify-center">
-                        <ConnectButton />
-                    </div>
-
-                    {nfts && nfts.length > 0 && (
-                        <div className="flex items-center justify-center gap-2 text-zinc-400">
-                            <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-                            <span className="text-sm font-medium">
-                                {nfts.length} NFT{nfts.length !== 1 ? 's' : ''} in collection
-                            </span>
-                            <div className="w-1 h-1 bg-blue-400 rounded-full animate-ping" />
-                        </div>
-                    )}
-                </header>
-
                 {/* Loading State */}
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center py-20 space-y-4">

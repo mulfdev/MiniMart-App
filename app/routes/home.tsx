@@ -1,4 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
     ArrowRight,
     Zap,
@@ -11,6 +10,8 @@ import {
     Clock,
     Globe,
 } from 'lucide-react';
+import { Link } from 'react-router';
+import { Navigation } from '~/components/Navigation';
 
 export default function LandingPage() {
     const backgroundStyle = {
@@ -81,18 +82,7 @@ export default function LandingPage() {
     return (
         <div className="min-h-screen" style={backgroundStyle}>
             {/* Header */}
-            <header className="container mx-auto px-4 py-6">
-                <nav className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-xl font-bold text-white">MiniMart</span>
-                    </div>
-                    <ConnectButton />
-                </nav>
-            </header>
-
+            <Navigation />
             {/* Hero Section */}
             <section className="container mx-auto px-4 py-16 sm:py-24">
                 <div className="text-center max-w-4xl mx-auto">
@@ -118,24 +108,18 @@ export default function LandingPage() {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-                        <button
-                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
+                        <Link to="/view">
+                            <button
+                                className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
                                      text-white font-semibold rounded-xl
                                      transform hover:scale-105 active:scale-95
                                      transition-all duration-200 ease-out
                                      shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
-                        >
-                            <span>Try It Now</span>
-                            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
-                        </button>
-                    </div>
-
-                    {/* Simple description */}
-                    <div className="max-w-2xl mx-auto">
-                        <p className="text-zinc-400">
-                            We're building a simple way to sell NFTs where your community already
-                            is. No complex interfaces, no switching between apps.
-                        </p>
+                            >
+                                <span>Try It Now</span>
+                                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -268,10 +252,6 @@ export default function LandingPage() {
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                         Ready to Try It?
                     </h2>
-                    <p className="text-lg text-zinc-400 mb-8">
-                        Connect your wallet and see your NFTs ready to list
-                    </p>
-
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <button
                             className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
@@ -283,18 +263,6 @@ export default function LandingPage() {
                             <span>Get Started</span>
                             <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
                         </button>
-                    </div>
-
-                    {/* Simple indicators */}
-                    <div className="flex items-center justify-center gap-6 mt-8 text-sm text-zinc-500">
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            <span>Free to use</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Shield className="w-4 h-4 text-blue-400" />
-                            <span>Standard security</span>
-                        </div>
                     </div>
                 </div>
             </section>
