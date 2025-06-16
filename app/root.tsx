@@ -15,6 +15,7 @@ import { sdk } from '@farcaster/frame-sdk';
 import type { Route } from './+types/root';
 import './app.css';
 import '@rainbow-me/rainbowkit/styles.css';
+import { useEffect } from 'react';
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -33,7 +34,7 @@ const queryClient = new QueryClient();
 
 const config = getDefaultConfig({
     appName: 'MiniMart',
-    projectId: 'YOUR_PROJECT_ID',
+    projectId: '87e248dc258d19281189f5f2b92affc5',
     chains: [base, baseSepolia, mainnet],
     ssr: false,
 });
@@ -57,19 +58,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+    async function loadFCSDK() {
+        await sdk.actions.ready();
+        await sdk.actions.ready({ disableNativeGestures: true });
+    }
+
+    useEffect(() => {
+        loadFCSDK().catch((err) => console.log(err));
+    }, []);
+
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
                 <RainbowKitProvider theme={darkTheme()} initialChain={base}>
-                    <Outlet />{' '}
+                    <Outlet />
                 </RainbowKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
     );
 }
-
-await sdk.actions.ready();
-await sdk.actions.ready({ disableNativeGestures: true });
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
     let message = 'Oops!';
