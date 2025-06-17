@@ -11,7 +11,6 @@ export function Navigation() {
                     </div>
                     <span className="text-xl font-bold text-white">MiniMart</span>
                 </div>
-                <ConnectButton />
             </nav>
         </header>
     );
