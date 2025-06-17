@@ -1,19 +1,19 @@
-import {
-    ArrowRight,
-    Zap,
-    Shield,
-    Users,
-    Sparkles,
-    ExternalLink,
-    CheckCircle,
-    Smartphone,
-    Clock,
-    Globe,
-} from 'lucide-react';
+import { ArrowRight, Zap, Shield, Users, Sparkles, Smartphone, Clock, Globe } from 'lucide-react';
+import { useEffect } from 'react';
 import { Link } from 'react-router';
+import { useAccount, useConnect } from 'wagmi';
 import { Navigation } from '~/components/Navigation';
 
 export default function LandingPage() {
+    const { isConnected, address } = useAccount();
+    const { connect, connectors } = useConnect();
+
+    console.log(address);
+
+    useEffect(() => {
+        connect({ connector: connectors[0] });
+    }, []);
+
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
         backgroundImage: `
@@ -108,7 +108,7 @@ export default function LandingPage() {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-                        <Link to="/view">
+                        <Link to={`/view/${address}`}>
                             <button
                                 className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
                                      text-white font-semibold rounded-xl
