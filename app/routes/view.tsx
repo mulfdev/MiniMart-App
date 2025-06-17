@@ -3,12 +3,7 @@ import type { Nft } from 'types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
-
-const OPENSEA_API_KEY = import.meta.env.VITE_OPENSEA_API_KEY;
-
-if (typeof OPENSEA_API_KEY !== 'string') {
-    throw new Error('OPENSEA_API_KEY must be set');
-}
+import { OPENSEA_API_KEY } from '~/root';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     const headers = new Headers();
