@@ -1,3 +1,8 @@
+import './app.css';
+import '@rainbow-me/rainbowkit/styles.css';
+
+import type { Route } from './+types/root';
+
 import {
     isRouteErrorResponse,
     Links,
@@ -6,16 +11,34 @@ import {
     Scripts,
     ScrollRestoration,
 } from 'react-router';
-import { getDefaultConfig, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
-import { mainnet, base, baseSepolia } from 'wagmi/chains';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
-import { sdk } from '@farcaster/frame-sdk';
-import type { Route } from './+types/root';
-import './app.css';
-import '@rainbow-me/rainbowkit/styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, createConfig, useAccount, useConnect, WagmiProvider } from 'wagmi';
+import { base } from 'wagmi/chains';
+import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
 import { useEffect } from 'react';
+import sdk from '@farcaster/frame-sdk';
+
+export const OPENSEA_API_KEY = import.meta.env.VITE_OPENSEA_API_KEY;
+export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
+
+if (typeof OPENSEA_API_KEY !== 'string') {
+    throw new Error('OPENSEA_API_KEY must be set');
+}
+
+if (typeof BASE_RPC_URL !== 'string') {
+    throw new Error('BASE_RPC_URL must be set');
+}
+
+export const config = createConfig({
+    chains: [base],
+    transports: {
+        [base.id]: http(),
+    },
+    connectors: [miniAppConnector()],
+});
+
+const queryClient = new QueryClient();
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -29,16 +52,6 @@ export const links: Route.LinksFunction = () => [
         href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
     },
 ];
-
-const queryClient = new QueryClient();
-
-const config = getDefaultConfig({
-    appName: 'MiniMart',
-    projectId: '87e248dc258d19281189f5f2b92affc5',
-    chains: [base, baseSepolia, mainnet],
-    ssr: false,
-});
-
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en">
@@ -59,7 +72,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
     async function loadFCSDK() {
-        await sdk.actions.ready();
         await sdk.actions.ready({ disableNativeGestures: true });
     }
 
@@ -70,9 +82,7 @@ export default function App() {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider theme={darkTheme()} initialChain={base}>
-                    <Outlet />
-                </RainbowKitProvider>
+                <Outlet />
             </QueryClientProvider>
         </WagmiProvider>
     );
