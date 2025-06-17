@@ -1,5 +1,4 @@
 import './app.css';
-import '@rainbow-me/rainbowkit/styles.css';
 
 import type { Route } from './+types/root';
 

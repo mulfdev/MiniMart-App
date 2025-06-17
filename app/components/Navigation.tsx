@@ -1,4 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Sparkles } from 'lucide-react';
 
 export function Navigation() {
