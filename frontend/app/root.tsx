@@ -18,13 +18,13 @@ import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-conne
 import { useEffect } from 'react';
 import sdk from '@farcaster/frame-sdk';
 
-export const OPENSEA_API_KEY = import.meta.env.VITE_OPENSEA_API_KEY;
+export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
 
 const IS_PROD = import.meta.env.VITE_IS_PROD;
 
-if (typeof OPENSEA_API_KEY !== 'string') {
-    throw new Error('OPENSEA_API_KEY must be set');
+if (typeof ALCHEMY_API_KEY !== 'string') {
+    throw new Error('ALCHEMY_API_KEY must be set');
 }
 
 if (typeof BASE_RPC_URL !== 'string') {
@@ -35,7 +35,7 @@ export const config = createConfig({
     chains: [IS_PROD ? base : baseSepolia],
     transports: {
         [base.id]: http(),
-        [baseSepolia.id]: http(),
+        [baseSepolia.id]: http(BASE_RPC_URL),
     },
     connectors: [miniAppConnector()],
 });
