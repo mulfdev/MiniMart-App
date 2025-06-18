@@ -1,7 +1,8 @@
-import { ExternalLink, Shield, Sparkles } from 'lucide-react';
+import { Shield, Sparkles } from 'lucide-react';
 import type { Nft } from 'types';
 import { AddOrderButton } from './AddOrderButton';
 import { parseEther } from 'viem';
+import { Link } from 'react-router';
 
 export function NftCard({ nft }: { nft: Nft }) {
     console.log(nft);
@@ -25,7 +26,7 @@ export function NftCard({ nft }: { nft: Nft }) {
                     {/* Blurred background image for artistic effect */}
                     <div className="absolute inset-0">
                         <img
-                            src={nft.display_image_url || '/placeholder.svg'}
+                            src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
                             alt=""
                             className="w-full h-full object-cover scale-110 blur-xl opacity-30
                                      transform group-hover:scale-125 group-hover:opacity-40
@@ -46,8 +47,7 @@ export function NftCard({ nft }: { nft: Nft }) {
                     {/* Main image with object-contain */}
                     <div className="relative w-full h-full flex items-center justify-center p-4">
                         <img
-                            src={nft.display_image_url || '/placeholder.svg'}
-                            alt={nft.name}
+                            src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
                             className="max-w-full max-h-full object-contain
                                      transform group-hover:scale-105 
                                      transition-transform duration-700 ease-out
@@ -83,7 +83,7 @@ export function NftCard({ nft }: { nft: Nft }) {
                         >
                             <Shield className="w-3 h-3 text-blue-400" />
                             <span className="text-xs font-mono text-white/90 font-medium">
-                                {nft.token_standard.toUpperCase()}
+                                {nft.contract.tokenType.toUpperCase()}
                             </span>
                         </div>
                     </div>
@@ -102,7 +102,7 @@ export function NftCard({ nft }: { nft: Nft }) {
                          group-hover:text-blue-100 transition-colors duration-300
                          drop-shadow-sm"
                             >
-                                {nft.name}
+                                {nft.contract.name}
                             </h2>
                             <Sparkles
                                 className="w-4 h-4 text-yellow-400/60 group-hover:text-yellow-400 
@@ -135,37 +135,19 @@ export function NftCard({ nft }: { nft: Nft }) {
                                   transition-colors duration-300"
                     >
                         <div className="flex justify-between items-center gap-2">
-                            <AddOrderButton
-                                price={parseEther('0.00003')}
-                                nftContract={nft.contract as `0x${string}`}
-                                tokenId={nft.identifier}
-                                className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                            <Link to={`/list/${nft.contract.address}/${nft.tokenId}`}>
+                                <button
+                                    className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
                                          bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                          border border-zinc-700/50 hover:border-zinc-600/80
                                          rounded-xl font-semibold text-xs sm:text-sm text-white
                                          transform hover:scale-105 active:scale-95
                                          transition-all duration-200 ease-out
                                          shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
-                            />
-                            <a
-                                href={nft.opensea_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
-                                         bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
-                                         border border-zinc-700/50 hover:border-zinc-600/80
-                                         rounded-xl font-semibold text-xs sm:text-sm text-white
-                                         transform hover:scale-105 active:scale-95
-                                         transition-all duration-200 ease-out
-                                         shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
-                            >
-                                <span className="hidden sm:inline">View on OpenSea</span>
-                                <span className="sm:hidden">OpenSea</span>
-                                <ExternalLink
-                                    className="w-3 h-3 sm:w-3.5 sm:h-3.5 transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5
-                                                       transition-transform duration-200"
-                                />
-                            </a>
+                                >
+                                    List Token
+                                </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
