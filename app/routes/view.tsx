@@ -10,20 +10,28 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     headers.set('x-api-key', OPENSEA_API_KEY);
 
     const res = await fetch(
-        `https://api.opensea.io/api/v2/chain/base/account/${params.address}/nfts`,
+        `https://api.opensea.io/api/v2/chain/base_sepolia/account/${params.address}/nfts`,
         { headers }
     );
     const data = await res.json();
+
+    if (!data.nfts || data.nfts.length === 0) {
+        return [];
+    }
+
     const nfts = data.nfts as Nft[];
 
-    const erc721s = nfts.filter((nft) => nft.token_standard === 'erc721');
+    const erc721s = nfts.filter((nft) => nft.token_standard === 'erc721') ?? [];
 
-    const erc721sWithImgs = erc721s.filter(
-        (nft) =>
-            nft.display_image_url !== null && nft.display_image_url !== '' && nft.image_url !== null
-    );
+    const erc721sWithImgs =
+        erc721s.filter(
+            (nft) =>
+                nft.display_image_url !== null &&
+                nft.display_image_url !== '' &&
+                nft.image_url !== null
+        ) ?? [];
 
-    return erc721sWithImgs;
+    return erc721sWithImgs ?? [];
 }
 
 const backgroundStyle = {
@@ -93,7 +101,7 @@ export default function ViewNfts({ loaderData }: Route.ComponentProps) {
                             <Sparkles className="w-8 h-8 text-zinc-600" />
                         </div>
                         <p className="text-zinc-400 font-medium">
-                            No NFTs found in this collection
+                            No NFTs found in your collection collection
                         </p>
                     </div>
                 )}

@@ -12,14 +12,16 @@ import {
 } from 'react-router';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { http, createConfig, useAccount, useConnect, WagmiProvider } from 'wagmi';
-import { base } from 'wagmi/chains';
+import { http, createConfig, WagmiProvider } from 'wagmi';
+import { base, baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
 import { useEffect } from 'react';
 import sdk from '@farcaster/frame-sdk';
 
 export const OPENSEA_API_KEY = import.meta.env.VITE_OPENSEA_API_KEY;
 export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
+
+const IS_PROD = import.meta.env.VITE_IS_PROD;
 
 if (typeof OPENSEA_API_KEY !== 'string') {
     throw new Error('OPENSEA_API_KEY must be set');
@@ -30,9 +32,10 @@ if (typeof BASE_RPC_URL !== 'string') {
 }
 
 export const config = createConfig({
-    chains: [base],
+    chains: [IS_PROD ? base : baseSepolia],
     transports: {
         [base.id]: http(),
+        [baseSepolia.id]: http(),
     },
     connectors: [miniAppConnector()],
 });
