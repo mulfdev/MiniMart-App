@@ -19,6 +19,10 @@
         "tagline": "Sell NFTs On Farcaster",
         "ogTitle": "MiniMart",
         "ogDescription": "Sell NFTs On Farcaster",
-        "ogImageUrl": "https://minimart.mulf.wtf/og-image.png"
+        "ogImageUrl": "https://minimart.mulf.wtf/og-image.png",
+        "tags": ["nfts", "market", "marketplace", "sell"],
+        "heroImageUrl": "https://minimart.mulf.wtf/og-image.png",
+        "description": "Sell NFTs On Farcaster",
+        "subtitle": "Mini App NFT Marketplace"
     }
 }
