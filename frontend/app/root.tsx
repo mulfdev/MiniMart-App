@@ -23,6 +23,21 @@ export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
 
 const IS_PROD = import.meta.env.VITE_IS_PROD;
 
+const frameConfig = {
+    version: 'next',
+    imageUrl: 'https://minimart.mulf.wtf/og-image.png',
+    button: {
+        title: 'List Now',
+        action: {
+            type: 'launch_frame',
+            url: 'https://minimart.mulf.wtf',
+            name: 'MiniMart',
+            splashImageUrl: 'https://minimart.mulf.wtf/splash-img.png',
+            splashBackgroundColor: '#6960d7',
+        },
+    },
+};
+
 if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
 }
@@ -59,6 +74,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="fc:frame" content={`${JSON.stringify(frameConfig)}`} />
+
                 <Meta />
                 <Links />
             </head>
