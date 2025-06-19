@@ -14,6 +14,8 @@
         "splashImageUrl": "https://minimart.mulf.wtf/splash.jpeg",
         "splashBackgroundColor": "#6960d7",
         "requiredChains": ["eip155:8453", "eip155:84532"],
-        "requiredCapabilities": ["wallet.getEthereumProvider", "actions.signIn"]
+        "requiredCapabilities": ["wallet.getEthereumProvider", "actions.signIn"],
+        "primaryCategory": "utility",
+        "tagline": "Sell Your NFTs Directly on Farcaster"
     }
 }

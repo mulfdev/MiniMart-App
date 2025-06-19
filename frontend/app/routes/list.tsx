@@ -69,44 +69,13 @@ export function HydrateFallback() {
 
 export default function ListNft({ loaderData }: Route.ComponentProps) {
     const nft = loaderData;
+
     const { address } = useAccount();
-
-    const [price, setPrice] = useState<string>('');
-    const [status, setStatus] = useState<
-        'checking' | 'needs_approval' | 'ready_to_list' | 'success'
-    >('checking');
-    const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
-
-    const {
-        data: approvedAddress,
-        refetch: refetchApproval,
-        isLoading: isCheckingApproval,
-    } = useReadContract({
-        address: nft?.contract.address as Address,
-        abi: erc721AbiForApproval,
-        functionName: 'getApproved',
-        args: [BigInt(nft.tokenId)],
-        query: { enabled: !!nft },
-    });
-
-    useEffect(() => {
-        if (isCheckingApproval || !nft) return;
-        const isApproved = approvedAddress?.toLowerCase() === miniMartAddr.toLowerCase();
-        setStatus(isApproved ? 'ready_to_list' : 'needs_approval');
-    }, [approvedAddress, isCheckingApproval, nft]);
-
-    const handleApprovalSuccess = () => {
-        setStatus('checking');
-        setErrorInfo({ isError: false, message: '' });
-        setTimeout(() => refetchApproval(), 3000);
-    };
 
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
         backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.02)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')`,
     };
-    const defaultButtonStyles =
-        'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     if (!nft) {
         return (
@@ -128,6 +97,38 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
             </div>
         );
     }
+
+    const [price, setPrice] = useState<string>('');
+    const [status, setStatus] = useState<
+        'checking' | 'needs_approval' | 'ready_to_list' | 'success'
+    >('checking');
+    const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
+
+    const {
+        data: approvedAddress,
+        refetch: refetchApproval,
+        isLoading: isCheckingApproval,
+    } = useReadContract({
+        address: nft.contract.address as Address,
+        abi: erc721AbiForApproval,
+        functionName: 'getApproved',
+        args: [BigInt(nft.tokenId)],
+    });
+
+    useEffect(() => {
+        if (isCheckingApproval || !nft) return;
+        const isApproved = approvedAddress?.toLowerCase() === miniMartAddr.toLowerCase();
+        setStatus(isApproved ? 'ready_to_list' : 'needs_approval');
+    }, [approvedAddress, isCheckingApproval, nft]);
+
+    const handleApprovalSuccess = () => {
+        setStatus('checking');
+        setErrorInfo({ isError: false, message: '' });
+        setTimeout(() => refetchApproval(), 3000);
+    };
+
+    const defaultButtonStyles =
+        'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     return (
         <div className="min-h-screen" style={backgroundStyle}>
