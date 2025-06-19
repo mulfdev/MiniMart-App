@@ -32,9 +32,8 @@ if (typeof BASE_RPC_URL !== 'string') {
 }
 
 export const config = createConfig({
-    chains: [IS_PROD ? base : baseSepolia],
+    chains: [baseSepolia],
     transports: {
-        [base.id]: http(),
         [baseSepolia.id]: http(BASE_RPC_URL),
     },
     connectors: [miniAppConnector()],
