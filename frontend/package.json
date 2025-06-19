@@ -6,7 +6,8 @@
         "build": "react-router build",
         "dev": "react-router dev",
         "start": "react-router-serve ./build/server/index.js",
-        "typecheck": "react-router typegen && tsc"
+        "typecheck": "react-router typegen && tsc",
+        "deploy": "pnpm build && npx wrangler pages deploy build/client --project-name minimart"
     },
     "dependencies": {
         "@farcaster/frame-sdk": "^0.0.63",
