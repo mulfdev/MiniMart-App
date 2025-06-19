@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useAccount, useChainId, useSignTypedData, useWriteContract, useReadContract } from 'wagmi';
+import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicClient } from 'wagmi';
 import { type Address, zeroAddress } from 'viem';
 
-const miniMartAddr = '' as `0x${string}`;
-
+const miniMartAddr = '0xd33530ACe9929Bf34197f2E0bED60e7c4170e791' as `0x${string}`;
 const ORDER_COMPONENTS = [
     { name: 'seller', type: 'address' },
     { name: 'price', type: 'uint96' },
@@ -13,24 +12,23 @@ const ORDER_COMPONENTS = [
     { name: 'nonce', type: 'uint64' },
     { name: 'tokenId', type: 'uint256' },
 ] as const;
-
 const ABI = [
     {
-        name: 'addOrder',
         type: 'function',
+        name: 'nonces',
+        stateMutability: 'view',
+        inputs: [{ name: 'seller', type: 'address' }],
+        outputs: [{ name: 'nonce', type: 'uint64' }],
+    },
+    {
+        type: 'function',
+        name: 'addOrder',
         stateMutability: 'nonpayable',
         inputs: [
             { name: 'order', type: 'tuple', components: ORDER_COMPONENTS },
             { name: 'signature', type: 'bytes' },
         ],
         outputs: [{ name: 'orderDigest', type: 'bytes32' }],
-    },
-    {
-        name: 'nonces',
-        type: 'function',
-        stateMutability: 'view',
-        inputs: [{ name: '', type: 'address' }],
-        outputs: [{ name: '', type: 'uint64' }],
     },
 ] as const;
 
@@ -44,59 +42,47 @@ type Order = {
     tokenId: bigint;
 };
 
-export function AddOrderButton({
-    price,
-    nftContract,
-    tokenId,
-    expiration = 0n,
-    taker = zeroAddress,
-    label = 'List Token',
-    className,
-}: {
-    price: bigint | number | string;
-    nftContract: Address;
-    tokenId: bigint | number | string;
-    expiration?: bigint | number | string;
-    taker?: Address;
-    label?: string;
-    className?: string;
-}) {
+export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError, ...props }: any) {
     const { address } = useAccount();
     const chainId = useChainId();
-
-    const { data: nonceData, isLoading: nonceLoading } = useReadContract({
-        address: miniMartAddr,
-        abi: ABI,
-        functionName: 'nonces',
-        args: [address ?? zeroAddress],
-    });
-
+    const publicClient = usePublicClient();
     const { signTypedDataAsync, isPending: signing } = useSignTypedData();
     const { writeContractAsync, isPending: writing } = useWriteContract();
-
     const [busy, setBusy] = useState(false);
 
     async function submit() {
-        if (!address) throw new Error('Connect wallet');
-        if (nonceData === undefined) throw new Error('Nonce unavailable');
         setBusy(true);
+        if (!address || !publicClient) {
+            onError?.(new Error('Client not ready.'));
+            setBusy(false);
+            return;
+        }
+
+        let currentNonce: bigint;
+        try {
+            const nonceResult = await publicClient.readContract({
+                address: miniMartAddr,
+                abi: ABI,
+                functionName: 'nonces',
+                args: [address],
+            });
+            currentNonce = BigInt(nonceResult);
+        } catch (err) {
+            onError?.(new Error('Failed to fetch nonce.'));
+            setBusy(false);
+            return;
+        }
 
         const msg: Order = {
             seller: address,
             price: BigInt(price),
             nftContract,
-            expiration: BigInt(expiration),
-            taker,
-            nonce: BigInt(nonceData),
+            expiration: 0n,
+            taker: zeroAddress,
+            nonce: currentNonce,
             tokenId: BigInt(tokenId),
         };
-
-        const domain = {
-            name: 'MiniMart',
-            version: '1',
-            chainId,
-            verifyingContract: miniMartAddr,
-        };
+        const domain = { name: 'MiniMart', version: '1', chainId, verifyingContract: miniMartAddr };
 
         try {
             const sig = await signTypedDataAsync({
@@ -111,20 +97,16 @@ export function AddOrderButton({
                 functionName: 'addOrder',
                 args: [msg, sig],
             });
+            onSuccess?.();
+        } catch (err) {
+            onError?.(
+                err instanceof Error ? err : new Error('Transaction failed or was rejected.')
+            );
         } finally {
             setBusy(false);
         }
     }
 
-    const disabled = busy || signing || writing || nonceLoading;
-
-    return (
-        <button
-            onClick={submit}
-            disabled={disabled}
-            className={className ?? 'px-4 py-2 rounded-xl font-semibold shadow'}
-        >
-            {disabled ? 'Submitting…' : label}
-        </button>
-    );
+    const disabled = busy || signing || writing;
+    return <button onClick={submit} disabled={disabled} {...props} />;
 }
