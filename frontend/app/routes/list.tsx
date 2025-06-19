@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router'; // Corrected import for web
+import { Link } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 import type { Nft } from 'types';
@@ -7,11 +7,10 @@ import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Navigation } from '~/components/Navigation';
 import { AddOrderButton } from '~/components/AddOrderButton';
-import { ApproveButton } from '~/components/ApproveButton'; // Import the new component
+import { ApproveButton } from '~/components/ApproveButton';
 import { ALCHEMY_API_KEY } from '~/root';
 import type { Route } from './+types/list';
 
-// --- START: Added for Approval Flow ---
 const erc721AbiForApproval = [
     {
         inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
@@ -22,11 +21,9 @@ const erc721AbiForApproval = [
     },
 ] as const;
 const miniMartAddr = '0xd33530ACe9929Bf34197f2E0bED60e7c4170e791' as `0x${string}`;
-// --- END: Added for Approval Flow ---
 
 export type ListNftLoaderData = Nft | null;
 
-// Your clientLoader remains untouched
 export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<ListNftLoaderData> {
     const { contract, tokenId } = params;
     if (!contract || !tokenId) {
@@ -50,7 +47,6 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<
     }
 }
 
-// Your HydrateFallback remains untouched
 export function HydrateFallback() {
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
@@ -76,14 +72,11 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
     const { address } = useAccount();
 
     const [price, setPrice] = useState<string>('');
-    // --- START: State updated for multi-step flow ---
     const [status, setStatus] = useState<
         'checking' | 'needs_approval' | 'ready_to_list' | 'success'
     >('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
-    // --- END: State updated for multi-step flow ---
 
-    // --- START: Logic for Approval Flow ---
     const {
         data: approvedAddress,
         refetch: refetchApproval,
@@ -92,7 +85,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         address: nft?.contract.address as Address,
         abi: erc721AbiForApproval,
         functionName: 'getApproved',
-        args: [BigInt(nft?.tokenId ?? '0')],
+        args: [BigInt(nft.tokenId)],
         query: { enabled: !!nft },
     });
 
@@ -107,7 +100,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         setErrorInfo({ isError: false, message: '' });
         setTimeout(() => refetchApproval(), 3000);
     };
-    // --- END: Logic for Approval Flow ---
 
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
@@ -117,7 +109,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     if (!nft) {
-        // Your existing NFT not found logic is kept
         return (
             <div className="min-h-screen" style={backgroundStyle}>
                 <Navigation />
@@ -192,7 +183,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                         </div>
                     )}
 
-                    {/* --- START: Renders UI based on the current step --- */}
                     {status === 'checking' && (
                         <div className="text-center py-10">
                             <p className="text-zinc-400 animate-pulse">
@@ -280,7 +270,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                             </Link>
                         </div>
                     )}
-                    {/* --- END: Renders UI based on the current step --- */}
                 </div>
             </main>
         </div>
