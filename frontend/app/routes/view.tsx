@@ -3,33 +3,33 @@ import type { Nft } from 'types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
-import { OPENSEA_API_KEY } from '~/root';
+import { ALCHEMY_API_KEY } from '~/root';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-    const headers = new Headers();
-    headers.set('x-api-key', OPENSEA_API_KEY);
-
     const res = await fetch(
-        `https://api.opensea.io/api/v2/chain/base_sepolia/account/${params.address}/nfts`,
-        { headers }
+        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${params.address}&withMetadata=true&pageSize=100`
     );
     const data = await res.json();
 
-    if (!data.nfts || data.nfts.length === 0) {
+    if (!data.ownedNfts || data.ownedNfts.length === 0) {
         return [];
     }
 
-    const nfts = data.nfts as Nft[];
+    const nfts = data.ownedNfts as Nft[];
 
-    const erc721s = nfts.filter((nft) => nft.token_standard === 'erc721') ?? [];
+    const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
+    console.log('spam check \n', noSpamNfts);
+
+    const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
+
+    console.log('first 721 check\n', erc721s);
 
     const erc721sWithImgs =
         erc721s.filter(
-            (nft) =>
-                nft.display_image_url !== null &&
-                nft.display_image_url !== '' &&
-                nft.image_url !== null
+            (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null
         ) ?? [];
+
+    console.log('with image check\n', erc721sWithImgs);
 
     return erc721sWithImgs ?? [];
 }
@@ -85,7 +85,7 @@ export default function ViewNfts({ loaderData }: Route.ComponentProps) {
                     {nfts &&
                         nfts.map((nft, index) => (
                             <div
-                                key={nft.identifier}
+                                key={`${nft.contract.address}+${nft.tokenId}`}
                                 className="animate-in fade-in slide-in-from-bottom-4"
                                 style={{ animationDelay: `${index * 100}ms` }}
                             >
