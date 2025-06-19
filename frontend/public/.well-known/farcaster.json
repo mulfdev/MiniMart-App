@@ -11,7 +11,7 @@
         "iconUrl": "https://minimart.mulf.wtf/logo.jpeg",
         "imageUrl": "https://minimart.mulf.wtf/og-image.png",
         "buttonTitle": "Open MiniMart",
-        "splashImageUrl": "https://minimart.mulf.wtf/splash.jpeg",
+        "splashImageUrl": "https://minimart.mulf.wtf/splash-img.png",
         "splashBackgroundColor": "#6960d7",
         "requiredChains": ["eip155:8453", "eip155:84532"],
         "requiredCapabilities": ["wallet.getEthereumProvider", "actions.signIn"],
