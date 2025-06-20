@@ -3,11 +3,14 @@ import type { Nft } from 'types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
-import { ALCHEMY_API_KEY } from '~/root';
+import { ALCHEMY_API_KEY, queryClient } from '~/root';
+import { useQuery } from '@tanstack/react-query';
+import { useAccount } from 'wagmi';
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+async function fetchNfts(address: string) {
+    if (!address) return [];
     const res = await fetch(
-        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${params.address}&withMetadata=true&pageSize=100`
+        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`
     );
     const data = await res.json();
 
@@ -32,6 +35,16 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     console.log('with image check\n', erc721sWithImgs);
 
     return erc721sWithImgs ?? [];
+}
+
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+    await queryClient.prefetchQuery({
+        queryKey: ['nfts'],
+        queryFn: async () => {
+            const nfts = await fetchNfts(params.address);
+            return nfts;
+        },
+    });
 }
 
 const backgroundStyle = {
@@ -62,7 +75,17 @@ export function HydrateFallback() {
 }
 
 export default function ViewNfts({ loaderData }: Route.ComponentProps) {
-    const nfts = loaderData;
+    const account = useAccount();
+    const { data: nfts, isPending } = useQuery({
+        queryKey: ['nfts'],
+        queryFn: async () => {
+            const nfts = await fetchNfts(account.address!);
+            return nfts;
+        },
+        enabled: !!account.address,
+    });
+
+    if (isPending) return <HydrateFallback />;
 
     return (
         <div className="min-h-screen" style={backgroundStyle}>
