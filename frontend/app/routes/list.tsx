@@ -70,6 +70,12 @@ export function HydrateFallback() {
 export default function ListNft({ loaderData }: Route.ComponentProps) {
     const nft = loaderData;
 
+    const [price, setPrice] = useState<string>('');
+    const [status, setStatus] = useState<
+        'checking' | 'needs_approval' | 'ready_to_list' | 'success'
+    >('checking');
+    const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
+
     const { address } = useAccount();
 
     const backgroundStyle = {
@@ -97,12 +103,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
             </div>
         );
     }
-
-    const [price, setPrice] = useState<string>('');
-    const [status, setStatus] = useState<
-        'checking' | 'needs_approval' | 'ready_to_list' | 'success'
-    >('checking');
-    const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
 
     const {
         data: approvedAddress,
@@ -240,7 +240,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                                 </div>
                             )}
                             <AddOrderButton
-                                price={price ? parseEther(price) : 0n}
+                                price={parseEther(price)}
                                 nftContract={nft.contract.address}
                                 tokenId={nft.tokenId}
                                 onSuccess={() => setStatus('success')}

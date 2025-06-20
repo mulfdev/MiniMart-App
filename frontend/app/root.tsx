@@ -15,8 +15,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, createConfig, WagmiProvider } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
-import { useEffect } from 'react';
-import sdk from '@farcaster/frame-sdk';
+import { ConnectKitProvider } from 'connectkit';
+import FcConnect from '~/components/FcConnect';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
@@ -37,6 +37,8 @@ const frameConfig = {
         },
     },
 };
+
+const stringifiedConfig = JSON.stringify(frameConfig);
 
 if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
@@ -74,7 +76,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="fc:frame" content={`${JSON.stringify(frameConfig)}`} />
+                <meta name="fc:frame" content={stringifiedConfig} />
 
                 <Meta />
                 <Links />
@@ -89,18 +91,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-    async function loadFCSDK() {
-        await sdk.actions.ready({ disableNativeGestures: true });
-    }
-
-    useEffect(() => {
-        loadFCSDK().catch((err) => console.log(err));
-    }, []);
-
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <Outlet />
+                <ConnectKitProvider>
+                    <FcConnect />
+                    <Outlet />
+                </ConnectKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
     );

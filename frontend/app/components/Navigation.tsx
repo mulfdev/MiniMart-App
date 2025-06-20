@@ -1,6 +1,16 @@
+import { useEffect } from 'react';
+import { ConnectKitButton } from 'connectkit';
 import { Sparkles } from 'lucide-react';
+import sdk from '@farcaster/frame-sdk';
 
 export function Navigation() {
+    let isMiniApp = null;
+
+    useEffect(() => {
+        sdk.isInMiniApp()
+            .then((data) => (isMiniApp = data))
+            .catch((err) => console.log(err));
+    }, []);
     return (
         <header className="container mx-auto px-4 py-6">
             <nav className="flex justify-between items-center">
@@ -10,6 +20,7 @@ export function Navigation() {
                     </div>
                     <span className="text-xl font-bold text-white">MiniMart</span>
                 </div>
+                {!isMiniApp ? <ConnectKitButton /> : null}
             </nav>
         </header>
     );
