@@ -1,36 +1,7 @@
 import { useState } from 'react';
 import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicClient } from 'wagmi';
 import { type Address, zeroAddress } from 'viem';
-
-const miniMartAddr = '0xd33530ACe9929Bf34197f2E0bED60e7c4170e791' as `0x${string}`;
-const ORDER_COMPONENTS = [
-    { name: 'seller', type: 'address' },
-    { name: 'price', type: 'uint96' },
-    { name: 'nftContract', type: 'address' },
-    { name: 'expiration', type: 'uint64' },
-    { name: 'taker', type: 'address' },
-    { name: 'nonce', type: 'uint64' },
-    { name: 'tokenId', type: 'uint256' },
-] as const;
-const ABI = [
-    {
-        type: 'function',
-        name: 'nonces',
-        stateMutability: 'view',
-        inputs: [{ name: 'seller', type: 'address' }],
-        outputs: [{ name: 'nonce', type: 'uint64' }],
-    },
-    {
-        type: 'function',
-        name: 'addOrder',
-        stateMutability: 'nonpayable',
-        inputs: [
-            { name: 'order', type: 'tuple', components: ORDER_COMPONENTS },
-            { name: 'signature', type: 'bytes' },
-        ],
-        outputs: [{ name: 'orderDigest', type: 'bytes32' }],
-    },
-] as const;
+import { ABI, miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 
 type Order = {
     seller: Address;
