@@ -1,60 +1,70 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, web};
+use axum::{Json, Router, extract::State, http::StatusCode, routing::get};
 use serde::Serialize;
-use sqlx::SqlitePool;
+use sqlx::sqlite::SqlitePool;
+use std::{env, error::Error};
 
 #[derive(Serialize)]
-struct MyJsonResponse {
-    status: String,
+struct User {
+    id: i64,
+    username: String,
+}
+
+#[derive(Serialize)]
+struct ErrorMessage {
     message: String,
 }
 
-struct AppState {
-    app_name: String,
-    db: SqlitePool,
-}
 #[derive(Serialize)]
-struct ResponseErr {
-    message: String,
+enum ApiResponse {
+    User(User),
+    Error(ErrorMessage),
 }
 
-async fn index(data: web::Data<AppState>) -> impl Responder {
-    let _app_name = &data.app_name;
+type SharedPool = SqlitePool;
 
-    let ver: Result<String, sqlx::Error> = sqlx::query_scalar("SELECT sqlite_version()")
-        .fetch_one(&data.db)
-        .await;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    dotenvy::dotenv()?;
+    let pool = SqlitePool::connect(&env::var("DATABASE_URL")?).await?;
 
-    if let Err(e) = ver {
-        println!("{:?}", e);
-        return HttpResponse::BadRequest().json(ResponseErr {
-            message: "Bad response".to_string(),
-        });
-    }
+    println!("Server running");
+    let app = Router::new().route("/", get(root)).with_state(pool);
 
-    return HttpResponse::Ok().json(MyJsonResponse {
-        status: "Good".to_string(),
-        message: ver.unwrap(),
-    });
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
+    Ok(())
 }
 
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    println!("\n 🚀 Starting server at http://127.0.0.1:8080 \n");
+async fn root(State(pool): State<SharedPool>) -> (StatusCode, Json<ApiResponse>) {
+    let user_info = sqlx::query_as!(
+        User,
+        "SELECT id,name AS username from users where id = ?",
+        7
+    )
+    .fetch_optional(&pool)
+    .await;
 
-    let pool = SqlitePool::connect("sqlite:db.db?mode=rwc")
-        .await
-        .expect("Failed to create database pool.");
+    let found_user = match user_info {
+        Ok(Some(user)) => user,
 
-    HttpServer::new(move || {
-        App::new()
-            .app_data(web::Data::new(AppState {
-                app_name: String::from("Actix Web"),
-                db: pool.clone(),
-            }))
-            .route("/", web::get().to(index))
-    })
-    .bind(("0.0.0.0", 8080))?
-    .run()
-    .await
+        Ok(None) => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(ApiResponse::Error(ErrorMessage {
+                    message: format!("User with ID {} not found", 1),
+                })),
+            );
+        }
+        Err(e) => {
+            println!("{}", e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(ApiResponse::Error(ErrorMessage {
+                    message: "Internal error occured".to_string(),
+                })),
+            );
+        }
+    };
+
+    (StatusCode::OK, Json(ApiResponse::User(found_user)))
 }
-
