@@ -19,7 +19,7 @@ import { ConnectKitProvider } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
-export const BASE_RPC_URL = import.meta.env.VITE_BASE_RPC_URL;
+export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
 
 const IS_PROD = import.meta.env.VITE_IS_PROD;
 
@@ -44,14 +44,14 @@ if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
 }
 
-if (typeof BASE_RPC_URL !== 'string') {
+if (typeof BASE_SEPOLIA_RPC_URL !== 'string') {
     throw new Error('BASE_RPC_URL must be set');
 }
 
 export const config = createConfig({
     chains: [baseSepolia],
     transports: {
-        [baseSepolia.id]: http(BASE_RPC_URL),
+        [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
     },
     connectors: [miniAppConnector()],
 });

@@ -1,26 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { type Address, parseEther } from 'viem';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import type { Nft } from 'types';
 import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Navigation } from '~/components/Navigation';
 import { AddOrderButton } from '~/components/AddOrderButton';
-import { ApproveButton } from '~/components/ApproveButton';
 import { ALCHEMY_API_KEY } from '~/root';
 import type { Route } from './+types/list';
-
-const erc721AbiForApproval = [
-    {
-        inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
-        name: 'getApproved',
-        outputs: [{ internalType: 'address', name: '', type: 'address' }],
-        stateMutability: 'view',
-        type: 'function',
-    },
-] as const;
-const miniMartAddr = '0xd33530ACe9929Bf34197f2E0bED60e7c4170e791' as `0x${string}`;
+import { useParams } from 'react-router';
+import { miniMartAddr, nftAbi } from '~/utils';
 
 export type ListNftLoaderData = Nft | null;
 
@@ -67,8 +57,63 @@ export function HydrateFallback() {
     );
 }
 
+function ApproveButton({
+    nftContract,
+    tokenId,
+    className,
+}: {
+    nftContract: Address;
+    tokenId: bigint;
+    className?: string;
+}) {
+    const { writeContractAsync, isPending, error } = useWriteContract();
+    async function handleApprove() {
+        try {
+            await writeContractAsync({
+                address: nftContract,
+                abi: nftAbi,
+                functionName: 'approve',
+                args: [miniMartAddr, tokenId],
+            });
+        } catch (err) {
+            console.error('Approval transaction failed:', err);
+        }
+    }
+
+    return (
+        <div className="w-full">
+            <button onClick={handleApprove} disabled={isPending} className={className}>
+                {isPending ? 'Approving in Wallet...' : '1. Approve Marketplace'}
+            </button>
+            {error && (
+                <p className="text-red-400 text-sm mt-2 text-center">
+                    Approval failed. Please try again.
+                </p>
+            )}
+        </div>
+    );
+}
+
 export default function ListNft({ loaderData }: Route.ComponentProps) {
     const nft = loaderData;
+
+    const { contract, tokenId } = useParams();
+
+    if (!tokenId || !contract) {
+        return <>Wrong info</>;
+    }
+
+    const isQueryEnabled = !!contract && !!tokenId;
+
+    const { data: isApproved, error: isApprovedError } = useReadContract({
+        abi: nftAbi,
+        address: contract as `0x${string}`,
+        functionName: 'getApproved',
+        args: isQueryEnabled ? [BigInt(tokenId)] : undefined,
+        query: {
+            enabled: isQueryEnabled,
+        },
+    });
 
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<
@@ -103,29 +148,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
             </div>
         );
     }
-
-    const {
-        data: approvedAddress,
-        refetch: refetchApproval,
-        isLoading: isCheckingApproval,
-    } = useReadContract({
-        address: nft.contract.address as Address,
-        abi: erc721AbiForApproval,
-        functionName: 'getApproved',
-        args: [BigInt(nft.tokenId)],
-    });
-
-    useEffect(() => {
-        if (isCheckingApproval || !nft) return;
-        const isApproved = approvedAddress?.toLowerCase() === miniMartAddr.toLowerCase();
-        setStatus(isApproved ? 'ready_to_list' : 'needs_approval');
-    }, [approvedAddress, isCheckingApproval, nft]);
-
-    const handleApprovalSuccess = () => {
-        setStatus('checking');
-        setErrorInfo({ isError: false, message: '' });
-        setTimeout(() => refetchApproval(), 3000);
-    };
 
     const defaultButtonStyles =
         'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
@@ -184,14 +206,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                         </div>
                     )}
 
-                    {status === 'checking' && (
-                        <div className="text-center py-10">
-                            <p className="text-zinc-400 animate-pulse">
-                                Checking for marketplace approval...
-                            </p>
-                        </div>
-                    )}
-
                     {status === 'needs_approval' && (
                         <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
                             <h3 className="text-lg font-semibold text-white text-center">
@@ -204,13 +218,12 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                             <ApproveButton
                                 nftContract={nft.contract.address as Address}
                                 tokenId={BigInt(nft.tokenId)}
-                                onApprovalSuccess={handleApprovalSuccess}
                                 className={defaultButtonStyles}
                             />
                         </div>
                     )}
 
-                    {status === 'ready_to_list' && (
+                    {isApproved === miniMartAddr && (
                         <div className="space-y-6">
                             <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
                                 <CheckCircle2 className="w-5 h-5 text-green-400" />

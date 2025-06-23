@@ -6,13 +6,10 @@ import { Navigation } from '~/components/Navigation';
 
 export default function LandingPage() {
     const { isConnected, address } = useAccount();
-    const { connect, connectors } = useConnect();
 
     console.log(address);
 
-    useEffect(() => {
-        connect({ connector: connectors[0] });
-    }, []);
+    useEffect(() => {}, []);
 
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
