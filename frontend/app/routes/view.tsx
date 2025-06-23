@@ -8,43 +8,56 @@ import { useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
 
 async function fetchNfts(address: string) {
-    if (!address) return [];
-    const res = await fetch(
-        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`
-    );
-    const data = await res.json();
+    if (address.length !== 42 && !address.startsWith('0x'))
+        return Promise.reject(new Error('Incorrect address'));
 
-    if (!data.ownedNfts || data.ownedNfts.length === 0) {
-        return [];
+    try {
+        const res = await fetch(
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`
+        );
+
+        if (!res.ok) throw new Error('Could not fetch NFTs');
+
+        const data = await res.json();
+
+        if (!data.ownedNfts || data.ownedNfts.length === 0) {
+            return [];
+        }
+
+        const nfts = data.ownedNfts as Nft[];
+
+        const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
+        console.log('spam check \n', noSpamNfts);
+
+        const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
+
+        console.log('first 721 check\n', erc721s);
+
+        const erc721sWithImgs =
+            erc721s.filter(
+                (nft) =>
+                    nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null
+            ) ?? [];
+
+        console.log('with image check\n', erc721sWithImgs);
+
+        return erc721sWithImgs ?? [];
+    } catch (e) {
+        throw new Error('Could not fetch NFTs');
     }
-
-    const nfts = data.ownedNfts as Nft[];
-
-    const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
-    console.log('spam check \n', noSpamNfts);
-
-    const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
-
-    console.log('first 721 check\n', erc721s);
-
-    const erc721sWithImgs =
-        erc721s.filter(
-            (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null
-        ) ?? [];
-
-    console.log('with image check\n', erc721sWithImgs);
-
-    return erc721sWithImgs ?? [];
 }
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-    await queryClient.prefetchQuery({
+    const result = await queryClient.ensureQueryData({
         queryKey: ['nfts'],
         queryFn: async () => {
             const nfts = await fetchNfts(params.address);
             return nfts;
         },
+        staleTime: 240_000,
     });
+
+    return result;
 }
 
 const backgroundStyle = {
@@ -74,15 +87,18 @@ export function HydrateFallback() {
     );
 }
 
-export default function ViewNfts({ loaderData }: Route.ComponentProps) {
+export default function ViewNfts() {
     const account = useAccount();
+
+    console.log(account.address);
     const { data: nfts, isPending } = useQuery({
         queryKey: ['nfts'],
         queryFn: async () => {
             const nfts = await fetchNfts(account.address!);
             return nfts;
         },
-        enabled: !!account.address,
+        enabled: account.address !== undefined,
+        staleTime: 240_000,
     });
 
     if (isPending) return <HydrateFallback />;
