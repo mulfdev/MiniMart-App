@@ -57,23 +57,15 @@ export function HydrateFallback() {
     );
 }
 
-function ApproveButton({
-    nftContract,
-    tokenId,
-    className,
-}: {
-    nftContract: Address;
-    tokenId: bigint;
-    className?: string;
-}) {
+function ApproveButton({ nftContract, className }: { nftContract: Address; className?: string }) {
     const { writeContractAsync, isPending, error } = useWriteContract();
     async function handleApprove() {
         try {
             await writeContractAsync({
                 address: nftContract,
                 abi: nftAbi,
-                functionName: 'approve',
-                args: [miniMartAddr, tokenId],
+                functionName: 'setApprovalForAll',
+                args: [miniMartAddr, true],
             });
         } catch (err) {
             console.error('Approval transaction failed:', err);
@@ -99,29 +91,26 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
 
     const { contract, tokenId } = useParams();
 
+    const { address } = useAccount();
     if (!tokenId || !contract) {
         return <>Wrong info</>;
     }
 
-    const isQueryEnabled = !!contract && !!tokenId;
+    const isQueryEnabled = !!contract && !!address;
 
     const { data: isApproved, error: isApprovedError } = useReadContract({
         abi: nftAbi,
         address: contract as `0x${string}`,
-        functionName: 'getApproved',
-        args: isQueryEnabled ? [BigInt(tokenId)] : undefined,
+        functionName: 'isApprovedForAll',
+        args: isQueryEnabled ? [address, miniMartAddr] : undefined,
         query: {
             enabled: isQueryEnabled,
         },
     });
 
     const [price, setPrice] = useState<string>('');
-    const [status, setStatus] = useState<
-        'checking' | 'needs_approval' | 'ready_to_list' | 'success'
-    >('checking');
+    const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
-
-    const { address } = useAccount();
 
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
@@ -149,6 +138,8 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         );
     }
 
+    console.log(isApproved);
+
     const defaultButtonStyles =
         'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
@@ -169,7 +160,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
 
                     {status !== 'success' && (
                         <div className="flex flex-col md:flex-row gap-8 mb-8">
-                            {/* Your NFT info display is kept */}
                             <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
                                 <img
                                     src={
@@ -206,24 +196,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                         </div>
                     )}
 
-                    {status === 'needs_approval' && (
-                        <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
-                            <h3 className="text-lg font-semibold text-white text-center">
-                                Step 1 of 2: Grant Permission
-                            </h3>
-                            <p className="text-zinc-400 text-center text-sm">
-                                First, approve the marketplace to manage this NFT. This is a
-                                standard, one-time security step for this item.
-                            </p>
-                            <ApproveButton
-                                nftContract={nft.contract.address as Address}
-                                tokenId={BigInt(nft.tokenId)}
-                                className={defaultButtonStyles}
-                            />
-                        </div>
-                    )}
-
-                    {isApproved === miniMartAddr && (
+                    {isApproved ? (
                         <div className="space-y-6">
                             <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
                                 <CheckCircle2 className="w-5 h-5 text-green-400" />
@@ -264,6 +237,20 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                             >
                                 List NFT
                             </AddOrderButton>
+                        </div>
+                    ) : (
+                        <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
+                            <h3 className="text-lg font-semibold text-white text-center">
+                                Step 1 of 2: Grant Permission
+                            </h3>
+                            <p className="text-zinc-400 text-center text-sm">
+                                First, approve the marketplace to manage this NFT. This is a
+                                standard, one-time security step for this item.
+                            </p>
+                            <ApproveButton
+                                nftContract={nft.contract.address as Address}
+                                className={defaultButtonStyles}
+                            />
                         </div>
                     )}
 
