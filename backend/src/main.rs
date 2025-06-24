@@ -1,4 +1,4 @@
-use axum::{Json, Router, extract::State, http::StatusCode, routing::get};
+use axum::{Router, routing::get};
 use sqlx::sqlite::SqlitePool;
 use std::{env, error::Error};
 
