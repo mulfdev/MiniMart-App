@@ -1,4 +1,4 @@
-export const miniMartAddr = '0xDE22662265D049DA5a6C3fcFa19CDDf19054bCf8' as `0x${string}`;
+export const miniMartAddr = '0xD752F23C1C5b82c1b749ff048B7edc0b70AC5C5A' as `0x${string}`;
 
 export const ORDER_COMPONENTS = [
     { name: 'seller', type: 'address' },
