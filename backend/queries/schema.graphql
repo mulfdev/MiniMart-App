@@ -1,0 +1,18 @@
+scalar Bytes
+scalar BigInt
+
+type OrderListed @entity(immutable: true) {
+  id: Bytes!
+  orderId: Bytes! # bytes32
+  seller: Bytes! # address
+  nftContract: Bytes! # address
+  tokenId: BigInt! # uint256
+  price: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Query {
+  orderListeds(first: Int): [OrderListed!]!
+}

@@ -12,6 +12,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("Server running");
     let app = Router::new()
         .route("/", get(handlers::root))
+        .route("/orders", get(handlers::get_orders))
         .with_state(pool);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
