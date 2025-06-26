@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import type { Nft } from 'types';
+import type { Nft } from '@minimart/types';
 import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Navigation } from '~/components/Navigation';
@@ -148,16 +148,25 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                     {status !== 'success' && (
                         <>
                             <div className="flex items-center mb-6">
-                                <Link to={`/view/${address || ''}`} className="text-zinc-400 hover:text-zinc-200">
+                                <Link
+                                    to={`/view/${address || ''}`}
+                                    className="text-zinc-400 hover:text-zinc-200"
+                                >
                                     <ChevronLeft className="w-6 h-6 mr-2 inline-block" />
                                 </Link>
-                                <h1 className="text-3xl sm:text-4xl font-bold text-white">List Your NFT</h1>
+                                <h1 className="text-3xl sm:text-4xl font-bold text-white">
+                                    List Your NFT
+                                </h1>
                             </div>
 
                             <div className="flex flex-col md:flex-row gap-8 mb-8">
                                 <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
                                     <img
-                                        src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
+                                        src={
+                                            nft.image.originalUrl ||
+                                            nft.tokenUri ||
+                                            '/placeholder.svg'
+                                        }
                                         alt={nft.name || 'NFT Image'}
                                         className="max-w-full max-h-64 object-contain rounded-lg"
                                     />
@@ -167,15 +176,25 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                                         {nft.name || nft.contract.name} #{nft.tokenId}
                                     </h2>
                                     <p className="text-zinc-400 text-sm">
-                                        Collection: <span className="font-mono text-zinc-300 break-all">{nft.contract.name}</span>
+                                        Collection:{' '}
+                                        <span className="font-mono text-zinc-300 break-all">
+                                            {nft.contract.name}
+                                        </span>
                                     </p>
                                     <p className="text-zinc-400 text-sm">
-                                        Token ID: <span className="font-mono text-zinc-300">{nft.tokenId}</span>
+                                        Token ID:{' '}
+                                        <span className="font-mono text-zinc-300">
+                                            {nft.tokenId}
+                                        </span>
                                     </p>
                                     {nft.description ? (
-                                        <p className="text-zinc-300 text-base line-clamp-3">{nft.description}</p>
+                                        <p className="text-zinc-300 text-base line-clamp-3">
+                                            {nft.description}
+                                        </p>
                                     ) : (
-                                        <p className="text-zinc-500 text-base italic">No description available.</p>
+                                        <p className="text-zinc-500 text-base italic">
+                                            No description available.
+                                        </p>
                                     )}
                                 </div>
                             </div>
@@ -184,10 +203,15 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                                 <div className="space-y-6">
                                     <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
                                         <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                        <p className="text-sm font-semibold text-green-300">Marketplace Approved!</p>
+                                        <p className="text-sm font-semibold text-green-300">
+                                            Marketplace Approved!
+                                        </p>
                                     </div>
                                     <div>
-                                        <label htmlFor="price" className="block text-zinc-300 font-semibold text-lg mb-2">
+                                        <label
+                                            htmlFor="price"
+                                            className="block text-zinc-300 font-semibold text-lg mb-2"
+                                        >
                                             Step 2: Set Listing Price (ETH)
                                         </label>
                                         <input
@@ -209,7 +233,9 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                                         nftContract={nft.contract.address}
                                         tokenId={nft.tokenId}
                                         onSuccess={() => setStatus('success')}
-                                        onError={(err: Error) => setErrorInfo({ isError: true, message: err.message })}
+                                        onError={(err: Error) =>
+                                            setErrorInfo({ isError: true, message: err.message })
+                                        }
                                         className={defaultButtonStyles}
                                     >
                                         List NFT
@@ -217,11 +243,17 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                                 </div>
                             ) : (
                                 <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
-                                    <h3 className="text-lg font-semibold text-white text-center">Step 1 of 2: Grant Permission</h3>
+                                    <h3 className="text-lg font-semibold text-white text-center">
+                                        Step 1 of 2: Grant Permission
+                                    </h3>
                                     <p className="text-zinc-400 text-center text-sm">
-                                        First, approve the marketplace to manage this NFT. This is a standard, one-time security step for this item.
+                                        First, approve the marketplace to manage this NFT. This is a
+                                        standard, one-time security step for this item.
                                     </p>
-                                    <ApproveButton nftContract={nft.contract.address as Address} className={defaultButtonStyles} />
+                                    <ApproveButton
+                                        nftContract={nft.contract.address as Address}
+                                        className={defaultButtonStyles}
+                                    />
                                 </div>
                             )}
                         </>
@@ -230,8 +262,12 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                     {status === 'success' && (
                         <div className="text-center py-10 space-y-6">
                             <CheckCircle2 className="mx-auto w-20 h-20 text-green-400" />
-                            <h2 className="text-3xl font-bold text-white">NFT Listed Successfully!</h2>
-                            <p className="text-zinc-300 text-lg">Your item is now live on the marketplace.</p>
+                            <h2 className="text-3xl font-bold text-white">
+                                NFT Listed Successfully!
+                            </h2>
+                            <p className="text-zinc-300 text-lg">
+                                Your item is now live on the marketplace.
+                            </p>
                             <Link
                                 to={`/view/${address || ''}`}
                                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl"
@@ -245,3 +281,4 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         </div>
     );
 }
+
