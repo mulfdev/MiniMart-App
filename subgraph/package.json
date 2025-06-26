@@ -1,5 +1,5 @@
 {
-  "name": "minimart",
+  "name": "subgraph",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
@@ -14,5 +14,8 @@
     "@graphprotocol/graph-cli": "0.97.1",
     "@graphprotocol/graph-ts": "0.37.0"
   },
-  "devDependencies": { "matchstick-as": "0.6.0" }
+  "devDependencies": {
+    "matchstick-as": "0.6.0",
+    "prettier": "^3.6.1"
+  }
 }
