@@ -1,17 +1,22 @@
 {
-  "name": "@minimart/types",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@10.11.0",
-  "devDependencies": {
-    "prettier": "^3.6.1",
-    "typescript": "^5.8.3"
-  }
+    "name": "@minimart/types",
+    "version": "1.0.0",
+    "main": "main.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "exports": {
+        ".": {
+            "types": "./main.ts",
+            "import": "./main.ts"
+        }
+    },
+    "packageManager": "pnpm@10.11.0",
+    "devDependencies": {
+        "prettier": "^3.6.1",
+        "typescript": "^5.8.3"
+    }
 }

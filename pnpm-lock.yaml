@@ -18,7 +18,7 @@ importers:
         version: 0.15.9(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       dotenv:
         specifier: ^16.5.0
-        version: 16.5.0
+        version: 16.6.0
       graphql-request:
         specifier: ^7.2.0
         version: 7.2.0(graphql@16.11.0)
@@ -26,6 +26,9 @@ importers:
         specifier: ^4.8.3
         version: 4.8.3
     devDependencies:
+      '@minimart/types':
+        specifier: workspace:*
+        version: link:../types
       '@types/node':
         specifier: ^20.11.17
         version: 20.19.1
@@ -2035,8 +2038,8 @@ packages:
     resolution: {integrity: sha512-wIU1eHk3Op7dFgELRdmOYlPYS4gP8HhH1ZmZa13QZF59y0fblzFDFmKPhyc05phCy2hze9OEvNZAsoljrs+72w==}
     engines: {node: '>= 6.0.0'}
 
-  dotenv@16.5.0:
-    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
+  dotenv@16.6.0:
+    resolution: {integrity: sha512-Omf1L8paOy2VJhILjyhrhqwLIdstqm1BvcDPKg4NGAlkwEu9ODyrFbvk8UymUOMCT+HXo31jg1lArIrVAAhuGA==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -7192,7 +7195,7 @@ snapshots:
     dependencies:
       yaml: 2.8.0
 
-  dotenv@16.5.0: {}
+  dotenv@16.6.0: {}
 
   dunder-proto@1.0.1:
     dependencies:
