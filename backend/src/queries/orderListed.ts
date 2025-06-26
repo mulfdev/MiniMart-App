@@ -16,22 +16,6 @@ const GET_ORDER_LISTED_EVENTS = gql`
     }
 `;
 
-interface OrderListed {
-    id: string;
-    orderId: string;
-    seller: string;
-    nftContract: string;
-    tokenId: string; // GraphQL BigInts are often returned as strings in JSON
-    price: string; // GraphQL BigInts are often returned as strings in JSON
-    blockNumber: number;
-    blockTimestamp: number;
-    transactionHash: string;
-}
-
-interface GetOrderListedEvents {
-    orderListeds: OrderListed[];
-}
-
 const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
 
 const client = new GraphQLClient(endpoint);
