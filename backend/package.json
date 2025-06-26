@@ -1,22 +1,24 @@
 {
-  "name": "backend",
-  "type": "module",
-  "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "dependencies": {
-    "@hono/node-server": "^1.14.4",
-    "@libsql/client": "^0.15.9",
-    "dotenv": "^16.5.0",
-    "graphql-request": "^7.2.0",
-    "hono": "^4.8.3"
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.17",
-    "prettier": "^3.6.1",
-    "tsx": "^4.7.1",
-    "typescript": "^5.8.3"
-  }
+    "name": "backend",
+    "type": "module",
+    "scripts": {
+        "dev": "node --watch --import=tsx src/main.ts",
+        "build": "tsc",
+        "start": "node dist/main.js"
+    },
+    "dependencies": {
+        "@hono/node-server": "^1.14.4",
+        "@libsql/client": "^0.15.9",
+        "dotenv": "^16.5.0",
+        "graphql-request": "^7.2.0",
+        "hono": "^4.8.3"
+    },
+    "devDependencies": {
+        "@types/node": "^20.11.17",
+        "@minimart/types": "workspace:*",
+        "prettier": "^3.6.1",
+        "tsx": "^4.7.1",
+        "typescript": "^5.8.3"
+    }
 }
+
