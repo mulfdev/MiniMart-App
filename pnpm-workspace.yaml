@@ -1,0 +1,11 @@
+packages:
+  - frontend
+  - backend
+  - types
+  - subgraph
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - bufferutil
+  - esbuild
+  - keccak
+  - utf-8-validate
