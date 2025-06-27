@@ -1,17 +1,17 @@
 {
     "name": "@minimart/types",
     "version": "1.0.0",
-    "main": "main.ts",
+    "main": "dist/main.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "build": "tsc"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "exports": {
         ".": {
-            "types": "./main.ts",
-            "import": "./main.ts"
+            "types": "./dist/main.d.ts",
+            "import": "./dist/main.js"
         }
     },
     "packageManager": "pnpm@10.11.0",

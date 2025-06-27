@@ -1,5 +1,7 @@
 {
     "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
         "esModuleInterop": true,
         "skipLibCheck": true,
         "target": "es2022",
@@ -13,6 +15,8 @@
         "verbatimModuleSyntax": true,
         "strict": true,
         "noUncheckedIndexedAccess": true,
-        "noImplicitOverride": true
+        "noImplicitOverride": true,
+        "outDir": "./dist",
+        "declaration": true
     }
 }
