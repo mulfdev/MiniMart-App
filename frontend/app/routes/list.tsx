@@ -7,34 +7,14 @@ import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Navigation } from '~/components/Navigation';
 import { AddOrderButton } from '~/components/AddOrderButton';
-import { ALCHEMY_API_KEY } from '~/root';
+export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<ListNftLoaderData> {
+    const { contract, tokenId } = params;
+    return fetchNft(contract, tokenId);
+}
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
 
-export type ListNftLoaderData = Nft | null;
-
-export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<ListNftLoaderData> {
-    const { contract, tokenId } = params;
-    if (!contract || !tokenId) {
-        console.error('Contract address or token ID missing in params.');
-        return null;
-    }
-    try {
-        const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`
-        );
-        if (!res.ok) {
-            const errorText = await res.text();
-            console.error(`Error fetching NFT metadata: ${res.status} - ${errorText}`);
-            return null;
-        }
-        const data = await res.json();
-        return data && data.contract && data.tokenId ? (data as Nft) : null;
-    } catch (error) {
-        console.error('Failed to fetch NFT metadata:', error);
-        return null;
-    }
-}
+import { fetchNft } from '~/loaders';
 
 export function HydrateFallback() {
     const backgroundStyle = {

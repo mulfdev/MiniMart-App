@@ -21,7 +21,7 @@ importers:
         specifier: ^0.15.9
         version: 0.15.9(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       dotenv:
-        specifier: ^16.5.0
+        specifier: ^16.6.0
         version: 16.6.0
       graphql-request:
         specifier: ^7.2.0

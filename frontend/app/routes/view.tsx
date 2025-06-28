@@ -1,5 +1,5 @@
 import { Navigation } from '~/components/Navigation';
-import type { Nft } from 'types';
+import type { Nft } from '@minimart/types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
