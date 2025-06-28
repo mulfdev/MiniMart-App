@@ -94,7 +94,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                     <div className="space-y-2 sm:space-y-3">
                         <div className="flex items-start justify-between gap-2">
                             <h2
-                                className="text-lg sm:text-xl font-bold text-white leading-tight
+                                className="truncate text-lg sm:text-xl font-bold text-white leading-normal
                          group-hover:text-blue-100 transition-colors duration-300
                          drop-shadow-sm"
                             >
@@ -107,7 +107,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                             />
                         </div>
 
-                        <div className="h-12 sm:h-16 overflow-hidden">
+                        <div className="">
                             {nft.description ? (
                                 <p
                                     className="text-zinc-400 text-sm leading-relaxed line-clamp-2 sm:line-clamp-3
