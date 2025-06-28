@@ -1,15 +1,47 @@
 import { ArrowRight, Zap, Shield, Users, Sparkles, Smartphone, Clock, Globe } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { Navigation } from '~/components/Navigation';
+import { useModal } from 'connectkit';
+import { NftCard } from '~/components/NftCard';
+import type { Nft } from '@minimart/types';
+import { queryClient } from '~/root';
+import { useNavigate } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+
+async function fetchOrders() {
+    try {
+        const response = await fetch('http://localhost:3000/get-orders');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.nfts as Nft[];
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        return []; // Return empty array on error
+    }
+}
+
+export async function clientLoader() {
+    return queryClient.ensureQueryData({
+        queryKey: ['orders'],
+        queryFn: fetchOrders,
+        staleTime: 60_000, // Cache for 1 minute
+    });
+}
 
 export default function LandingPage() {
-    const { isConnected, address } = useAccount();
+    const { address } = useAccount();
+    const { setOpen } = useModal();
 
-    console.log(address);
+    const { data: nfts } = useQuery({
+        queryKey: ['orders'],
+        queryFn: fetchOrders,
+        staleTime: 60_000,
+    });
 
-    useEffect(() => {}, []);
+    const navigate = useNavigate();
 
     const backgroundStyle = {
         backgroundColor: '#0a0a0a',
@@ -105,19 +137,48 @@ export default function LandingPage() {
 
                     {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-                        <Link to={`/view/${address}`}>
-                            <button
-                                className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
+                        <button
+                            onClick={() => {
+                                if (address) {
+                                    navigate(`/view/${address}`);
+                                    return;
+                                }
+                                setOpen(true);
+                            }}
+                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
                                      text-white font-semibold rounded-xl
                                      transform hover:scale-105 active:scale-95
                                      transition-all duration-200 ease-out
                                      shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
-                            >
-                                <span>Try It Now</span>
-                                <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
-                            </button>
-                        </Link>
+                        >
+                            <span>Try It Now</span>
+                            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
+                        </button>
                     </div>
+                </div>
+            </section>
+
+            {/* Open Listings Section */}
+            <section className="container mx-auto px-4 py-16">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                        Open Listings
+                    </h2>
+                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+                        Check out some of the latest NFTs available for purchase
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                    {nfts?.map((nft, index) => (
+                        <div
+                            key={`${nft.contract.address}+${nft.tokenId}`}
+                            className="animate-in fade-in slide-in-from-bottom-4"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                            <NftCard nft={nft} variant="view" />
+                        </div>
+                    ))}
                 </div>
             </section>
 
