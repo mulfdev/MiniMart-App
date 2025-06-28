@@ -60,19 +60,9 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     return result;
 }
 
-const backgroundStyle = {
-    backgroundColor: '#0a0a0a',
-    backgroundImage: `
-            radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent),
-            radial-gradient(ellipse 60% 80% at 80% 50%, hsla(280, 100%, 50%, 0.03), transparent),
-            radial-gradient(ellipse 40% 60% at 20% 80%, hsla(300, 100%, 50%, 0.02), transparent),
-            url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.02)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')
-        `,
-};
-
 export function HydrateFallback() {
     return (
-        <div className="min-h-screen" style={backgroundStyle}>
+        <div className="min-h-screen">
             <main className="container mx-auto px-4 py-8 sm:py-16">
                 {/* Loading State */}
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
@@ -104,7 +94,7 @@ export default function ViewNfts() {
     if (isPending) return <HydrateFallback />;
 
     return (
-        <div className="min-h-screen" style={backgroundStyle}>
+        <div className="min-h-screen">
             <Navigation />
             <main className="container mx-auto px-4 py-8 sm:py-16">
                 {/* Error State */}
@@ -120,7 +110,7 @@ export default function ViewNfts() {
                 {/* )} */}
                 {/**/}
                 {/* NFT Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {nfts &&
                         nfts.map((nft, index) => (
                             <div

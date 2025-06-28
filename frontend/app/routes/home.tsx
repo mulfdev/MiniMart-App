@@ -43,16 +43,6 @@ export default function LandingPage() {
 
     const navigate = useNavigate();
 
-    const backgroundStyle = {
-        backgroundColor: '#0a0a0a',
-        backgroundImage: `
-            radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent),
-            radial-gradient(ellipse 60% 80% at 80% 50%, hsla(280, 100%, 50%, 0.03), transparent),
-            radial-gradient(ellipse 40% 60% at 20% 80%, hsla(300, 100%, 50%, 0.02), transparent),
-            url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.02)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')
-        `,
-    };
-
     const features = [
         {
             icon: Zap,
@@ -109,7 +99,7 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="min-h-screen" style={backgroundStyle}>
+        <div className="min-h-screen">
             {/* Header */}
             <Navigation />
             {/* Hero Section */}
@@ -169,11 +159,11 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4">
                     {nfts?.map((nft, index) => (
                         <div
                             key={`${nft.contract.address}+${nft.tokenId}`}
-                            className="animate-in fade-in slide-in-from-bottom-4"
+                            className="snap-center shrink-0 w-full sm:w-1/3 lg:w-1/4 xl:w-1/5"
                             style={{ animationDelay: `${index * 100}ms` }}
                         >
                             <NftCard nft={nft} variant="view" />

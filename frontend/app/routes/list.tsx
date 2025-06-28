@@ -2,27 +2,24 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import type { Nft } from '@minimart/types';
 import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
 import { Navigation } from '~/components/Navigation';
 import { AddOrderButton } from '~/components/AddOrderButton';
+
+import type { Route } from './+types/list';
+import { miniMartAddr, nftAbi } from '~/utils';
+
+import { fetchNft, type ListNftLoaderData } from '~/loaders';
+
 export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<ListNftLoaderData> {
     const { contract, tokenId } = params;
     return fetchNft(contract, tokenId);
 }
-import type { Route } from './+types/list';
-import { miniMartAddr, nftAbi } from '~/utils';
-
-import { fetchNft } from '~/loaders';
 
 export function HydrateFallback() {
-    const backgroundStyle = {
-        backgroundColor: '#0a0a0a',
-        backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.02)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')`,
-    };
     return (
-        <div className="min-h-screen" style={backgroundStyle}>
+        <div className="min-h-screen">
             <main className="container mx-auto px-4 py-8 sm:py-16">
                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                     <div className="relative">
@@ -91,14 +88,9 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
 
-    const backgroundStyle = {
-        backgroundColor: '#0a0a0a',
-        backgroundImage: `radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent), url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.02)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')`,
-    };
-
     if (!nft) {
         return (
-            <div className="min-h-screen" style={backgroundStyle}>
+            <div className="min-h-screen">
                 <Navigation />
                 <main className="container mx-auto px-4 py-8 sm:py-16">
                     <div className="text-center py-20 space-y-4">
@@ -121,7 +113,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     return (
-        <div className="min-h-screen" style={backgroundStyle}>
+        <div className="min-h-screen">
             <Navigation />
             <main className="container mx-auto px-4 py-8 sm:py-16">
                 <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-6 sm:p-10 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
@@ -261,4 +253,3 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         </div>
     );
 }
-
