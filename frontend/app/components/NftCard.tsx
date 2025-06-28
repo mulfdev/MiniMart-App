@@ -1,10 +1,10 @@
 import { Shield, Sparkles } from 'lucide-react';
-import type { Nft } from 'types';
+import type { Nft } from '@minimart/types';
 import { AddOrderButton } from './AddOrderButton';
 import { parseEther } from 'viem';
 import { Link } from 'react-router';
 
-export function NftCard({ nft }: { nft: Nft }) {
+export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' | 'view' }) {
     console.log(nft);
     return (
         <div className="group relative">
@@ -135,19 +135,35 @@ export function NftCard({ nft }: { nft: Nft }) {
                                   transition-colors duration-300"
                     >
                         <div className="flex justify-between items-center gap-2">
-                            <Link to={`/list/${nft.contract.address}/${nft.tokenId}`}>
-                                <button
-                                    className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
-                                         bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
-                                         border border-zinc-700/50 hover:border-zinc-600/80
-                                         rounded-xl font-semibold text-xs sm:text-sm text-white
-                                         transform hover:scale-105 active:scale-95
-                                         transition-all duration-200 ease-out
-                                         shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
-                                >
-                                    List Token
-                                </button>
-                            </Link>
+                            {variant === 'list' ? (
+                                <Link to={`/list/${nft.contract.address}/${nft.tokenId}`}>
+                                    <button
+                                        className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                                             bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
+                                             border border-zinc-700/50 hover:border-zinc-600/80
+                                             rounded-xl font-semibold text-xs sm:text-sm text-white
+                                             transform hover:scale-105 active:scale-95
+                                             transition-all duration-200 ease-out
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
+                                    >
+                                        List Token
+                                    </button>
+                                </Link>
+                            ) : (
+                                <Link to={`/view/token/${nft.contract.address}/${nft.tokenId}`}>
+                                    <button
+                                        className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                                             bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
+                                             border border-zinc-700/50 hover:border-zinc-600/80
+                                             rounded-xl font-semibold text-xs sm:text-sm text-white
+                                             transform hover:scale-105 active:scale-95
+                                             transition-all duration-200 ease-out
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
+                                    >
+                                        View
+                                    </button>
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </div>
