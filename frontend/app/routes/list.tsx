@@ -117,12 +117,6 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
                     {status !== 'success' && (
                         <>
                             <div className="flex items-center mb-6">
-                                <Link
-                                    to={`/view/${address || ''}`}
-                                    className="text-zinc-400 hover:text-zinc-200"
-                                >
-                                    <ChevronLeft className="w-6 h-6 mr-2 inline-block" />
-                                </Link>
                                 <h1 className="text-3xl sm:text-4xl font-bold text-white">
                                     List Your NFT
                                 </h1>
