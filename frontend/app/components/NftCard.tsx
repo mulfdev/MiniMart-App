@@ -1,7 +1,5 @@
 import { Shield, Sparkles } from 'lucide-react';
 import type { Nft } from '@minimart/types';
-import { AddOrderButton } from './AddOrderButton';
-import { parseEther } from 'viem';
 import { Link } from 'react-router';
 
 export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' | 'view' }) {
@@ -71,7 +69,6 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                                     transition-transform duration-1000 ease-out"
                     />
 
-                    {/* Enhanced frame border */}
                     <div className="absolute inset-4 border border-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                     {/* Token standard badge */}
@@ -89,7 +86,6 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                     </div>
                 </div>
 
-                {/* Content Container with enhanced styling */}
                 <div className="p-4 sm:p-6 flex flex-col justify-between flex-1 relative">
                     {/* Decorative line with gradient */}
                     <div className="absolute top-0 left-4 right-4 sm:left-6 sm:right-6 h-px bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent" />
@@ -102,7 +98,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                          group-hover:text-blue-100 transition-colors duration-300
                          drop-shadow-sm"
                             >
-                                {nft.contract.name}
+                                {nft.contract.name} #{nft.tokenId}
                             </h2>
                             <Sparkles
                                 className="w-4 h-4 text-yellow-400/60 group-hover:text-yellow-400 
@@ -111,7 +107,6 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                             />
                         </div>
 
-                        {/* Enhanced description area */}
                         <div className="h-12 sm:h-16 overflow-hidden">
                             {nft.description ? (
                                 <p
@@ -128,7 +123,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                         </div>
                     </div>
 
-                    {/* Enhanced Footer */}
+                    {/* Footer */}
                     <div
                         className="mt-4 sm:mt-6 pt-3 sm:pt-4 
                                   border-t border-gradient-to-r from-zinc-800/50 via-zinc-700/80 to-zinc-800/50
