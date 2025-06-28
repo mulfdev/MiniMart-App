@@ -27,8 +27,6 @@ export async function getListedOrders(numItems: number): Promise<OrderListed[]> 
             first: numItems,
         });
 
-        console.log(req.orderListeds);
-
         return req.orderListeds;
     } catch (e) {
         console.log(e);
