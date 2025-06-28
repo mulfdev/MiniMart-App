@@ -1,4 +1,3 @@
-import { Navigation } from '~/components/Navigation';
 import type { Nft } from '@minimart/types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
@@ -94,8 +93,7 @@ export default function ViewNfts() {
     if (isPending) return <HydrateFallback />;
 
     return (
-        <div className="min-h-screen">
-            <Navigation />
+        <div className="max-w-7xl mx-auto">
             <main className="container mx-auto px-4 py-8 sm:py-16">
                 {/* Error State */}
                 {/* {error && ( */}

@@ -1,9 +1,9 @@
 import { ArrowRight, Zap, Shield, Users, Sparkles, Smartphone, Clock, Globe } from 'lucide-react';
-import { Link } from 'react-router';
 import { useAccount } from 'wagmi';
 import { Navigation } from '~/components/Navigation';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
+import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 import type { Nft } from '@minimart/types';
 import { queryClient } from '~/root';
 import { useNavigate } from 'react-router';
@@ -35,7 +35,7 @@ export default function LandingPage() {
     const { address } = useAccount();
     const { setOpen } = useModal();
 
-    const { data: nfts } = useQuery({
+    const { data: nfts, isLoading } = useQuery({
         queryKey: ['orders'],
         queryFn: fetchOrders,
         staleTime: 60_000,
@@ -99,11 +99,9 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="min-h-screen">
-            {/* Header */}
-            <Navigation />
+        <div className="max-w-7xl mx-auto">
             {/* Hero Section */}
-            <section className="container mx-auto px-4 py-16 sm:py-24">
+            <section className="max-w-7xl mx-auto px-4 py-16 sm:py-24">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm">
@@ -160,15 +158,21 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4">
-                    {nfts?.map((nft, index) => (
-                        <div
-                            key={`${nft.contract.address}+${nft.tokenId}`}
-                            className="snap-center shrink-0 w-full sm:w-1/3 lg:w-1/4 xl:w-1/5"
-                            style={{ animationDelay: `${index * 100}ms` }}
-                        >
-                            <NftCard nft={nft} variant="view" />
-                        </div>
-                    ))}
+                    {isLoading
+                        ? Array.from({ length: 4 }).map((_, index) => (
+                              <div key={index} className="snap-center shrink-0 w-80">
+                                  <NftCardSkeleton />
+                              </div>
+                          ))
+                        : nfts?.map((nft, index) => (
+                              <div
+                                  key={`${nft.contract.address}+${nft.tokenId}`}
+                                  className="snap-center shrink-0 w-80"
+                                  style={{ animationDelay: `${index * 100}ms` }}
+                              >
+                                  <NftCard nft={nft} variant="view" />
+                              </div>
+                          ))}
                 </div>
             </section>
 
@@ -316,7 +320,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="container mx-auto px-4 py-8 border-t border-zinc-800/50">
+            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center">

@@ -17,6 +17,7 @@ import { base, baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
 import { ConnectKitProvider } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
+import { Navigation } from './components/Navigation';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
@@ -97,7 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Meta />
                 <Links />
             </head>
-            <body className="max-w-7xl min-h-[100svh] mx-auto bg-transparent">
+            <body className="min-h-[100svh] mx-auto">
                 {children}
                 <ScrollRestoration />
                 <Scripts />
@@ -112,6 +113,7 @@ export default function App() {
             <QueryClientProvider client={queryClient}>
                 <ConnectKitProvider>
                     <FcConnect />
+                    <Navigation />
                     <Outlet />
                 </ConnectKitProvider>
             </QueryClientProvider>

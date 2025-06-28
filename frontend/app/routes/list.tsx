@@ -4,7 +4,6 @@ import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 
-import { Navigation } from '~/components/Navigation';
 import { AddOrderButton } from '~/components/AddOrderButton';
 
 import type { Route } from './+types/list';
@@ -90,9 +89,8 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
 
     if (!nft) {
         return (
-            <div className="min-h-screen">
-                <Navigation />
-                <main className="container mx-auto px-4 py-8 sm:py-16">
+            <div className="max-w-7xl mx-auto">
+                <main className="mx-auto px-4 py-8 sm:py-16">
                     <div className="text-center py-20 space-y-4">
                         <AlertCircle className="mx-auto w-12 h-12 text-red-500 mb-4" />
                         <h1 className="text-2xl font-bold text-white">NFT Not Found</h1>
@@ -114,8 +112,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
 
     return (
         <div className="min-h-screen">
-            <Navigation />
-            <main className="container mx-auto px-4 py-8 sm:py-16">
+            <main className="mx-auto px-4 py-8 sm:py-16">
                 <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-6 sm:p-10 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
                     {status !== 'success' && (
                         <>
