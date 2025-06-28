@@ -152,6 +152,19 @@ export default function ViewToken() {
                                     ))}
                                 </div>
                             </div>
+
+                            {/* Action Button */}
+                            <div className="mt-auto pt-3">
+                                <button
+                                    className="w-64 group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
+                                             text-white font-semibold rounded-xl
+                                             transform hover:scale-105 active:scale-95
+                                             transition-all duration-200 ease-out
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
+                                >
+                                    <span>Buy this NFT</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
