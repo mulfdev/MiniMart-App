@@ -1,17 +1,51 @@
+import 'dotenv/config';
 import { serve } from '@hono/node-server';
+import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { getListedOrders } from './queries/orderListed.js';
+import type { Nft } from '@minimart/types';
+import assert from 'node:assert';
+import { db } from './db.js';
+
+const { ALCHEMY_API_KEY } = process.env;
+
+assert(typeof ALCHEMY_API_KEY !== 'undefined', 'ALCHEMY_API_KEY required');
 
 const app = new Hono();
+
+app.use(
+    cors({
+        origin: ['http://localhost:5173'],
+    }),
+);
 
 app.get('/', (c) => {
     return c.text('Hello Hono!');
 });
 
 app.get('/get-orders', async (c) => {
-    const orders = await getListedOrders(3);
+    try {
+        const orders = await getListedOrders(3);
 
-    return c.json({ message: 'got orders' }, 200);
+        const tokenData: Nft[] = [];
+        for (const order of orders) {
+            const res = await fetch(
+                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
+            );
+
+            if (!res.ok) continue;
+
+            const data = (await res.json()) as Nft;
+            tokenData.push(data);
+        }
+
+        console.log(tokenData);
+
+        return c.json({ nfts: tokenData });
+    } catch {
+        throw new HTTPException(400, { message: 'Could not get nft data' });
+    }
 });
 
 const server = serve(
