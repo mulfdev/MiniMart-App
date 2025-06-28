@@ -113,7 +113,7 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
     return (
         <div className="min-h-screen">
             <main className="mx-auto px-4 py-8 sm:py-16">
-                <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-6 sm:p-10 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
+                <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-3 md:p-6 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
                     {status !== 'success' && (
                         <>
                             <div className="flex items-center mb-6">
