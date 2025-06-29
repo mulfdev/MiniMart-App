@@ -12,7 +12,7 @@ export function Navigation() {
             .catch((err) => console.log(err));
     }, []);
     return (
-        <header className="mx-auto px-4 py-3 md:px-8 md:py-6">
+        <header className="mx-auto px-4 py-3 md:px-8 md:py-6 h-[64px] md:h-[88px]">
             <nav className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
