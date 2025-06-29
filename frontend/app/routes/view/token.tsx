@@ -1,24 +1,47 @@
-import { useLoaderData, Link } from 'react-router';
+import { useParams, Link } from 'react-router';
 import { fetchNft } from '~/loaders';
 import { useAccount } from 'wagmi';
 import { queryClient } from '~/root';
+import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
 
-export async function clientLoader({ params }: { params: { contract: string; tokenId: string } }) {
+export function clientLoader({ params }: { params: { contract: string; tokenId: string } }) {
     const { contract, tokenId } = params;
-    return queryClient.ensureQueryData({
+    queryClient.prefetchQuery({
         queryKey: ['nft', contract, tokenId],
         queryFn: () => fetchNft(contract, tokenId),
     });
+    return null;
 }
 
 export default function ViewToken() {
-    const nft = useLoaderData<typeof clientLoader>();
     const { address } = useAccount();
+    const params = useParams();
+    const { data: nft, isLoading } = useQuery({
+        queryKey: ['nft', params.contract, params.tokenId],
+        queryFn: () => fetchNft(params.contract, params.tokenId),
+    });
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen">
+                <main className="container mx-auto px-4 py-8 sm:py-16">
+                    {/* Loading State */}
+                    <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                        <div className="relative">
+                            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                            <div className="absolute inset-0 w-8 h-8 border-2 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
+                        </div>
+                        <p className="text-zinc-400 font-medium">Loading Token Data...</p>
+                    </div>
+                </main>
+            </div>
+        );
+    }
 
     if (!nft) {
         return (
-            <div className="min-h-screen bg-zinc-900 text-white flex items-center justify-center">
+            <div className="mt-20 text-white flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold">NFT not found</h1>
                     <Link to="/" className="text-blue-500 hover:underline mt-4 inline-block">
