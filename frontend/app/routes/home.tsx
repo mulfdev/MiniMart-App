@@ -1,13 +1,13 @@
 import { ArrowRight, Zap, Shield, Users, Sparkles, Smartphone, Clock, Globe } from 'lucide-react';
 import { useAccount } from 'wagmi';
-import { Navigation } from '~/components/Navigation';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 import type { Nft } from '@minimart/types';
 import { queryClient } from '~/root';
 import { useNavigate } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import React from 'react';
 
 async function fetchOrders() {
     try {
@@ -23,24 +23,42 @@ async function fetchOrders() {
     }
 }
 
-export async function clientLoader() {
-    return queryClient.ensureQueryData({
+// The loader should be synchronous and non-blocking
+export function clientLoader() {
+    queryClient.prefetchQuery({
         queryKey: ['orders'],
         queryFn: fetchOrders,
-        staleTime: 60_000, // Cache for 1 minute
+        staleTime: 120_000,
     });
+    return null;
+}
+
+// New component to handle the data fetching and rendering
+function OpenListings() {
+    const { data: nfts } = useSuspenseQuery<Nft[]>({
+        queryKey: ['orders'],
+        queryFn: fetchOrders,
+        staleTime: 120_000,
+    });
+
+    return (
+        <>
+            {nfts?.map((nft, index) => (
+                <div
+                    key={`${nft.contract.address}+${nft.tokenId}`}
+                    className="snap-center shrink-0 w-80"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                >
+                    <NftCard nft={nft} variant="view" />
+                </div>
+            ))}
+        </>
+    );
 }
 
 export default function LandingPage() {
     const { address } = useAccount();
     const { setOpen } = useModal();
-
-    const { data: nfts, isLoading } = useQuery({
-        queryKey: ['orders'],
-        queryFn: fetchOrders,
-        staleTime: 60_000,
-    });
-
     const navigate = useNavigate();
 
     const features = [
@@ -158,21 +176,15 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
-                    {isLoading
-                        ? Array.from({ length: 4 }).map((_, index) => (
-                              <div key={index} className="snap-center shrink-0 w-80">
-                                  <NftCardSkeleton />
-                              </div>
-                          ))
-                        : nfts?.map((nft, index) => (
-                              <div
-                                  key={`${nft.contract.address}+${nft.tokenId}`}
-                                  className="snap-center shrink-0 w-80"
-                                  style={{ animationDelay: `${index * 100}ms` }}
-                              >
-                                  <NftCard nft={nft} variant="view" />
-                              </div>
-                          ))}
+                    <React.Suspense
+                        fallback={Array.from({ length: 4 }).map((_, index) => (
+                            <div key={index} className="snap-center shrink-0 w-80">
+                                <NftCardSkeleton />
+                            </div>
+                        ))}
+                    >
+                        <OpenListings />
+                    </React.Suspense>
                 </div>
             </section>
 
