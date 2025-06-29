@@ -20,9 +20,6 @@ importers:
       '@libsql/client':
         specifier: ^0.15.9
         version: 0.15.9(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      dotenv:
-        specifier: ^16.6.0
-        version: 16.6.0
       graphql-request:
         specifier: ^7.2.0
         version: 7.2.0(graphql@16.11.0)
@@ -36,6 +33,9 @@ importers:
       '@types/node':
         specifier: ^20.11.17
         version: 20.19.1
+      dotenv:
+        specifier: ^17.0.0
+        version: 17.0.0
       prettier:
         specifier: ^3.6.1
         version: 3.6.1
@@ -2054,8 +2054,8 @@ packages:
     resolution: {integrity: sha512-wIU1eHk3Op7dFgELRdmOYlPYS4gP8HhH1ZmZa13QZF59y0fblzFDFmKPhyc05phCy2hze9OEvNZAsoljrs+72w==}
     engines: {node: '>= 6.0.0'}
 
-  dotenv@16.6.0:
-    resolution: {integrity: sha512-Omf1L8paOy2VJhILjyhrhqwLIdstqm1BvcDPKg4NGAlkwEu9ODyrFbvk8UymUOMCT+HXo31jg1lArIrVAAhuGA==}
+  dotenv@17.0.0:
+    resolution: {integrity: sha512-A0BJ5lrpJVSfnMMXjmeO0xUnoxqsBHWCoqqTnGwGYVdnctqXXUEhJOO7LxmgxJon9tEZFGpe0xPRX0h2v3AANQ==}
     engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
@@ -7246,7 +7246,7 @@ snapshots:
     dependencies:
       yaml: 2.8.0
 
-  dotenv@16.6.0: {}
+  dotenv@17.0.0: {}
 
   dunder-proto@1.0.1:
     dependencies:
