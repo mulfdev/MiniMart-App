@@ -46,8 +46,8 @@ async function fetchNfts(address: string) {
     }
 }
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-    const result = await queryClient.ensureQueryData({
+export function clientLoader({ params }: Route.ClientLoaderArgs) {
+    queryClient.prefetchQuery({
         queryKey: ['nfts'],
         queryFn: async () => {
             const nfts = await fetchNfts(params.address);
@@ -56,7 +56,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
         staleTime: 240_000,
     });
 
-    return result;
+    return null;
 }
 
 export function HydrateFallback() {
