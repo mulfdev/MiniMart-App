@@ -54,9 +54,7 @@ export default function ViewToken() {
     ];
 
     return (
-        <div
-            className="flex-grow flex flex-col lg:flex-row overflow-hidden lg:h-[calc(100vh-88px)]"
-        >
+        <div className="flex-grow flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-64px)] lg:h-[calc(100vh-88px)]">
             {/* Left side: Image with background effect */}
             <div className="lg:w-2/3 h-1/2 lg:h-full flex items-center justify-center relative">
                 <div className="w-full h-full relative">
