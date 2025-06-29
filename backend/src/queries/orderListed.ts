@@ -1,5 +1,5 @@
 import { GraphQLClient, gql } from 'graphql-request';
-import { type OrderListed, type GetOrderListedEvents } from '@minimart/types';
+import type { OrderListed, GetOrderListedEvents } from '@minimart/types';
 
 const GET_ORDER_LISTED_EVENTS = gql`
     query GetOrderListedEvents($first: Int) {

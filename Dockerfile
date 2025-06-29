@@ -1,53 +1,67 @@
-# Dockerfile at the root of the monorepo.
-# Build with: docker build -t minimart-backend -f Dockerfile .
-
-# ---- Base ----
-# A common base for subsequent stages.
+# Use Node.js 20 LTS as base image
 FROM node:22-alpine AS base
+
+# Install pnpm globally
+RUN npm install -g pnpm
+
+# Set working directory
 WORKDIR /app
-RUN corepack enable
 
-# ---- Dependencies ----
-# A dedicated stage to build ONLY production dependencies.
-FROM base AS deps
-# Copy all manifests and lockfile.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy pnpm workspace files
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+
+# Copy all package.json files for workspace dependencies
+COPY frontend/package.json ./frontend/
 COPY backend/package.json ./backend/
 COPY types/package.json ./types/
-COPY frontend/package.json ./frontend/
-# Install only the production dependencies for the 'backend' package.
-# This creates a lean node_modules folder.
-RUN pnpm install --filter backend --prod
+COPY subgraph/package.json ./subgraph/
 
-# ---- Builder ----
-# This stage builds the TypeScript code.
-FROM base AS builder
-# Copy all manifests and lockfile.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY backend/package.json ./backend/
-COPY types/package.json ./types/
-COPY frontend/package.json ./frontend/
-# Install ALL dependencies (dev included) for the entire workspace.
+# Install all dependencies (including dev dependencies for build)
 RUN pnpm install --frozen-lockfile
-# Copy source code.
-COPY backend/ ./backend/
-COPY types/ ./types/
-# Build the backend.
-RUN pnpm --filter backend run build
 
-# ---- Production ----
-# The final, minimal production image.
-FROM node:22-alpine AS production
+# Copy source code
+COPY . .
+
+# Build stage
+FROM base AS builder
+
+# Build the types package first (dependency)
+RUN pnpm --filter types build
+
+# Build the backend
+RUN pnpm --filter backend build
+
+# Production stage
+FROM node:20-alpine AS production
+
+# Install pnpm
+RUN npm install -g pnpm
+
 WORKDIR /app
-ENV NODE_ENV=production
 
-# Copy the compiled JavaScript from the builder stage.
-COPY --from=builder /app/backend/dist ./dist
-# Copy the lean, production-only node_modules from the deps stage.
-COPY --from=deps /app/node_modules ./node_modules
-# Copy the backend's package.json to the root of the app.
-# This provides the correct context for Node.js.
-COPY backend/package.json ./package.json
+# Copy package files
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
 
-# Run the application.
-CMD ["node", "dist/main.js"]
+# Copy backend and types package.json (types needed for workspace resolution)
+COPY --from=builder /app/backend/package.json ./backend/
+COPY --from=builder /app/types/package.json ./types/
+
+# Install only production dependencies
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy built application and types package (needed for workspace resolution)
+COPY --from=builder /app/backend/dist ./backend/dist
+COPY --from=builder /app/types ./types
+
+# Set working directory to backend
+WORKDIR /app/backend
+
+# Expose port (adjust if your app uses a different port)
+EXPOSE 3000
+
+# Start the application
+CMD ["pnpm", "start"]
