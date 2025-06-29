@@ -157,7 +157,7 @@ export default function LandingPage() {
                     </p>
                 </div>
 
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
                     {isLoading
                         ? Array.from({ length: 4 }).map((_, index) => (
                               <div key={index} className="snap-center shrink-0 w-80">

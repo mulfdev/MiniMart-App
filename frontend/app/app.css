@@ -8,7 +8,7 @@
 
 html,
 body {
-
+    overscroll-behavior: none;
     @media (prefers-color-scheme: dark) {
         color-scheme: dark;
     }
@@ -83,6 +83,24 @@ body {
 
   .bg-gradient-conic {
     background: conic-gradient(var(--tw-gradient-stops));
+  }
+
+  @media (min-width: 640px) {
+    .desktop-order-feed::-webkit-scrollbar {
+      height: 16px;
+    }
+    .desktop-order-feed::-webkit-scrollbar-track {
+      background: #27272a; /* zinc-800 */
+      border-radius: 8px;
+    }
+    .desktop-order-feed::-webkit-scrollbar-thumb {
+      background: #2563eb; /* blue-600 */
+      border-radius: 8px;
+      border: 2px solid #27272a;
+    }
+    .desktop-order-feed::-webkit-scrollbar-thumb:hover {
+      background: #3b82f6; /* blue-500 */
+    }
   }
 }
 
