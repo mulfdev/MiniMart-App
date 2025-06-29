@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import assert from 'node:assert';
 import { createClient } from '@libsql/client';
 
