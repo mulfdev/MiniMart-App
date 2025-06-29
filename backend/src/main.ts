@@ -32,7 +32,7 @@ app.get('/', (c) => {
 });
 
 app.get('/get-orders', async (c) => {
-    await setTimeout(3000);
+    await setTimeout(500);
     const cachedOrderData = FrontpageOrders.get(CACHE_KEYS.frontpageOrders);
     if (cachedOrderData) {
         return c.json({ nfts: cachedOrderData });
