@@ -26,7 +26,7 @@ app.get('/', (c) => {
 
 app.get('/get-orders', async (c) => {
     try {
-        const orders = await getListedOrders(3);
+        const orders = await getListedOrders(6);
 
         const tokenData: Nft[] = [];
         for (const order of orders) {
@@ -36,11 +36,11 @@ app.get('/get-orders', async (c) => {
 
             if (!res.ok) continue;
 
+            console.log(order.tokenId);
+
             const data = (await res.json()) as Nft;
             tokenData.push(data);
         }
-
-        console.log(tokenData);
 
         return c.json({ nfts: tokenData });
     } catch {
