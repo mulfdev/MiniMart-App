@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { setTimeout } from 'timers/promises';
 import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
@@ -8,11 +9,17 @@ import type { Nft } from '@minimart/types';
 import assert from 'node:assert';
 import { db } from './db.js';
 
+const CACHE_KEYS = {
+    frontpageOrders: 'frontpageOrders',
+} as const;
+
 const { ALCHEMY_API_KEY } = process.env;
 
 assert(typeof ALCHEMY_API_KEY !== 'undefined', 'ALCHEMY_API_KEY required');
 
 const app = new Hono();
+
+const FrontpageOrders = new Map();
 
 app.use(
     cors({
@@ -25,6 +32,11 @@ app.get('/', (c) => {
 });
 
 app.get('/get-orders', async (c) => {
+    await setTimeout(3000);
+    const cachedOrderData = FrontpageOrders.get(CACHE_KEYS.frontpageOrders);
+    if (cachedOrderData) {
+        return c.json({ nfts: cachedOrderData });
+    }
     try {
         const orders = await getListedOrders(6);
 
@@ -41,6 +53,8 @@ app.get('/get-orders', async (c) => {
             const data = (await res.json()) as Nft;
             tokenData.push(data);
         }
+
+        FrontpageOrders.set(CACHE_KEYS.frontpageOrders, tokenData);
 
         return c.json({ nfts: tokenData });
     } catch {
