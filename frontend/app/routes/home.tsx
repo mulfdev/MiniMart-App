@@ -19,11 +19,10 @@ async function fetchOrders() {
         return data.nfts as Nft[];
     } catch (error) {
         console.error('Error fetching orders:', error);
-        return []; // Return empty array on error
+        return [];
     }
 }
 
-// The loader should be synchronous and non-blocking
 export function clientLoader() {
     queryClient.prefetchQuery({
         queryKey: ['orders'],
@@ -33,7 +32,6 @@ export function clientLoader() {
     return null;
 }
 
-// New component to handle the data fetching and rendering
 function OpenListings() {
     const { data: nfts } = useSuspenseQuery<Nft[]>({
         queryKey: ['orders'],
@@ -357,3 +355,4 @@ export default function LandingPage() {
         </div>
     );
 }
+
