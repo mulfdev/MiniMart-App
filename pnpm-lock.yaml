@@ -33,9 +33,6 @@ importers:
       '@types/node':
         specifier: ^20.11.17
         version: 20.19.1
-      dotenv:
-        specifier: ^17.0.0
-        version: 17.0.0
       prettier:
         specifier: ^3.6.1
         version: 3.6.1
@@ -2053,10 +2050,6 @@ packages:
   docker-compose@1.2.0:
     resolution: {integrity: sha512-wIU1eHk3Op7dFgELRdmOYlPYS4gP8HhH1ZmZa13QZF59y0fblzFDFmKPhyc05phCy2hze9OEvNZAsoljrs+72w==}
     engines: {node: '>= 6.0.0'}
-
-  dotenv@17.0.0:
-    resolution: {integrity: sha512-A0BJ5lrpJVSfnMMXjmeO0xUnoxqsBHWCoqqTnGwGYVdnctqXXUEhJOO7LxmgxJon9tEZFGpe0xPRX0h2v3AANQ==}
-    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -7245,8 +7238,6 @@ snapshots:
   docker-compose@1.2.0:
     dependencies:
       yaml: 2.8.0
-
-  dotenv@17.0.0: {}
 
   dunder-proto@1.0.1:
     dependencies:
