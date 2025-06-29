@@ -55,8 +55,7 @@ export default function ViewToken() {
 
     return (
         <div
-            className="flex-grow flex flex-col lg:flex-row overflow-hidden"
-            style={{ height: 'calc(100vh - 88px)' }}
+            className="flex-grow flex flex-col lg:flex-row overflow-hidden lg:h-[calc(100vh-88px)]"
         >
             {/* Left side: Image with background effect */}
             <div className="lg:w-2/3 h-1/2 lg:h-full flex items-center justify-center relative">
@@ -83,7 +82,7 @@ export default function ViewToken() {
 
             {/* Right side: Details */}
             <div className="lg:w-1/3 overflow-y-scroll">
-                <div className="mx-auto w-full px-3">
+                <div className="mx-auto w-full px-8">
                     <div className="flex flex-col h-full">
                         {/* Header */}
                         <div className="mb-6">
@@ -102,12 +101,10 @@ export default function ViewToken() {
                         </div>
 
                         {/* Properties */}
-                        <div className="mb-8 flex-col-reverse">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <h2 className="text-xl font-semibold text-white mb-4">
-                                    Properties
-                                </h2>
+                        <div className="mb-8 col">
+                            <h2 className="text-xl font-semibold text-white mb-4">Properties</h2>
 
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {properties.map((prop) => (
                                     <div
                                         key={prop.label}
@@ -150,7 +147,7 @@ export default function ViewToken() {
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
                                 >
-                                    <span>Buy this NFsdasdasT</span>
+                                    <span>Buy Now</span>
                                 </button>
                             </div>
                         </div>
