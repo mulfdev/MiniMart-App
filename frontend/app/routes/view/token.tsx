@@ -61,42 +61,29 @@ export default function ViewToken() {
             {/* Left side: Image with background effect */}
             <div className="lg:w-2/3 h-1/2 lg:h-full flex items-center justify-center relative">
                 <div className="w-full h-full relative">
-                    <div className="relative bg-transparent overflow-hidden h-full flex flex-col">
-                        <div className="relative overflow-hidden h-full bg-transparent">
-                            <div className="absolute inset-0">
-                                <img
-                                    src={
-                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
-                                    }
-                                    alt=""
-                                    className="w-full h-full object-cover scale-110 blur-xl opacity-30"
-                                />
-                                <div className="absolute inset-0 bg-black/40" />
-                            </div>
-
-                            <div
-                                className="absolute inset-0 opacity-5"
-                                style={{
-                                    backgroundImage: `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M0 0h100v100H0z" fill="none"/%3E%3Cpath d="M0 0l100 100M100 0L0 100" stroke="white" strokeWidth="0.5" opacity="0.3"/%3E%3C/svg%3E')`,
-                                }}
+                    <div className="relative h-full bg-transparent">
+                        <div className="absolute inset-0 md:overflow-hidden">
+                            <img
+                                src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
+                                alt=""
+                                className="w-full h-full object-cover scale-110 blur-xl opacity-30"
                             />
+                            <div className="absolute inset-0 bg-black/40" />
+                        </div>
 
-                            <div className="relative w-full h-full flex items-center justify-center p-4">
-                                <img
-                                    src={
-                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
-                                    }
-                                    className="max-w-full max-h-full object-contain transform transition-transform duration-700 ease-out drop-shadow-2xl"
-                                />
-                            </div>
+                        <div className="relative w-full h-full flex items-center justify-center p-4">
+                            <img
+                                src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
+                                className="max-w-full max-h-full object-contain transform transition-transform duration-700 ease-out drop-shadow-2xl"
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Right side: Details */}
-            <div className="lg:w-1/3 mx-2 my-4 lg:m-3 flex flex-col flex-grow overflow-y-auto">
-                <div className="max-w-7xl mx-auto w-full px-3">
+            <div className="lg:w-1/3 overflow-y-scroll">
+                <div className="mx-auto w-full px-3">
                     <div className="flex flex-col h-full">
                         {/* Header */}
                         <div className="mb-6">
@@ -115,9 +102,12 @@ export default function ViewToken() {
                         </div>
 
                         {/* Properties */}
-                        <div className="mb-8">
-                            <h2 className="text-xl font-semibold text-white mb-4">Properties</h2>
+                        <div className="mb-8 flex-col-reverse">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <h2 className="text-xl font-semibold text-white mb-4">
+                                    Properties
+                                </h2>
+
                                 {properties.map((prop) => (
                                     <div
                                         key={prop.label}
@@ -160,7 +150,7 @@ export default function ViewToken() {
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
                                 >
-                                    <span>Buy this NFT</span>
+                                    <span>Buy this NFsdasdasT</span>
                                 </button>
                             </div>
                         </div>
