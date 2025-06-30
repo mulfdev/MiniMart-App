@@ -3,7 +3,7 @@ import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { getListedOrders } from './queries/orderListed.js';
+import { getListedOrders, getUserTokens } from './queries/orderListed.js';
 import type { Nft } from '@minimart/types';
 import assert from 'node:assert';
 import { db } from './db.js';
@@ -30,7 +30,7 @@ app.get('/', (c) => {
     return c.text('Hello Hono!');
 });
 
-app.get('/get-orders', async (c) => {
+app.get('/all-orders', async (c) => {
     const cachedOrderData = FrontpageOrders.get(CACHE_KEYS.frontpageOrders);
     if (cachedOrderData) {
         return c.json({ nfts: cachedOrderData });
@@ -82,6 +82,16 @@ app.get('/get-orders', async (c) => {
         }
         throw new HTTPException(400, { message: 'Could not get nft data' });
     }
+});
+
+app.get('user-orders', async (c) => {
+    const address = c.req.query('address');
+    if (!address) {
+        return c.json({ error: 'address is required' }, 400);
+    }
+
+    const userTokens = await getUserTokens(address);
+    return c.json({ nfts: userTokens });
 });
 
 const server = serve(
