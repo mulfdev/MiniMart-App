@@ -18,7 +18,7 @@ assert(typeof ALCHEMY_API_KEY !== 'undefined', 'ALCHEMY_API_KEY required');
 
 const app = new Hono();
 
-const FrontpageOrders = new Map();
+const FrontpageOrders = new Map<keyof typeof CACHE_KEYS, any[]>();
 
 app.use(
     cors({
@@ -36,26 +36,50 @@ app.get('/get-orders', async (c) => {
         return c.json({ nfts: cachedOrderData });
     }
     try {
+        console.log('Fetching listed orders...');
         const orders = await getListedOrders(6);
+
+        console.log('Orders received from subgraph:', JSON.stringify(orders, null, 2));
+
+        if (!orders || orders.length === 0) {
+            console.log('No orders found from the subgraph. Returning empty list.');
+            return c.json({ nfts: [] });
+        }
 
         const tokenData: Nft[] = [];
         for (const order of orders) {
+            console.log(
+                `Fetching metadata for contract: ${order.nftContract}, token: ${order.tokenId}`,
+            );
             const res = await fetch(
                 `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
             );
 
-            if (!res.ok) continue;
+            console.log(`Alchemy response status for token ${order.tokenId}: ${res.status}`);
 
-            console.log(order.tokenId);
+            if (!res.ok) {
+                console.log(
+                    `Failed to fetch metadata for token ${order.tokenId}. Status: ${res.status}`,
+                );
+                const errorBody = await res.text();
+                console.log(`Alchemy error body: ${errorBody}`);
+                continue;
+            }
 
             const data = (await res.json()) as Nft;
             tokenData.push(data);
         }
 
+        console.log('Final token data:', JSON.stringify(tokenData, null, 2));
+
         FrontpageOrders.set(CACHE_KEYS.frontpageOrders, tokenData);
 
         return c.json({ nfts: tokenData });
-    } catch {
+    } catch (e) {
+        console.error('Error in get-orders handler:', e);
+        if (e instanceof Error) {
+            throw new HTTPException(400, { message: 'Could not get nft data', cause: e.message });
+        }
         throw new HTTPException(400, { message: 'Could not get nft data' });
     }
 });
