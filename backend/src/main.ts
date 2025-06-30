@@ -22,7 +22,7 @@ const FrontpageOrders = new Map();
 
 app.use(
     cors({
-        origin: ['http://localhost:5173'],
+        origin: ['http://localhost:5173', 'https://backend-dawn-tree-7134.fly.dev'],
     }),
 );
 
