@@ -4,14 +4,14 @@ import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 import type { Nft } from '@minimart/types';
-import { queryClient } from '~/root';
+import { API_URL, queryClient } from '~/root';
 import { useNavigate } from 'react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import React from 'react';
 
 async function fetchOrders() {
     try {
-        const response = await fetch('http://localhost:3000/get-orders');
+        const response = await fetch(`${API_URL}/get-orders`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -355,4 +355,3 @@ export default function LandingPage() {
         </div>
     );
 }
-
