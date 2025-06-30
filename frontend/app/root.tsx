@@ -15,7 +15,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, createConfig, WagmiProvider } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
-import { ConnectKitProvider } from 'connectkit';
+import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 import { Navigation } from './components/Navigation';
 
@@ -49,13 +49,17 @@ if (typeof BASE_SEPOLIA_RPC_URL !== 'string') {
     throw new Error('BASE_RPC_URL must be set');
 }
 
-export const config = createConfig({
-    chains: [baseSepolia],
-    transports: {
-        [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
-    },
-    connectors: [miniAppConnector()],
-});
+export const config = createConfig(
+    getDefaultConfig({
+        chains: [baseSepolia],
+        transports: {
+            [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
+        },
+        connectors: [miniAppConnector()],
+        walletConnectProjectId: '87e248dc258d19281189f5f2b92affc5',
+        appName: 'MiniMart',
+    })
+);
 
 export const queryClient = new QueryClient({
     defaultOptions: {
@@ -111,7 +115,11 @@ export default function App() {
     return (
         <WagmiProvider config={config}>
             <QueryClientProvider client={queryClient}>
-                <ConnectKitProvider>
+                <ConnectKitProvider
+                    options={{
+                        language: 'en-US',
+                    }}
+                >
                     <FcConnect />
                     <Navigation />
                     <Outlet />
