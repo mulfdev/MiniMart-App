@@ -3,7 +3,6 @@ import type { Nft } from '@minimart/types';
 import { Link } from 'react-router';
 
 export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' | 'view' }) {
-    console.log(nft);
     return (
         <div className="group relative">
             {/* Main Card Container with responsive heights */}
