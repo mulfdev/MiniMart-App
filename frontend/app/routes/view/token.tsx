@@ -1,11 +1,12 @@
 import { useParams, Link } from 'react-router';
+import type { Route } from './+types/token';
 import { fetchNft } from '~/loaders';
 import { useAccount } from 'wagmi';
 import { queryClient } from '~/root';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
+import { ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
 
-export function clientLoader({ params }: { params: { contract: string; tokenId: string } }) {
+export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
     queryClient.prefetchQuery({
         queryKey: ['nft', contract, tokenId],
@@ -19,7 +20,8 @@ export default function ViewToken() {
     const params = useParams();
     const { data: nft, isLoading } = useQuery({
         queryKey: ['nft', params.contract, params.tokenId],
-        queryFn: () => fetchNft(params.contract, params.tokenId),
+        queryFn: () => fetchNft(params.contract!, params.tokenId!),
+        enabled: !!params.contract && !!params.tokenId,
     });
 
     if (isLoading) {
