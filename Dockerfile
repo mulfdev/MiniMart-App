@@ -34,7 +34,7 @@ RUN pnpm --filter types build
 RUN pnpm --filter backend build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # Install pnpm
 RUN npm install -g pnpm
