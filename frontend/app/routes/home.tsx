@@ -11,7 +11,7 @@ import React from 'react';
 
 async function fetchOrders() {
     try {
-        const response = await fetch(`${API_URL}/get-orders`);
+        const response = await fetch(`${API_URL}/all-orders`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
