@@ -9,13 +9,18 @@ import { AddOrderButton } from '~/components/AddOrderButton';
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
 
-import { fetchNft, type ListNftLoaderData } from '~/loaders';
+import { fetchNft } from '~/loaders';
+import { queryClient } from '~/root';
+import { useQuery } from '@tanstack/react-query';
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs): Promise<ListNftLoaderData> {
+export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
-    return fetchNft(contract, tokenId);
+    queryClient.prefetchQuery({
+        queryKey: ['nft', contract, tokenId],
+        queryFn: () => fetchNft(contract, tokenId),
+    });
+    return null;
 }
-
 export function HydrateFallback() {
     return (
         <div className="min-h-screen">
@@ -61,21 +66,24 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
     );
 }
 
-export default function ListNft({ loaderData }: Route.ComponentProps) {
-    const nft = loaderData;
-
-    const { contract, tokenId } = useParams();
+export default function ListNft() {
+    const params = useParams();
+    const { data: nft, isLoading } = useQuery({
+        queryKey: ['nft', params.contract, params.tokenId],
+        queryFn: () => fetchNft(params.contract!, params.tokenId!),
+        enabled: !!params.contract && !!params.tokenId,
+    });
 
     const { address } = useAccount();
-    if (!tokenId || !contract) {
+    if (!params.tokenId || !params.contract) {
         return <>Wrong info</>;
     }
 
-    const isQueryEnabled = !!contract && !!address;
+    const isQueryEnabled = !!params.contract && !!address;
 
     const { data: isApproved } = useReadContract({
         abi: nftAbi,
-        address: contract as `0x${string}`,
+        address: params.contract as `0x${string}`,
         functionName: 'isApprovedForAll',
         args: isQueryEnabled ? [address, miniMartAddr] : undefined,
         query: {
@@ -86,6 +94,8 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
+
+    if (isLoading) return <HydrateFallback />;
 
     if (!nft) {
         return (
@@ -111,136 +121,128 @@ export default function ListNft({ loaderData }: Route.ComponentProps) {
         'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     return (
-        <div className="min-h-screen">
-            <main className="mx-auto px-4 py-8 sm:py-16">
-                <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-3 md:p-6 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
-                    {status !== 'success' && (
-                        <>
-                            <div className="flex items-center mb-6">
-                                <h1 className="text-3xl sm:text-4xl font-bold text-white">
-                                    List Your NFT
-                                </h1>
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-8 mb-8">
-                                <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
-                                    <img
-                                        src={
-                                            nft.image.originalUrl ||
-                                            nft.tokenUri ||
-                                            '/placeholder.svg'
-                                        }
-                                        alt={nft.name || 'NFT Image'}
-                                        className="max-w-full max-h-64 object-contain rounded-lg"
-                                    />
-                                </div>
-                                <div className="md:w-1/2 space-y-4">
-                                    <h2 className="text-2xl font-bold text-white">
-                                        {nft.name || nft.contract.name} #{nft.tokenId}
-                                    </h2>
-                                    <p className="text-zinc-400 text-sm">
-                                        Collection:{' '}
-                                        <span className="font-mono text-zinc-300 break-all">
-                                            {nft.contract.name}
-                                        </span>
-                                    </p>
-                                    <p className="text-zinc-400 text-sm">
-                                        Token ID:{' '}
-                                        <span className="font-mono text-zinc-300">
-                                            {nft.tokenId}
-                                        </span>
-                                    </p>
-                                    {nft.description ? (
-                                        <p className="text-zinc-300 text-base line-clamp-3">
-                                            {nft.description}
-                                        </p>
-                                    ) : (
-                                        <p className="text-zinc-500 text-base italic">
-                                            No description available.
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-
-                            {isApproved ? (
-                                <div className="space-y-6">
-                                    <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
-                                        <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                        <p className="text-sm font-semibold text-green-300">
-                                            Marketplace Approved!
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label
-                                            htmlFor="price"
-                                            className="block text-zinc-300 font-semibold text-lg mb-2"
-                                        >
-                                            Step 2: Set Listing Price (ETH)
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="price"
-                                            value={price}
-                                            onChange={(e) => setPrice(e.target.value)}
-                                            placeholder="e.g., 0.05"
-                                            className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none"
-                                        />
-                                    </div>
-                                    {errorInfo.isError && (
-                                        <div className="text-red-400 text-sm bg-red-900/30 p-3 rounded-lg text-center">
-                                            {errorInfo.message}
-                                        </div>
-                                    )}
-                                    <AddOrderButton
-                                        price={parseEther(price)}
-                                        nftContract={nft.contract.address}
-                                        tokenId={nft.tokenId}
-                                        onSuccess={() => setStatus('success')}
-                                        onError={(err: Error) =>
-                                            setErrorInfo({ isError: true, message: err.message })
-                                        }
-                                        className={defaultButtonStyles}
-                                    >
-                                        List NFT
-                                    </AddOrderButton>
-                                </div>
-                            ) : (
-                                <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
-                                    <h3 className="text-lg font-semibold text-white text-center">
-                                        Step 1 of 2: Grant Permission
-                                    </h3>
-                                    <p className="text-zinc-400 text-center text-sm">
-                                        First, approve the marketplace to manage this NFT. This is a
-                                        standard, one-time security step for this item.
-                                    </p>
-                                    <ApproveButton
-                                        nftContract={nft.contract.address as Address}
-                                        className={defaultButtonStyles}
-                                    />
-                                </div>
-                            )}
-                        </>
-                    )}
-
-                    {status === 'success' && (
-                        <div className="text-center py-10 space-y-6">
-                            <CheckCircle2 className="mx-auto w-20 h-20 text-green-400" />
-                            <h2 className="text-3xl font-bold text-white">
-                                NFT Listed Successfully!
-                            </h2>
-                            <p className="text-zinc-300 text-lg">
-                                Your item is now live on the marketplace.
-                            </p>
-                            <Link
-                                to={`/view/${address || ''}`}
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl"
-                            >
-                                View My Collection
-                            </Link>
+        <main className="mx-auto px-4 py-8 sm:py-16">
+            <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-3 md:p-6 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
+                {status !== 'success' && (
+                    <>
+                        <div className="flex items-center mb-6">
+                            <h1 className="text-3xl sm:text-4xl font-bold text-white">
+                                List Your NFT
+                            </h1>
                         </div>
-                    )}
-                </div>
-            </main>
-        </div>
+
+                        <div className="flex flex-col md:flex-row gap-8 mb-8">
+                            <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
+                                <img
+                                    src={
+                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
+                                    }
+                                    alt={nft.name || 'NFT Image'}
+                                    className="max-w-full max-h-64 object-contain rounded-lg"
+                                />
+                            </div>
+                            <div className="md:w-1/2 space-y-4">
+                                <h2 className="text-2xl font-bold text-white">
+                                    {nft.name || nft.contract.name} #{nft.tokenId}
+                                </h2>
+                                <p className="text-zinc-400 text-sm">
+                                    Collection:{' '}
+                                    <span className="font-mono text-zinc-300 break-all">
+                                        {nft.contract.name}
+                                    </span>
+                                </p>
+                                <p className="text-zinc-400 text-sm">
+                                    Token ID:{' '}
+                                    <span className="font-mono text-zinc-300">{nft.tokenId}</span>
+                                </p>
+                                {nft.description ? (
+                                    <p className="text-zinc-300 text-base line-clamp-3">
+                                        {nft.description}
+                                    </p>
+                                ) : (
+                                    <p className="text-zinc-500 text-base italic">
+                                        No description available.
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        {isApproved ? (
+                            <div className="space-y-6">
+                                <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
+                                    <CheckCircle2 className="w-5 h-5 text-green-400" />
+                                    <p className="text-sm font-semibold text-green-300">
+                                        Marketplace Approved!
+                                    </p>
+                                </div>
+                                <div>
+                                    <label
+                                        htmlFor="price"
+                                        className="block text-zinc-300 font-semibold text-lg mb-2"
+                                    >
+                                        Step 2: Set Listing Price (ETH)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="price"
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
+                                        placeholder="e.g., 0.05"
+                                        className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none"
+                                    />
+                                </div>
+                                {errorInfo.isError && (
+                                    <div className="text-red-400 text-sm bg-red-900/30 p-3 rounded-lg text-center">
+                                        {errorInfo.message}
+                                    </div>
+                                )}
+                                <AddOrderButton
+                                    price={parseEther(price)}
+                                    nftContract={nft.contract.address}
+                                    tokenId={nft.tokenId}
+                                    onSuccess={() => setStatus('success')}
+                                    onError={(err: Error) =>
+                                        setErrorInfo({ isError: true, message: err.message })
+                                    }
+                                    className={defaultButtonStyles}
+                                >
+                                    List NFT
+                                </AddOrderButton>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
+                                <h3 className="text-lg font-semibold text-white text-center">
+                                    Step 1 of 2: Grant Permission
+                                </h3>
+                                <p className="text-zinc-400 text-center text-sm">
+                                    First, approve the marketplace to manage this NFT. This is a
+                                    standard, one-time security step for this item.
+                                </p>
+                                <ApproveButton
+                                    nftContract={nft.contract.address as Address}
+                                    className={defaultButtonStyles}
+                                />
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {status === 'success' && (
+                    <div className="text-center py-10 space-y-6">
+                        <CheckCircle2 className="mx-auto w-20 h-20 text-green-400" />
+                        <h2 className="text-3xl font-bold text-white">NFT Listed Successfully!</h2>
+                        <p className="text-zinc-300 text-lg">
+                            Your item is now live on the marketplace.
+                        </p>
+                        <Link
+                            to={`/view/${address || ''}`}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl"
+                        >
+                            View My Collection
+                        </Link>
+                    </div>
+                )}
+            </div>
+        </main>
     );
 }
