@@ -19,16 +19,7 @@ const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/l
 
 const client = new GraphQLClient(endpoint);
 
-function findUniqueNfts(arrayA: Nft[], arrayB: Nft[]): Nft[] {
-    return arrayA.filter(
-        (nftA) =>
-            !arrayB.some(
-                (nftB) =>
-                    nftB.contract.address === nftA.contract.address &&
-                    nftB.tokenId === nftA.tokenId,
-            ),
-    );
-}
+function findUniqueNfts(arrayA: Nft[], arrayB: Nft[]): Nft[] {}
 
 export async function getListedOrders(numItems: number) {
     try {
