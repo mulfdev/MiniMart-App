@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicClient } from 'wagmi';
 import { type Address, zeroAddress } from 'viem';
-import { ABI, miniMartAddr, ORDER_COMPONENTS } from '~/utils';
+import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
+import minimartAbi from '~/minimartAbi';
 
 type Order = {
     seller: Address;
@@ -33,7 +34,7 @@ export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError
         try {
             const nonceResult = await publicClient.readContract({
                 address: miniMartAddr,
-                abi: ABI,
+                abi: minimartAbi,
                 functionName: 'nonces',
                 args: [address],
             });
@@ -64,7 +65,7 @@ export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError
             });
             await writeContractAsync({
                 address: miniMartAddr,
-                abi: ABI,
+                abi: minimartAbi,
                 functionName: 'addOrder',
                 args: [msg, sig],
             });
