@@ -1,12 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ConnectKitButton } from 'connectkit';
 import { Sparkles } from 'lucide-react';
 import sdk from '@farcaster/frame-sdk';
 import { useLocation } from 'react-router';
+import { useAccount } from 'wagmi';
 import { MobileBackButton } from './MobileBackButton';
+import { Hamburger } from './Hamburger';
+import { Sidebar } from './Sidebar';
 
 export function Navigation() {
     const location = useLocation();
+    const { isConnected } = useAccount();
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [oldPath, setOldPath] = useState('');
     let isMiniApp = null;
     const isHomePage = location.pathname === '/';
 
@@ -15,6 +21,12 @@ export function Navigation() {
             .then((data) => (isMiniApp = data))
             .catch((err) => console.log(err));
     }, []);
+
+    useEffect(() => {
+        setSidebarOpen(() => (oldPath !== location.pathname ? false : true));
+        setOldPath(location.pathname);
+    }, [location.pathname]);
+
     return (
         <header className="mx-auto px-4 py-3 md:px-8 md:py-6 h-[64px] md:h-[88px]">
             <nav className="flex justify-between items-center">
@@ -38,8 +50,18 @@ export function Navigation() {
                         {isHomePage ? 'MiniMart' : ''}
                     </span>
                 </div>
-                {!isMiniApp ? <ConnectKitButton /> : null}
+                <div className="flex items-center gap-4">
+                    {!isConnected && !isMiniApp ? <ConnectKitButton /> : null}
+                    {isConnected && (
+                        <Hamburger
+                            isOpen={isSidebarOpen}
+                            onClick={() => setSidebarOpen(!isSidebarOpen)}
+                            className="text-white"
+                        />
+                    )}
+                </div>
             </nav>
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
         </header>
     );
 }
