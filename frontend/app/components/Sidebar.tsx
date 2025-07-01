@@ -7,7 +7,7 @@ import { useAccount } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
 
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-    const ref = useRef(null);
+    const ref = useRef<HTMLDivElement>(null);
     const { address } = useAccount();
     useOnClickOutside(ref, onClose);
 
