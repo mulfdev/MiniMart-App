@@ -10,15 +10,16 @@ import { Sidebar } from './Sidebar';
 
 export function Navigation() {
     const location = useLocation();
-    const { isConnected } = useAccount();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [oldPath, setOldPath] = useState('');
-    let isMiniApp = null;
+    const [isMiniApp, setIsMiniApp] = useState(false);
     const isHomePage = location.pathname === '/';
+
+    console.log(isMiniApp);
 
     useEffect(() => {
         sdk.isInMiniApp()
-            .then((data) => (isMiniApp = data))
+            .then((data) => setIsMiniApp(true))
             .catch((err) => console.log(err));
     }, []);
 
@@ -51,14 +52,11 @@ export function Navigation() {
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    {!isConnected && !isMiniApp ? <ConnectKitButton /> : null}
-                    {isConnected && (
-                        <Hamburger
-                            isOpen={isSidebarOpen}
-                            onClick={() => setSidebarOpen(!isSidebarOpen)}
-                            className="text-white"
-                        />
-                    )}
+                    <Hamburger
+                        isOpen={isSidebarOpen}
+                        onClick={() => setSidebarOpen(!isSidebarOpen)}
+                        className="text-white"
+                    />
                 </div>
             </nav>
             <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />

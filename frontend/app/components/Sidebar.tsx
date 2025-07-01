@@ -1,6 +1,7 @@
 import { ConnectKitButton } from 'connectkit';
 import { Home, Shapes } from 'lucide-react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import sdk from '@farcaster/frame-sdk';
 import { Link } from 'react-router';
 import { useAccount } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
@@ -10,6 +11,15 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     const { address } = useAccount();
     useOnClickOutside(ref, onClose);
 
+    const [isMiniApp, setIsMiniApp] = useState(false);
+    useEffect(() => {
+        sdk.isInMiniApp()
+            .then((data) => setIsMiniApp(data))
+            .catch((err) => console.log(err));
+    }, []);
+
+    console.log({ isMiniApp });
+
     return (
         <div
             ref={ref}
@@ -17,7 +27,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 isOpen ? 'translate-x-0' : 'translate-x-full'
             } w-64 p-4`}
         >
-            <ConnectKitButton />
+            {isMiniApp ? null : <ConnectKitButton />}
 
             <div className="my-8 flex flex-col gap-y-3">
                 <Link
