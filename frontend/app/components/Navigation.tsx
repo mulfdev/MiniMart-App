@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
-import { ConnectKitButton } from 'connectkit';
 import { Sparkles } from 'lucide-react';
-import sdk from '@farcaster/frame-sdk';
 import { useLocation } from 'react-router';
-import { useAccount } from 'wagmi';
 import { MobileBackButton } from './MobileBackButton';
 import { Hamburger } from './Hamburger';
 import { Sidebar } from './Sidebar';
@@ -12,16 +9,7 @@ export function Navigation() {
     const location = useLocation();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [oldPath, setOldPath] = useState('');
-    const [isMiniApp, setIsMiniApp] = useState(false);
     const isHomePage = location.pathname === '/';
-
-    console.log(isMiniApp);
-
-    useEffect(() => {
-        sdk.isInMiniApp()
-            .then((data) => setIsMiniApp(true))
-            .catch((err) => console.log(err));
-    }, []);
 
     useEffect(() => {
         setSidebarOpen(() => (oldPath !== location.pathname ? false : true));

@@ -18,8 +18,6 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             .catch((err) => console.log(err));
     }, []);
 
-    console.log({ isMiniApp });
-
     return (
         <div
             ref={ref}
