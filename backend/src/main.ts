@@ -1,4 +1,3 @@
-import { setTimeout } from 'timers/promises';
 import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
