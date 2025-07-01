@@ -10,26 +10,6 @@ export const ORDER_COMPONENTS = [
     { name: 'tokenId', type: 'uint256' },
 ] as const;
 
-export const ABI = [
-    {
-        type: 'function',
-        name: 'nonces',
-        stateMutability: 'view',
-        inputs: [{ name: 'seller', type: 'address' }],
-        outputs: [{ name: 'nonce', type: 'uint64' }],
-    },
-    {
-        type: 'function',
-        name: 'addOrder',
-        stateMutability: 'nonpayable',
-        inputs: [
-            { name: 'order', type: 'tuple', components: ORDER_COMPONENTS },
-            { name: 'signature', type: 'bytes' },
-        ],
-        outputs: [{ name: 'orderDigest', type: 'bytes32' }],
-    },
-] as const;
-
 export const nftAbi = [
     {
         inputs: [{ internalType: 'address', name: '_svgRenderer', type: 'address' }],
