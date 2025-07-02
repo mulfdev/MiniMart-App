@@ -4,6 +4,9 @@ import { fetchNft } from '~/loaders';
 import { queryClient } from '~/root';
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
+import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
+import { miniMartAddr } from '~/utils';
+import { useState } from 'react';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
@@ -15,11 +18,27 @@ export function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 export default function ViewToken() {
+    const [toastOpen, setIsToastOpen] = useState(false);
     const params = useParams();
-    const { data: nft, isLoading } = useQuery({
+    const { data: token, isLoading } = useQuery({
         queryKey: ['nft', params.contract, params.tokenId],
         queryFn: () => fetchNft(params.contract!, params.tokenId!),
         enabled: !!params.contract && !!params.tokenId,
+    });
+
+    const { writeContract, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
+    const {
+        data: fulfillOrderSim,
+        error: fulfillOrderSimError,
+        isLoading: isSimulating,
+        isSuccess: isSimulationSuccess,
+    } = useSimulateMinimartFulfillOrder({
+        address: miniMartAddr,
+        args: [token?.orderData.orderId as `0x${string}`],
+        value: token?.orderData?.price ? BigInt(token.orderData.price) : undefined,
+        query: {
+            enabled: !!token?.orderData?.orderId && !!token.orderData.price,
+        },
     });
 
     if (isLoading) {
@@ -39,7 +58,7 @@ export default function ViewToken() {
         );
     }
 
-    if (!nft) {
+    if (!token?.nft) {
         return (
             <div className="mt-20 text-white flex items-center justify-center">
                 <div className="text-center">
@@ -56,23 +75,23 @@ export default function ViewToken() {
         {
             icon: Fingerprint,
             label: 'Contract Address',
-            value: nft.contract.address,
+            value: token.nft.contract.address,
             isAddress: true,
         },
         {
             icon: Hash,
             label: 'Token ID',
-            value: nft.tokenId,
+            value: token.nft.tokenId,
         },
         {
             icon: Shield,
             label: 'Token Standard',
-            value: nft.contract.tokenType,
+            value: token.nft.contract.tokenType,
         },
         {
             icon: FileText,
             label: 'Symbol',
-            value: nft.contract.symbol,
+            value: token.nft.contract.symbol,
         },
     ];
 
@@ -86,7 +105,9 @@ export default function ViewToken() {
                             <div className="absolute inset-0 md:overflow-hidden">
                                 <img
                                     src={
-                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
+                                        token.nft.image.originalUrl ||
+                                        token.nft.tokenUri ||
+                                        '/placeholder.svg'
                                     }
                                     alt=""
                                     className="w-full h-full object-cover scale-110 blur-xl opacity-30"
@@ -97,7 +118,9 @@ export default function ViewToken() {
                             <div className="relative w-full h-full flex items-center justify-center p-4">
                                 <img
                                     src={
-                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
+                                        token.nft.image.originalUrl ||
+                                        token.nft.tokenUri ||
+                                        '/placeholder.svg'
                                     }
                                     className="max-w-full max-h-full object-contain transform transition-transform duration-700 ease-out drop-shadow-2xl"
                                 />
@@ -113,10 +136,10 @@ export default function ViewToken() {
                             {/* Header */}
                             <div className="mb-6">
                                 <p className="text-blue-400 text-3xl font-semibold mb-2">
-                                    {nft.contract.name}
+                                    {token.nft.contract.name}
                                 </p>
                                 <h1 className="text-2xl font-bold text-white">
-                                    {nft.name || `#${nft.tokenId}`}
+                                    {token.nft.name || `#${token.nft.tokenId}`}
                                 </h1>
                             </div>
 
@@ -126,7 +149,7 @@ export default function ViewToken() {
                                     Description
                                 </h2>
                                 <p className="text-zinc-400 leading-relaxed">
-                                    {nft.description || 'No description available.'}
+                                    {token.nft.description || 'No description available.'}
                                 </p>
                             </div>
 
@@ -179,7 +202,16 @@ export default function ViewToken() {
                                              text-white font-semibold rounded-xl
                                              transform hover:scale-105 active:scale-95
                                              transition-all duration-200 ease-out
-                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={!fulfillOrderSim}
+                                            onClick={async () => {
+                                                if (!fulfillOrderSim) return;
+                                                try {
+                                                    writeContract(fulfillOrderSim.request);
+                                                } catch (e) {
+                                                    console.log(e);
+                                                }
+                                            }}
                                         >
                                             <span>Buy Now</span>
                                         </button>
