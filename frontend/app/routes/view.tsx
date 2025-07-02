@@ -56,6 +56,15 @@ export default function ViewNfts() {
     return (
         <div className="max-w-7xl mx-auto">
             <main className="container mx-auto px-4 py-8 sm:py-16">
+                <div className="text-center mb-12 sm:mb-16">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                        Your Collection
+                    </h1>
+                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+                        Here are the NFTs you own. Select any NFT to create a listing.
+                    </p>
+                </div>
+
                 {/* Error State */}
                 {/* {error && ( */}
                 {/*     <div className="text-center py-20"> */}
@@ -89,7 +98,7 @@ export default function ViewNfts() {
                             <Sparkles className="w-8 h-8 text-zinc-600" />
                         </div>
                         <p className="text-zinc-400 font-medium">
-                            No NFTs found in your collection collection
+                            No NFTs found in your collection
                         </p>
                     </div>
                 )}
