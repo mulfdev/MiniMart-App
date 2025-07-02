@@ -132,24 +132,24 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                             {variant === 'list' ? (
                                 <Link to={`/list/${nft.contract.address}/${nft.tokenId}`}>
                                     <button
-                                        className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                                        className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                              border border-zinc-700/50 hover:border-zinc-600/80
-                                             rounded-xl font-semibold text-xs sm:text-sm text-white
+                                             rounded-xl font-semibold text-white text-lg
                                              transform hover:scale-105 active:scale-95
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
                                     >
-                                        List Token
+                                        List It
                                     </button>
                                 </Link>
                             ) : (
                                 <Link to={`/view/token/${nft.contract.address}/${nft.tokenId}`}>
                                     <button
-                                        className="group/link flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 
+                                        className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                              border border-zinc-700/50 hover:border-zinc-600/80
-                                             rounded-xl font-semibold text-xs sm:text-sm text-white
+                                             rounded-xl font-semibold text-white text-lg
                                              transform hover:scale-105 active:scale-95
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
