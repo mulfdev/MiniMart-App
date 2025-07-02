@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 type ToastProps = {
     message: string;
     variant: 'success' | 'error';
-    onClose: () => void;
+    onClose?: () => void;
 };
 
 const toastVariants = {
