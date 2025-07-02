@@ -2,22 +2,26 @@ import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { getListedOrders, getUserTokens } from './queries/orderListed.js';
+import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderListed.js';
 import type { Nft } from '@minimart/types';
 import assert from 'node:assert';
 import { db } from './db.js';
 
-const CACHE_KEYS = {
-    frontpageOrders: 'frontpageOrders',
-} as const;
+//////////// Startup checks
 
-const { ALCHEMY_API_KEY } = process.env;
+export const { ALCHEMY_API_KEY } = process.env;
 
 assert(typeof ALCHEMY_API_KEY !== 'undefined', 'ALCHEMY_API_KEY required');
 
+//////////// App and routes
 const app = new Hono();
 
-const FrontpageOrders = new Map<keyof typeof CACHE_KEYS, any[]>();
+const CACHE_KEYS = {
+    frontpageOrders: 'frontpageOrders',
+    orderData: 'orderData',
+} as const;
+
+export const localCache = new Map<keyof typeof CACHE_KEYS, any[]>();
 
 app.use(
     cors({
@@ -30,9 +34,9 @@ app.get('/', (c) => {
 });
 
 app.get('/all-orders', async (c) => {
-    const cachedOrderData = FrontpageOrders.get(CACHE_KEYS.frontpageOrders);
+    const cachedOrderData = localCache.get(CACHE_KEYS.frontpageOrders);
     if (cachedOrderData) {
-        return c.json({ nfts: cachedOrderData });
+        return c.json({ nfts: cachedOrderData }, 200);
     }
     try {
         console.log('Fetching listed orders...');
@@ -69,11 +73,9 @@ app.get('/all-orders', async (c) => {
             tokenData.push(data);
         }
 
-        console.log('Final token data:', JSON.stringify(tokenData, null, 2));
+        localCache.set(CACHE_KEYS.frontpageOrders, tokenData);
 
-        FrontpageOrders.set(CACHE_KEYS.frontpageOrders, tokenData);
-
-        return c.json({ nfts: tokenData });
+        return c.json({ nfts: tokenData }, 200);
     } catch (e) {
         console.error('Error in get-orders handler:', e);
         if (e instanceof Error) {
@@ -86,12 +88,31 @@ app.get('/all-orders', async (c) => {
 app.get('user-orders', async (c) => {
     const address = c.req.query('address');
     if (!address) {
-        return c.json({ error: 'address is required' }, 400);
+        throw new HTTPException(400, { message: 'address is required' });
     }
 
     const userTokens = await getUserTokens(address);
-    return c.json({ nfts: userTokens });
+    return c.json({ nfts: userTokens }, 200);
 });
+
+app.get('/single-token', async (c) => {
+    const nftContract = c.req.query('nftContract');
+    const tokenId = c.req.query('tokenId');
+
+    if (!nftContract || !tokenId) {
+        throw new HTTPException(400, { message: 'nftContract and tokenId required' });
+    }
+
+    const orderInfo = await getSingleOrder(nftContract, tokenId);
+
+    if (!orderInfo) {
+        throw new HTTPException(404, { message: 'Could not locate token info' });
+    }
+
+    return c.json({ orderData: orderInfo.listingInfo, nft: orderInfo.nft }, 200);
+});
+
+////////////// Start Server and handle shutdowns
 
 const server = serve(
     {
