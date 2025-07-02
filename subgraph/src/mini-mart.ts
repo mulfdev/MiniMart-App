@@ -16,6 +16,7 @@ import {
     Paused,
     Unpaused,
 } from '../generated/schema';
+import { store } from '@graphprotocol/graph-ts';
 
 export function handleEIP712DomainChanged(event: EIP712DomainChangedEvent): void {
     let entity = new EIP712DomainChanged(event.transaction.hash.concatI32(event.logIndex.toI32()));
@@ -36,11 +37,13 @@ export function handleOrderFulfilled(event: OrderFulfilledEvent): void {
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
 
+    store.remove('OrderListed', event.params.orderId.toHexString());
+
     entity.save();
 }
 
 export function handleOrderListed(event: OrderListedEvent): void {
-    let entity = new OrderListed(event.transaction.hash.concatI32(event.logIndex.toI32()));
+    let entity = new OrderListed(event.params.orderId.toHexString());
     entity.orderId = event.params.orderId;
     entity.seller = event.params.seller;
     entity.nftContract = event.params.nftContract;
@@ -61,6 +64,8 @@ export function handleOrderRemoved(event: OrderRemovedEvent): void {
     entity.blockNumber = event.block.number;
     entity.blockTimestamp = event.block.timestamp;
     entity.transactionHash = event.transaction.hash;
+
+    store.remove('OrderListed', event.params.orderId.toHexString());
 
     entity.save();
 }

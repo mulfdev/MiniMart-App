@@ -15,8 +15,8 @@ type OrderFulfilled @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type OrderListed @entity(immutable: true) {
-  id: Bytes!
+type OrderListed @entity(immutable: false) {
+  id: String!
   orderId: Bytes! # bytes32
   seller: Bytes! # address
   nftContract: Bytes! # address
