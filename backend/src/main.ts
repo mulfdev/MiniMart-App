@@ -6,6 +6,7 @@ import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderL
 import type { Nft } from '@minimart/types';
 import assert from 'node:assert';
 import { db } from './db.js';
+import { CACHE_KEYS, isValidCacheKey, localCache } from './cache.js';
 
 //////////// Startup checks
 
@@ -15,13 +16,6 @@ assert(typeof ALCHEMY_API_KEY !== 'undefined', 'ALCHEMY_API_KEY required');
 
 //////////// App and routes
 const app = new Hono();
-
-const CACHE_KEYS = {
-    frontpageOrders: 'frontpageOrders',
-    orderData: 'orderData',
-} as const;
-
-export const localCache = new Map<keyof typeof CACHE_KEYS, any[]>();
 
 app.use(
     cors({
@@ -110,6 +104,22 @@ app.get('/single-token', async (c) => {
     }
 
     return c.json({ orderData: orderInfo.listingInfo, nft: orderInfo.nft }, 200);
+});
+
+app.get('/reset-cache', (c) => {
+    const cacheKey = c.req.query('cacheKey');
+
+    if (!cacheKey) {
+        throw new HTTPException(400, { message: 'cacheKey is required' });
+    }
+
+    const isValid = isValidCacheKey(cacheKey);
+
+    if (!isValid) throw new HTTPException(400, { message: 'invalid cache key' });
+
+    localCache.set(cacheKey, undefined);
+
+    return c.json({ message: `cahce key ${cacheKey} cleared` });
 });
 
 ////////////// Start Server and handle shutdowns
