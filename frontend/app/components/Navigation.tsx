@@ -39,7 +39,7 @@ export function Navigation() {
                         {isHomePage ? 'MiniMart' : ''}
                     </span>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex">
                     <Hamburger
                         isOpen={isSidebarOpen}
                         onClick={() => setSidebarOpen(!isSidebarOpen)}
