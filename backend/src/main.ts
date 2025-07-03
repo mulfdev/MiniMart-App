@@ -120,18 +120,16 @@ app.get('/user-inventory', async (c) => {
 
     const nfts = data.ownedNfts as Nft[];
 
-    const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
+    const filteredNfts =
+        nfts
+            .filter((nft) => !nft.contract.isSpam)
+            .filter((nft) => nft.tokenType === 'ERC721')
+            .filter(
+                (nft) =>
+                    nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
+            ) ?? [];
 
-    const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
-
-    const erc721sWithImgs =
-        erc721s.filter(
-            (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
-        ) ?? [];
-
-    console.log('with image check\n', erc721sWithImgs);
-
-    const difference = erc721sWithImgs.filter(
+    const difference = filteredNfts.filter(
         (nftA) =>
             !orders.value.some(
                 (nftB) =>
