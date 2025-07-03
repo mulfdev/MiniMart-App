@@ -84,8 +84,33 @@ app.get('/user-orders', async (c) => {
         throw new HTTPException(400, { message: 'address is required' });
     }
 
-    const userTokens = await getUserTokens(address);
-    return c.json({ nfts: userTokens }, 200);
+    const orders = await getUserTokens(address);
+
+    const tokenData: Nft[] = [];
+    for (const order of orders) {
+        console.log(
+            `Fetching metadata for contract: ${order.nftContract}, token: ${order.tokenId}`,
+        );
+        const res = await fetch(
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
+        );
+
+        console.log(`Alchemy response status for token ${order.tokenId}: ${res.status}`);
+
+        if (!res.ok) {
+            console.log(
+                `Failed to fetch metadata for token ${order.tokenId}. Status: ${res.status}`,
+            );
+            const errorBody = await res.text();
+            console.log(`Alchemy error body: ${errorBody}`);
+            continue;
+        }
+
+        const data = (await res.json()) as Nft;
+        tokenData.push(data);
+    }
+
+    return c.json(tokenData, 200);
 });
 
 app.get('/user-inventory', async (c) => {
