@@ -144,7 +144,7 @@ export default function LandingPage() {
                         <button
                             onClick={() => {
                                 if (address) {
-                                    navigate(`/view/${address}`);
+                                    navigate(`/user/${address}`);
                                     return;
                                 }
                                 setOpen(true);

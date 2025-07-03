@@ -107,7 +107,7 @@ export default function ListNft() {
                         <h1 className="text-2xl font-bold text-white">NFT Not Found</h1>
                         <p className="text-zinc-400 font-medium">Could not load NFT details.</p>
                         <Link
-                            to={`/view/${address || ''}`}
+                            to={`/user/${address || ''}`}
                             className="text-blue-500 hover:underline inline-flex items-center mt-4"
                         >
                             <ChevronLeft className="w-5 h-5 mr-1" /> Go back to my collection

@@ -144,7 +144,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                                     </button>
                                 </Link>
                             ) : (
-                                <Link to={`/view/token/${nft.contract.address}/${nft.tokenId}`}>
+                                <Link to={`/token/${nft.contract.address}/${nft.tokenId}`}>
                                     <button
                                         className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
