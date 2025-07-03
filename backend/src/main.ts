@@ -92,12 +92,13 @@ app.get('user-orders', async (c) => {
 app.get('/single-token', async (c) => {
     const nftContract = c.req.query('nftContract');
     const tokenId = c.req.query('tokenId');
+    const getOrderInfo = c.req.query('orderInfo');
 
     if (!nftContract || !tokenId) {
         throw new HTTPException(400, { message: 'nftContract and tokenId required' });
     }
 
-    const orderInfo = await getSingleOrder(nftContract, tokenId);
+    const orderInfo = await getSingleOrder(nftContract, tokenId, Boolean(getOrderInfo));
 
     if (!orderInfo) {
         throw new HTTPException(404, { message: 'Could not locate token info' });
