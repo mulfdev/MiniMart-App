@@ -79,7 +79,7 @@ app.get('/all-orders', async (c) => {
     }
 });
 
-app.get('user-orders', async (c) => {
+app.get('/user-orders', async (c) => {
     const address = c.req.query('address');
     if (!address) {
         throw new HTTPException(400, { message: 'address is required' });
@@ -87,6 +87,47 @@ app.get('user-orders', async (c) => {
 
     const userTokens = await getUserTokens(address);
     return c.json({ nfts: userTokens }, 200);
+});
+
+app.get('/user-inventory', async (c) => {
+    const address = c.req.query('address');
+
+    console.log(address);
+
+    if (!address) throw new HTTPException(400, { message: 'Address is required' });
+    if (address.length !== 42 && !address.startsWith('0x')) {
+        throw new HTTPException(400, { message: 'Incorrect address' });
+    }
+
+    const res = await fetch(
+        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
+    );
+
+    if (!res.ok) throw new HTTPException(400, { message: 'Could not fetch NFTs' });
+
+    const data = await res.json();
+
+    if (!data.ownedNfts || data.ownedNfts.length === 0) {
+        return c.json([]);
+    }
+
+    const nfts = data.ownedNfts as Nft[];
+
+    const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
+    console.log('spam check \n', noSpamNfts);
+
+    const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
+
+    console.log('first 721 check\n', erc721s);
+
+    const erc721sWithImgs =
+        erc721s.filter(
+            (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
+        ) ?? [];
+
+    console.log('with image check\n', erc721sWithImgs);
+
+    return c.json(erc721sWithImgs, 200);
 });
 
 app.get('/single-token', async (c) => {

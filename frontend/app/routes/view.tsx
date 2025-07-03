@@ -40,7 +40,11 @@ export default function ViewNfts() {
     const account = useAccount();
 
     console.log(account.address);
-    const { data: nfts, isPending } = useQuery({
+    const {
+        data: nfts,
+        isPending,
+        isError,
+    } = useQuery({
         queryKey: ['nfts'],
         queryFn: async () => {
             const nfts = await fetchNfts(account.address!);
@@ -51,6 +55,8 @@ export default function ViewNfts() {
     });
 
     if (isPending) return <HydrateFallback />;
+
+    console.log(nfts);
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -63,20 +69,17 @@ export default function ViewNfts() {
                         Here are the NFTs you own. Select any NFT to create a listing.
                     </p>
                 </div>
-
-                {/* Error State */}
-                {/* {error && ( */}
-                {/*     <div className="text-center py-20"> */}
-                {/*         <div */}
-                {/*             className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20  */}
-                {/*                       rounded-lg text-red-400 backdrop-blur-sm" */}
-                {/*         > */}
-                {/*             <span>Error fetching NFTs: {error.message}</span> */}
-                {/*         </div> */}
-                {/*     </div> */}
-                {/* )} */}
-                {/**/}
-                {/* NFT Grid */}
+                Error State
+                {isError ? (
+                    <div className="text-center py-20">
+                        <div
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 
+                                      rounded-lg text-red-400 backdrop-blur-sm"
+                        >
+                            <span>Error fetching NFTs </span>
+                        </div>
+                    </div>
+                ) : null}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {nfts &&
                         nfts.map((nft, index) => (
@@ -89,9 +92,8 @@ export default function ViewNfts() {
                             </div>
                         ))}
                 </div>
-
                 {/* Empty State */}
-                {nfts && nfts.length === 0 && (
+                {nfts && nfts.length === 0 ? (
                     <div className="text-center py-20 space-y-4">
                         <div className="w-16 h-16 mx-auto bg-zinc-800/50 rounded-full flex items-center justify-center backdrop-blur-sm">
                             <Sparkles className="w-8 h-8 text-zinc-600" />
@@ -100,7 +102,7 @@ export default function ViewNfts() {
                             No NFTs found in your collection
                         </p>
                     </div>
-                )}
+                ) : null}
             </main>
         </div>
     );

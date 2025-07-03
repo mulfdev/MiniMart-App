@@ -38,40 +38,13 @@ export async function fetchNft(
 }
 
 export async function fetchNfts(address: string) {
-    if (address.length !== 42 && !address.startsWith('0x'))
-        return Promise.reject(new Error('Incorrect address'));
-
     try {
-        const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`
-        );
+        const url = new URL(`${API_URL}/user-inventory`);
+        url.searchParams.set('address', address);
 
-        if (!res.ok) throw new Error('Could not fetch NFTs');
-
-        const data = await res.json();
-
-        if (!data.ownedNfts || data.ownedNfts.length === 0) {
-            return [];
-        }
-
-        const nfts = data.ownedNfts as Nft[];
-
-        const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
-        console.log('spam check \n', noSpamNfts);
-
-        const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
-
-        console.log('first 721 check\n', erc721s);
-
-        const erc721sWithImgs =
-            erc721s.filter(
-                (nft) =>
-                    nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null
-            ) ?? [];
-
-        console.log('with image check\n', erc721sWithImgs);
-
-        return erc721sWithImgs ?? [];
+        const res = await fetch(url);
+        const data = (await res.json()) as Nft[];
+        return data;
     } catch (e) {
         throw new Error('Could not fetch NFTs');
     }

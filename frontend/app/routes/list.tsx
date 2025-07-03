@@ -182,14 +182,55 @@ export default function ListNft() {
                                         Step 2: Set Listing Price (ETH)
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
+                                        inputMode="decimal"
                                         id="price"
                                         value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (val === '') {
+                                                setPrice('');
+                                                return;
+                                            }
+                                            // Ensure only numbers and a single decimal point are allowed
+                                            let dotCount = 0;
+                                            const validChars = '0123456789.';
+                                            let isValid = true;
+
+                                            for (const char of val) {
+                                                if (char === '.') {
+                                                    dotCount++;
+                                                }
+                                                if (!validChars.includes(char) || dotCount > 1) {
+                                                    isValid = false;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (isValid) {
+                                                setPrice(val);
+                                            }
+                                        }}
                                         placeholder="e.g., 0.05"
                                         className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none"
                                     />
                                 </div>
+                                {price && !isNaN(parseFloat(price)) && parseFloat(price) > 0 ? (
+                                    <div className="p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                            <p className="text-zinc-400">Marketplace Fee (3%)</p>
+                                            <p className="text-zinc-300 font-mono">
+                                                {(parseFloat(price) * 0.03).toFixed(6)} ETH
+                                            </p>
+                                        </div>
+                                        <div className="flex justify-between font-semibold">
+                                            <p className="text-zinc-300">You will receive</p>
+                                            <p className="text-white font-mono">
+                                                {(parseFloat(price) * 0.97).toFixed(6)} ETH
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : null}
                                 {errorInfo.isError && (
                                     <div className="text-red-400 text-sm bg-red-900/30 p-3 rounded-lg text-center">
                                         {errorInfo.message}
