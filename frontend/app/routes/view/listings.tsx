@@ -3,6 +3,8 @@ import { queryClient } from '~/root';
 import { useAccount } from 'wagmi';
 import type { Route } from '../+types/view';
 import { fetchOrders } from '~/loaders';
+import { Sparkles } from 'lucide-react';
+import { NftCard } from '~/components/NftCard';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     const { address } = params;
@@ -33,7 +35,7 @@ export function HydrateFallback() {
 export default function () {
     const account = useAccount();
     const {
-        data: listings,
+        data: nfts,
         isPending,
         isError,
     } = useQuery({
@@ -55,6 +57,29 @@ export default function () {
                         Your Listings
                     </h1>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    {nfts &&
+                        nfts.map((nft, index) => (
+                            <div
+                                key={`${nft.contract.address}+${nft.tokenId}`}
+                                className="animate-in fade-in slide-in-from-bottom-4"
+                                style={{ animationDelay: `${index * 100}ms` }}
+                            >
+                                <NftCard nft={nft} />
+                            </div>
+                        ))}
+                </div>
+                {/* Empty State */}
+                {nfts && nfts.length === 0 ? (
+                    <div className="text-center py-20 space-y-4">
+                        <div className="w-16 h-16 mx-auto bg-zinc-800/50 rounded-full flex items-center justify-center backdrop-blur-sm">
+                            <Sparkles className="w-8 h-8 text-zinc-600" />
+                        </div>
+                        <p className="text-zinc-400 font-medium">
+                            No NFTs found in your collection
+                        </p>
+                    </div>
+                ) : null}
             </main>
         </div>
     );
