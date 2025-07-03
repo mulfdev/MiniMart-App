@@ -49,3 +49,16 @@ export async function fetchNfts(address: string) {
         throw new Error('Could not fetch NFTs');
     }
 }
+
+export async function fetchOrders(address: string) {
+    try {
+        const url = new URL(`${API_URL}/user-orders`);
+        url.searchParams.set('address', address);
+
+        const res = await fetch(url);
+        const data = (await res.json()) as OrderListed[];
+        return data;
+    } catch (e) {
+        throw new Error('Could not fetch NFTs');
+    }
+}
