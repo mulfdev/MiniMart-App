@@ -39,7 +39,6 @@ export function HydrateFallback() {
 export default function ViewNfts() {
     const account = useAccount();
 
-    console.log(account.address);
     const {
         data: nfts,
         isPending,
@@ -55,8 +54,6 @@ export default function ViewNfts() {
     });
 
     if (isPending) return <HydrateFallback />;
-
-    console.log(nfts);
 
     return (
         <div className="max-w-7xl mx-auto">

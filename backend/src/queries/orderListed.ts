@@ -94,8 +94,6 @@ export async function getUserTokens(address: string) {
 
         const req = await client.request<GetOrderListedEvents>(GET_ORDERS, { filters });
 
-        console.log(req.orderListeds);
-
         return req.orderListeds;
     } catch (e) {
         if (e instanceof Error) {
