@@ -18,7 +18,7 @@ export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
     queryClient.prefetchQuery({
         queryKey: ['nft', contract, tokenId],
-        queryFn: () => fetchNft(contract, tokenId),
+        queryFn: () => fetchNft(contract, tokenId, false),
     });
     return null;
 }
@@ -71,7 +71,7 @@ export default function ListNft() {
     const params = useParams();
     const { data: token, isLoading } = useQuery({
         queryKey: ['nft', params.contract, params.tokenId],
-        queryFn: () => fetchNft(params.contract!, params.tokenId!),
+        queryFn: () => fetchNft(params.contract!, params.tokenId!, false),
         enabled: !!params.contract && !!params.tokenId,
     });
 
@@ -119,7 +119,7 @@ export default function ListNft() {
     }
 
     const defaultButtonStyles =
-        'w-full px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
+        'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     return (
         <main className="mx-auto px-4 py-8 sm:py-16">
@@ -179,7 +179,7 @@ export default function ListNft() {
                                         htmlFor="price"
                                         className="block text-zinc-300 font-semibold text-lg mb-2"
                                     >
-                                        Step 2: Set Listing Price (ETH)
+                                        Set Listing Price (ETH)
                                     </label>
                                     <input
                                         type="text"
@@ -192,7 +192,6 @@ export default function ListNft() {
                                                 setPrice('');
                                                 return;
                                             }
-                                            // Ensure only numbers and a single decimal point are allowed
                                             let dotCount = 0;
                                             const validChars = '0123456789.';
                                             let isValid = true;
@@ -231,18 +230,16 @@ export default function ListNft() {
                                         </div>
                                     </div>
                                 ) : null}
-                                {errorInfo.isError && (
-                                    <div className="text-red-400 text-sm bg-red-900/30 p-3 rounded-lg text-center">
-                                        {errorInfo.message}
-                                    </div>
-                                )}
                                 <AddOrderButton
                                     price={parseEther(price)}
                                     nftContract={token.nft.contract.address}
                                     tokenId={token.nft.tokenId}
                                     onSuccess={() => setStatus('success')}
                                     onError={(err: Error) =>
-                                        setErrorInfo({ isError: true, message: err.message })
+                                        setErrorInfo({
+                                            isError: true,
+                                            message: err.message.split('.')[0],
+                                        })
                                     }
                                     className={defaultButtonStyles}
                                 >
@@ -284,7 +281,7 @@ export default function ListNft() {
                 )}
             </div>
             {status === 'success' ? <Toast variant="success" message="Success" /> : null}
-            {errorInfo.message ? <Toast variant="error" message={errorInfo.message} /> : null}
+            {errorInfo.isError ? <Toast variant="error" message={errorInfo.message} /> : null}
         </main>
     );
 }
