@@ -5,7 +5,6 @@ import { cors } from 'hono/cors';
 import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderListed.js';
 import type { Nft } from '@minimart/types';
 import assert from 'node:assert';
-import { db } from './db.js';
 import { CACHE_KEYS, isValidCacheKey, localCache } from './cache.js';
 
 //////////// Startup checks
@@ -99,26 +98,31 @@ app.get('/user-inventory', async (c) => {
         throw new HTTPException(400, { message: 'Incorrect address' });
     }
 
-    const res = await fetch(
+    const res = fetch(
         `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
     );
 
-    if (!res.ok) throw new HTTPException(400, { message: 'Could not fetch NFTs' });
+    const ordersPromise = getUserTokens(address);
 
-    const data = await res.json();
+    const [fetchedNfts, orders] = await Promise.allSettled([res, ordersPromise]);
 
-    if (!data.ownedNfts || data.ownedNfts.length === 0) {
-        return c.json([]);
+    if (fetchedNfts.status === 'rejected') {
+        console.log(fetchedNfts.reason);
+        throw new HTTPException(500, { message: 'there was a problem getting your nfts' });
     }
+
+    if (orders.status === 'rejected') {
+        console.log(orders.reason);
+        throw new HTTPException(500, { message: 'there was a problem fetchng your orders' });
+    }
+
+    const data = await fetchedNfts.value.json();
 
     const nfts = data.ownedNfts as Nft[];
 
     const noSpamNfts = nfts.filter((nft) => !nft.contract.isSpam);
-    console.log('spam check \n', noSpamNfts);
 
     const erc721s = noSpamNfts.filter((nft) => nft.tokenType === 'ERC721') ?? [];
-
-    console.log('first 721 check\n', erc721s);
 
     const erc721sWithImgs =
         erc721s.filter(
@@ -127,7 +131,16 @@ app.get('/user-inventory', async (c) => {
 
     console.log('with image check\n', erc721sWithImgs);
 
-    return c.json(erc721sWithImgs, 200);
+    const difference = erc721sWithImgs.filter(
+        (nftA) =>
+            !orders.value.some(
+                (nftB) =>
+                    nftA.contract.address.toLowerCase() === nftB.nftContract.toLowerCase() &&
+                    nftA.tokenId === nftB.tokenId,
+            ),
+    );
+
+    return c.json(difference, 200);
 });
 
 app.get('/single-token', async (c) => {
