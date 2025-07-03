@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router';
 import type { Route } from './+types/token';
 import { fetchNft } from '~/loaders';
-import { queryClient } from '~/root';
+import { API_URL, queryClient } from '~/root';
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
@@ -12,7 +12,7 @@ export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
     queryClient.prefetchQuery({
         queryKey: ['nft', contract, tokenId],
-        queryFn: () => fetchNft(contract, tokenId),
+        queryFn: () => fetchNft(contract, tokenId, true),
     });
     return null;
 }
@@ -21,11 +21,11 @@ export default function ViewToken() {
     const params = useParams();
     const { data: token, isLoading } = useQuery({
         queryKey: ['nft', params.contract, params.tokenId],
-        queryFn: () => fetchNft(params.contract!, params.tokenId!),
+        queryFn: () => fetchNft(params.contract!, params.tokenId!, true),
         enabled: !!params.contract && !!params.tokenId,
     });
 
-    const { writeContract, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
+    const { writeContractAsync, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,
         args: [token?.orderData.orderId as `0x${string}`],
@@ -200,7 +200,10 @@ export default function ViewToken() {
                                         onClick={async () => {
                                             if (!fulfillOrderSim) return;
                                             try {
-                                                writeContract(fulfillOrderSim.request);
+                                                await writeContractAsync(fulfillOrderSim.request);
+                                                fetch(
+                                                    `${API_URL}/reset-cache?cacheKey=${CACHE_KEYS.frontpageOrders}`
+                                                );
                                             } catch (e) {
                                                 console.log(e);
                                             }

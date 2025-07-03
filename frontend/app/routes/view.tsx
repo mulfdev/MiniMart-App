@@ -1,8 +1,7 @@
-import type { Nft } from '@minimart/types';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
-import { ALCHEMY_API_KEY, queryClient } from '~/root';
+import { queryClient } from '~/root';
 import { useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
 import { fetchNfts } from '~/loaders';

@@ -117,7 +117,7 @@ export default function LandingPage() {
     return (
         <div className="max-w-7xl mx-auto">
             {/* Hero Section */}
-            <section className="max-w-7xl mx-auto px-4 py-16 sm:py-24">
+            <section className="max-w-7xl mx-auto px-4 py-12">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm">
@@ -186,42 +186,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section className="container mx-auto px-4 py-16">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">How It Helps</h2>
-                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-                        Built for Farcaster users who want a simpler way to sell their NFTs
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {features.map((feature, index) => (
-                        <div
-                            key={index}
-                            className="group relative bg-zinc-900 rounded-2xl p-8 border border-zinc-800/50 hover:border-zinc-700/80
-                                     shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:shadow-[0_20px_60px_rgb(0,0,0,0.3)]
-                                     transform hover:-translate-y-2 transition-all duration-500 ease-out"
-                        >
-                            {/* Decorative corner */}
-                            <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                            {/* Icon */}
-                            <div className="w-12 h-12 bg-zinc-800/80 rounded-xl flex items-center justify-center mb-6 group-hover:bg-zinc-700/80 transition-colors duration-300">
-                                <feature.icon className="w-6 h-6 text-blue-400" />
-                            </div>
-
-                            <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-100 transition-colors duration-300">
-                                {feature.title}
-                            </h3>
-                            <p className="text-zinc-400 leading-relaxed group-hover:text-zinc-300 transition-colors duration-300">
-                                {feature.description}
-                            </p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
             {/* How It Works */}
             <section className="container mx-auto px-4 py-16">
                 <div className="text-center mb-16">
@@ -252,59 +216,6 @@ export default function LandingPage() {
                             </div>
                         </div>
                     ))}
-                </div>
-            </section>
-
-            {/* Benefits */}
-            <section className="container mx-auto px-4 py-16">
-                <div className="bg-zinc-900/50 rounded-3xl p-8 sm:p-12 border border-zinc-800/50 backdrop-blur-sm">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                            Why Use This
-                        </h2>
-                        <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-                            Simple benefits for Farcaster users who own NFTs
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {benefits.map((benefit, index) => (
-                            <div key={index} className="text-center">
-                                <div className="w-16 h-16 bg-zinc-800/80 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                                    <benefit.icon className="w-8 h-8 text-blue-400" />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3">
-                                    {benefit.title}
-                                </h3>
-                                <p className="text-zinc-400 leading-relaxed">
-                                    {benefit.description}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* About Section */}
-            <section className="container mx-auto px-4 py-16">
-                <div className="max-w-3xl mx-auto">
-                    <div className="bg-zinc-900/30 rounded-3xl p-8 sm:p-12 border border-zinc-800/30 backdrop-blur-sm">
-                        <div className="text-center">
-                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                                About This Project
-                            </h2>
-                            <p className="text-lg text-zinc-300 mb-6 leading-relaxed">
-                                We noticed that selling NFTs often requires jumping between
-                                different platforms and apps. Since many NFT owners are already
-                                active on Farcaster, we built a simple Mini App to handle sales
-                                directly within the platform.
-                            </p>
-                            <p className="text-zinc-400 leading-relaxed">
-                                This is a new project, so we're starting simple and improving based
-                                on what users actually need.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </section>
 

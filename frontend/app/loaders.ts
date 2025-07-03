@@ -9,7 +9,8 @@ interface TokenWithOrderData {
 
 export async function fetchNft(
     contract: string,
-    tokenId: string
+    tokenId: string,
+    orderInfo: boolean
 ): Promise<TokenWithOrderData | null> {
     if (!contract || !tokenId) {
         console.error('Contract address or token ID missing in params.');
@@ -22,8 +23,13 @@ export async function fetchNft(
         url.searchParams.set('nftContract', contract);
         url.searchParams.set('tokenId', tokenId);
 
+        if (orderInfo) {
+            url.searchParams.set('orderInfo', 'true');
+        }
+
         const res = await fetch(url);
         const data = (await res.json()) as TokenWithOrderData;
+        console.log(data);
         return data;
     } catch (error) {
         console.error('Failed to fetch NFT metadata:', error);

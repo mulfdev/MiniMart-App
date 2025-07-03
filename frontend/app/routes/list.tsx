@@ -12,6 +12,7 @@ import { miniMartAddr, nftAbi } from '~/utils';
 import { fetchNft } from '~/loaders';
 import { queryClient } from '~/root';
 import { useQuery } from '@tanstack/react-query';
+import { Toast } from '~/components/Toast';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     const { contract, tokenId } = params;
@@ -68,7 +69,7 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
 
 export default function ListNft() {
     const params = useParams();
-    const { data: nft, isLoading } = useQuery({
+    const { data: token, isLoading } = useQuery({
         queryKey: ['nft', params.contract, params.tokenId],
         queryFn: () => fetchNft(params.contract!, params.tokenId!),
         enabled: !!params.contract && !!params.tokenId,
@@ -97,7 +98,7 @@ export default function ListNft() {
 
     if (isLoading) return <HydrateFallback />;
 
-    if (!nft) {
+    if (!token?.nft) {
         return (
             <div className="max-w-7xl mx-auto">
                 <main className="mx-auto px-4 py-8 sm:py-16">
@@ -135,29 +136,33 @@ export default function ListNft() {
                             <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
                                 <img
                                     src={
-                                        nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'
+                                        token.nft.image.originalUrl ||
+                                        token.nft.tokenUri ||
+                                        '/placeholder.svg'
                                     }
-                                    alt={nft.name || 'NFT Image'}
+                                    alt={token.nft.name || 'NFT Image'}
                                     className="max-w-full max-h-64 object-contain rounded-lg"
                                 />
                             </div>
                             <div className="md:w-1/2 space-y-4">
                                 <h2 className="text-2xl font-bold text-white">
-                                    {nft.name || nft.contract.name} #{nft.tokenId}
+                                    {token.nft.name || token.nft.contract.name} #{token.nft.tokenId}
                                 </h2>
                                 <p className="text-zinc-400 text-sm">
                                     Collection:{' '}
                                     <span className="font-mono text-zinc-300 break-all">
-                                        {nft.contract.name}
+                                        {token.nft.contract.name}
                                     </span>
                                 </p>
                                 <p className="text-zinc-400 text-sm">
                                     Token ID:{' '}
-                                    <span className="font-mono text-zinc-300">{nft.tokenId}</span>
+                                    <span className="font-mono text-zinc-300">
+                                        {token.nft.tokenId}
+                                    </span>
                                 </p>
-                                {nft.description ? (
+                                {token.nft.description ? (
                                     <p className="text-zinc-300 text-base line-clamp-3">
-                                        {nft.description}
+                                        {token.nft.description}
                                     </p>
                                 ) : (
                                     <p className="text-zinc-500 text-base italic">
@@ -169,12 +174,6 @@ export default function ListNft() {
 
                         {isApproved ? (
                             <div className="space-y-6">
-                                <div className="flex items-center justify-center gap-2 p-3 bg-green-900/40 border border-green-700/60 rounded-lg text-center">
-                                    <CheckCircle2 className="w-5 h-5 text-green-400" />
-                                    <p className="text-sm font-semibold text-green-300">
-                                        Marketplace Approved!
-                                    </p>
-                                </div>
                                 <div>
                                     <label
                                         htmlFor="price"
@@ -198,8 +197,8 @@ export default function ListNft() {
                                 )}
                                 <AddOrderButton
                                     price={parseEther(price)}
-                                    nftContract={nft.contract.address}
-                                    tokenId={nft.tokenId}
+                                    nftContract={token.nft.contract.address}
+                                    tokenId={token.nft.tokenId}
                                     onSuccess={() => setStatus('success')}
                                     onError={(err: Error) =>
                                         setErrorInfo({ isError: true, message: err.message })
@@ -219,7 +218,7 @@ export default function ListNft() {
                                     standard, one-time security step for this item.
                                 </p>
                                 <ApproveButton
-                                    nftContract={nft.contract.address as Address}
+                                    nftContract={token.nft.contract.address as Address}
                                     className={defaultButtonStyles}
                                 />
                             </div>
@@ -243,6 +242,8 @@ export default function ListNft() {
                     </div>
                 )}
             </div>
+            {status === 'success' ? <Toast variant="success" message="Success" /> : null}
+            {errorInfo.message ? <Toast variant="error" message={errorInfo.message} /> : null}
         </main>
     );
 }
