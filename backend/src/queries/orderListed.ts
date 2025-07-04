@@ -6,6 +6,7 @@ import { HTTPException } from 'hono/http-exception';
 const GET_ORDERS = gql`
     query GetOrders($filter: OrderListed_filter, $first: Int) {
         orderListeds(where: $filter, first: $first) {
+            id
             orderId
             seller
             blockNumber
@@ -51,7 +52,6 @@ export async function getListedOrders(numItems: number) {
 
 export async function getSingleOrder(contract: string, tokenId: string, fetchOrderInfo?: boolean) {
     try {
-        console.log(fetchOrderInfo);
         const res = await fetch(
             `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`,
         );
