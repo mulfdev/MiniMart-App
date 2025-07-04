@@ -1,14 +1,32 @@
 import { Shield, Sparkles } from 'lucide-react';
 import type { Nft } from '@minimart/types';
 import { Link } from 'react-router';
+import { useSimulateMinimartRemoveOrder, useWriteMinimartRemoveOrder } from 'src/generated';
+import { miniMartAddr } from '~/utils';
+import { Toast } from './Toast';
+import { queryClient } from '~/root';
 
-export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' | 'view' }) {
+export function NftCard({
+    nft,
+    variant = 'list',
+}: {
+    nft: Nft;
+    variant?: 'list' | 'view' | 'remove';
+}) {
+    const { writeContractAsync, isSuccess, isError, isPending } = useWriteMinimartRemoveOrder();
+    const simulateRemove = useSimulateMinimartRemoveOrder({
+        args: [nft.orderId! as `0x${string}`],
+        address: miniMartAddr,
+        query: {
+            enabled: !!nft.orderId,
+        },
+    });
     return (
         <div className="group relative">
-            {/* Main Card Container with responsive heights */}
+            {/* Main Card Container */}
             <div
                 className="relative bg-zinc-900 rounded-2xl overflow-hidden 
-                        h-[520px] sm:h-[480px] flex flex-col
+                        h-[490px] flex flex-col
                         shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
                         hover:shadow-[0_20px_60px_rgb(0,0,0,0.3)]
                         transform hover:-translate-y-2 
@@ -19,7 +37,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                 <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {/* Enhanced Image Container with artistic background */}
-                <div className="relative overflow-hidden h-[320px] sm:h-[240px] bg-zinc-800">
+                <div className="relative overflow-hidden h-2/3 bg-zinc-800">
                     {/* Blurred background image for artistic effect */}
                     <div className="absolute inset-0">
                         <img
@@ -49,7 +67,7 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                                      transform group-hover:scale-105 
                                      transition-transform duration-700 ease-out
                                      filter group-hover:brightness-110 group-hover:contrast-110
-                                     drop-shadow-2xl"
+                                     drop-shadow-2xl rounded"
                         />
                     </div>
 
@@ -62,10 +80,10 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
 
                     {/* Shine effect sweep */}
                     <div
-                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 
                                     bg-gradient-to-r from-transparent via-white/10 to-transparent
                                     transform -skew-x-12 -translate-x-full group-hover:translate-x-full
-                                    transition-transform duration-1000 ease-out"
+                                    transition-transform duration-[1250ms] ease-out"
                     />
 
                     <div className="absolute inset-4 border border-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -143,7 +161,8 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                                         List It
                                     </button>
                                 </Link>
-                            ) : (
+                            ) : null}
+                            {variant === 'view' ? (
                                 <Link to={`/token/${nft.contract.address}/${nft.tokenId}`}>
                                     <button
                                         className="group/link flex items-center gap-2 px-6 py-2.5 
@@ -157,11 +176,34 @@ export function NftCard({ nft, variant = 'list' }: { nft: Nft; variant?: 'list' 
                                         View
                                     </button>
                                 </Link>
-                            )}
+                            ) : null}
+                            {variant === 'remove' ? (
+                                <button
+                                    onClick={async () => {
+                                        if (!simulateRemove.data?.request) {
+                                            return;
+                                        }
+                                        await writeContractAsync(simulateRemove.data.request);
+                                        queryClient.invalidateQueries({ queryKey: ['listings'] });
+                                    }}
+                                    disabled={isPending || !simulateRemove.data?.request}
+                                    className="group/link flex items-center gap-2 px-6 py-2.5 
+                                             bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
+                                             border border-zinc-700/50 hover:border-zinc-600/80
+                                             rounded-xl font-semibold text-white text-lg
+                                             transform hover:scale-105 active:scale-95
+                                             transition-all duration-200 ease-out
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
+                                >
+                                    Remove
+                                </button>
+                            ) : null}
                         </div>
                     </div>
                 </div>
             </div>
+            {isSuccess ? <Toast variant="success" message="Listing Removed" /> : null}
+            {isError ? <Toast variant="error" message="Could not remove the listing" /> : null}
         </div>
     );
 }
