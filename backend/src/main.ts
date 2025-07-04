@@ -32,10 +32,7 @@ app.get('/all-orders', async (c) => {
         return c.json({ nfts: cachedOrderData }, 200);
     }
     try {
-        console.log('Fetching listed orders...');
         const orders = await getListedOrders(6);
-
-        console.log('Orders received from subgraph:', JSON.stringify(orders, null, 2));
 
         if (!orders || orders.length === 0) {
             console.log('No orders found from the subgraph. Returning empty list.');
@@ -44,14 +41,9 @@ app.get('/all-orders', async (c) => {
 
         const tokenData: Nft[] = [];
         for (const order of orders) {
-            console.log(
-                `Fetching metadata for contract: ${order.nftContract}, token: ${order.tokenId}`,
-            );
             const res = await fetch(
                 `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
             );
-
-            console.log(`Alchemy response status for token ${order.tokenId}: ${res.status}`);
 
             if (!res.ok) {
                 console.log(
@@ -86,16 +78,13 @@ app.get('/user-orders', async (c) => {
 
     const orders = await getUserTokens(address);
 
+    console.log(orders);
+
     const tokenData: Nft[] = [];
     for (const order of orders) {
-        console.log(
-            `Fetching metadata for contract: ${order.nftContract}, token: ${order.tokenId}`,
-        );
         const res = await fetch(
             `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
         );
-
-        console.log(`Alchemy response status for token ${order.tokenId}: ${res.status}`);
 
         if (!res.ok) {
             console.log(
@@ -105,9 +94,9 @@ app.get('/user-orders', async (c) => {
             console.log(`Alchemy error body: ${errorBody}`);
             continue;
         }
-
+        console.log(order, 'ORDER DATA');
         const data = (await res.json()) as Nft;
-        tokenData.push(data);
+        tokenData.push({ ...data, orderId: order.id });
     }
 
     return c.json(tokenData, 200);
@@ -115,8 +104,6 @@ app.get('/user-orders', async (c) => {
 
 app.get('/user-inventory', async (c) => {
     const address = c.req.query('address');
-
-    console.log(address);
 
     if (!address) throw new HTTPException(400, { message: 'Address is required' });
     if (address.length !== 42 && !address.startsWith('0x')) {
