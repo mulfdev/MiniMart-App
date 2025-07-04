@@ -39,7 +39,7 @@ export default function () {
         isPending,
         isError,
     } = useQuery({
-        queryKey: ['listngs'],
+        queryKey: ['listings'],
         queryFn: async () => {
             const nfts = await fetchOrders(account.address!);
             return nfts;
@@ -65,7 +65,7 @@ export default function () {
                                 className="animate-in fade-in slide-in-from-bottom-4"
                                 style={{ animationDelay: `${index * 100}ms` }}
                             >
-                                <NftCard nft={nft} />
+                                <NftCard nft={nft} variant="remove" />
                             </div>
                         ))}
                 </div>
