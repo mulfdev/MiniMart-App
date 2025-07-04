@@ -27,6 +27,7 @@ export interface Nft {
     description: string | null;
     tokenUri: string;
     image: Image;
+    orderId?: string;
 }
 
 export interface OrderListed {
