@@ -234,7 +234,11 @@ export default function ListNft() {
                                     price={parseEther(price)}
                                     nftContract={token.nft.contract.address}
                                     tokenId={token.nft.tokenId}
-                                    onSuccess={() => setStatus('success')}
+                                    onSuccess={() => {
+                                        queryClient.invalidateQueries({ queryKey: ['nfts'] });
+
+                                        setStatus('success');
+                                    }}
                                     onError={(err: Error) =>
                                         setErrorInfo({
                                             isError: true,
@@ -251,9 +255,9 @@ export default function ListNft() {
                                 <h3 className="text-lg font-semibold text-white text-center">
                                     Step 1 of 2: Grant Permission
                                 </h3>
-                                <p className="text-zinc-400 text-center text-sm">
-                                    First, approve the marketplace to manage this NFT. This is a
-                                    standard, one-time security step for this item.
+                                <p className="text-zinc-400 text-left text-sm">
+                                    First, approve the marketplace to manage this NFT.
+                                    <br /> This is a standard, one-time security step for this item.
                                 </p>
                                 <ApproveButton
                                     nftContract={token.nft.contract.address as Address}
@@ -272,7 +276,7 @@ export default function ListNft() {
                             Your item is now live on the marketplace.
                         </p>
                         <Link
-                            to={`/view/${address || ''}`}
+                            to={`/user/${address || ''}`}
                             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl"
                         >
                             View My Collection

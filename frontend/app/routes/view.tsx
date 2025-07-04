@@ -66,7 +66,6 @@ export default function ViewNfts() {
                         Here are the NFTs you own. Select any NFT to create a listing.
                     </p>
                 </div>
-                Error State
                 {isError ? (
                     <div className="text-center py-20">
                         <div
