@@ -1,26 +1,81 @@
 import { Shield, Sparkles } from 'lucide-react';
 import type { Nft } from '@minimart/types';
-import { Link } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { useSimulateMinimartRemoveOrder, useWriteMinimartRemoveOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
 import { queryClient } from '~/root';
+import { useAccount, useConfig } from 'wagmi';
+import { useMutation } from '@tanstack/react-query';
+import { waitForTransactionReceipt } from 'wagmi/actions';
 
 export function NftCard({
     nft,
     variant = 'list',
+    ownerAddress,
 }: {
     nft: Nft;
     variant?: 'list' | 'view' | 'remove';
+    ownerAddress: `0x${string}`;
 }) {
-    const { writeContractAsync, isSuccess, isError, isPending } = useWriteMinimartRemoveOrder();
-    const simulateRemove = useSimulateMinimartRemoveOrder({
+    const { writeContractAsync } = useWriteMinimartRemoveOrder();
+    const { refetch: simulateTx } = useSimulateMinimartRemoveOrder({
         args: [nft.orderId! as `0x${string}`],
         address: miniMartAddr,
         query: {
-            enabled: !!nft.orderId,
+            enabled: false,
         },
     });
+
+    const config = useConfig();
+    const account = useAccount();
+
+    const {
+        mutate: removeListing,
+        isPending,
+        isSuccess,
+        isError,
+    } = useMutation({
+        mutationKey: ['removeOrder', nft.orderId],
+        mutationFn: async () => {
+            const { data: simulation, error: simulationError } = await simulateTx();
+            if (!simulation?.request || simulationError) {
+                throw new Error(simulationError?.message ?? 'Transaction simulation failed');
+            }
+            const hash = await writeContractAsync(simulation.request);
+            return waitForTransactionReceipt(config, { hash });
+        },
+        onMutate: async () => {
+            const queryKey = ['listings', ownerAddress];
+            // Cancel any outgoing refetches so they don't overwrite our optimistic update
+            await queryClient.cancelQueries({ queryKey });
+
+            // Snapshot the previous value
+            const previousNfts = queryClient.getQueryData(queryKey);
+
+            // Optimistically update to the new value
+            queryClient.setQueryData(queryKey, (old: Nft[] | undefined) => {
+                if (!old) return [];
+                return old.filter((n) => n.orderId !== nft.orderId);
+            });
+
+            // Return a context object with the snapshotted value
+            return { previousNfts, queryKey };
+        },
+        onError: (err, _vars, context) => {
+            // If the mutation fails, roll back the optimistic update
+            if (context?.previousNfts) {
+                queryClient.setQueryData(context.queryKey, context.previousNfts);
+            }
+        },
+        onSettled: (_data, _error, _vars, context) => {
+            // Invalidate the query to ensure eventual consistency with the subgraph.
+            if (context?.queryKey) {
+                queryClient.invalidateQueries({ queryKey: context.queryKey });
+            }
+        },
+    });
+
     return (
         <div className="group relative">
             {/* Main Card Container */}
@@ -179,14 +234,10 @@ export function NftCard({
                             ) : null}
                             {variant === 'remove' ? (
                                 <button
-                                    onClick={async () => {
-                                        if (!simulateRemove.data?.request) {
-                                            return;
-                                        }
-                                        await writeContractAsync(simulateRemove.data.request);
-                                        queryClient.invalidateQueries({ queryKey: ['listings'] });
+                                    onClick={() => {
+                                        removeListing();
                                     }}
-                                    disabled={isPending || !simulateRemove.data?.request}
+                                    disabled={isPending}
                                     className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                              border border-zinc-700/50 hover:border-zinc-600/80
@@ -195,7 +246,7 @@ export function NftCard({
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
                                 >
-                                    Remove
+                                    {isPending ? 'Processing' : 'Remove'}
                                 </button>
                             ) : null}
                         </div>
@@ -203,7 +254,8 @@ export function NftCard({
                 </div>
             </div>
             {isSuccess ? <Toast variant="success" message="Listing Removed" /> : null}
-            {isError ? <Toast variant="error" message="Could not remove the listing" /> : null}
+            {/* {isError ? <Toast variant="error" message="Could not remove the listing" /> : null} */}
         </div>
     );
 }
+

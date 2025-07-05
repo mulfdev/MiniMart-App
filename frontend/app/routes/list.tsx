@@ -56,7 +56,7 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
     return (
         <div className="w-full">
             <button onClick={handleApprove} disabled={isPending} className={className}>
-                {isPending ? 'Approving in Wallet...' : '1. Approve Marketplace'}
+                {isPending ? 'Approving in Wallet...' : 'Approve Marketplace'}
             </button>
             {error && (
                 <p className="text-red-400 text-sm mt-2 text-center">
@@ -236,7 +236,6 @@ export default function ListNft() {
                                     tokenId={token.nft.tokenId}
                                     onSuccess={() => {
                                         queryClient.invalidateQueries({ queryKey: ['nfts'] });
-
                                         setStatus('success');
                                     }}
                                     onError={(err: Error) =>
@@ -252,13 +251,6 @@ export default function ListNft() {
                             </div>
                         ) : (
                             <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
-                                <h3 className="text-lg font-semibold text-white text-center">
-                                    Step 1 of 2: Grant Permission
-                                </h3>
-                                <p className="text-zinc-400 text-left text-sm">
-                                    First, approve the marketplace to manage this NFT.
-                                    <br /> This is a standard, one-time security step for this item.
-                                </p>
                                 <ApproveButton
                                     nftContract={token.nft.contract.address as Address}
                                     className={defaultButtonStyles}

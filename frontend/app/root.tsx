@@ -117,6 +117,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
+import { HydrateFallback } from './routes/view/listings';
+import { Suspense } from 'react';
+
 export default function App() {
     return (
         <WagmiProvider config={config}>
@@ -128,7 +131,9 @@ export default function App() {
                 >
                     <FcConnect />
                     <Navigation />
-                    <Outlet />
+                    <Suspense fallback={<HydrateFallback />}>
+                        <Outlet />
+                    </Suspense>
                 </ConnectKitProvider>
             </QueryClientProvider>
         </WagmiProvider>

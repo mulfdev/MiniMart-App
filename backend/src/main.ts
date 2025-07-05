@@ -94,7 +94,6 @@ app.get('/user-orders', async (c) => {
             console.log(`Alchemy error body: ${errorBody}`);
             continue;
         }
-        console.log(order, 'ORDER DATA');
         const data = (await res.json()) as Nft;
         tokenData.push({ ...data, orderId: order.id });
     }

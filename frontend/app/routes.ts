@@ -7,3 +7,4 @@ export default [
     route('/list/:contract/:tokenId', './routes/list.tsx'),
     route('/token/:contract/:tokenId', './routes/view/token.tsx'),
 ] satisfies RouteConfig;
+

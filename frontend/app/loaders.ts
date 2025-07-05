@@ -55,7 +55,7 @@ export async function fetchOrders(address: string) {
         const url = new URL(`${API_URL}/user-orders`);
         url.searchParams.set('address', address);
 
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         const data = (await res.json()) as Nft[];
         return data;
     } catch (e) {

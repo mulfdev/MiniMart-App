@@ -5,11 +5,12 @@ import type { Route } from '../+types/view';
 import { fetchOrders } from '~/loaders';
 import { Sparkles } from 'lucide-react';
 import { NftCard } from '~/components/NftCard';
+import { useParams } from 'react-router';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     const { address } = params;
     queryClient.prefetchQuery({
-        queryKey: ['listings'],
+        queryKey: ['listings', address],
         queryFn: () => fetchOrders(address),
     });
     return null;
@@ -33,18 +34,19 @@ export function HydrateFallback() {
 }
 
 export default function () {
-    const account = useAccount();
+    const params = useParams();
     const {
         data: nfts,
         isPending,
         isError,
+        refetch,
     } = useQuery({
-        queryKey: ['listings'],
+        queryKey: ['listings', params.address],
         queryFn: async () => {
-            const nfts = await fetchOrders(account.address!);
+            const nfts = await fetchOrders(params.address!);
             return nfts;
         },
-        enabled: account.address !== undefined,
+        enabled: !!params.address,
         staleTime: 240_000,
     });
 
@@ -65,7 +67,11 @@ export default function () {
                                 className="animate-in fade-in slide-in-from-bottom-4"
                                 style={{ animationDelay: `${index * 100}ms` }}
                             >
-                                <NftCard nft={nft} variant="remove" />
+                                <NftCard
+                                    nft={nft}
+                                    variant="remove"
+                                    ownerAddress={params.address as `0x${string}`}
+                                />
                             </div>
                         ))}
                 </div>
@@ -84,3 +90,4 @@ export default function () {
         </div>
     );
 }
+
