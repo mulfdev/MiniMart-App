@@ -23,6 +23,8 @@ export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
 export const API_URL = import.meta.env.VITE_API_URL;
 
+const queryClient = new QueryClient();
+
 const IS_PROD = import.meta.env.VITE_IS_PROD;
 
 const frameConfig = {
@@ -110,21 +112,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { HydrateFallback } from './routes/view/listings';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function App() {
     return (
         <WagmiProvider config={config}>
-            <ConnectKitProvider
-                options={{
-                    language: 'en-US',
-                }}
-            >
-                <FcConnect />
-                <Navigation />
-                <Suspense fallback={<HydrateFallback />}>
-                    <Outlet />
-                </Suspense>
-            </ConnectKitProvider>
+            <QueryClientProvider client={queryClient}>
+                <ConnectKitProvider
+                    options={{
+                        language: 'en-US',
+                    }}
+                >
+                    <FcConnect />
+                    <Navigation />
+                    <Suspense fallback={<HydrateFallback />}>
+                        <Outlet />
+                    </Suspense>
+                </ConnectKitProvider>
+            </QueryClientProvider>
         </WagmiProvider>
     );
 }
