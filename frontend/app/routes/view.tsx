@@ -1,22 +1,21 @@
+import { ErrorBoundary } from '~/components/ErrorBoundary';
 import { NftCard } from '~/components/NftCard';
 import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
 import { useAccount } from 'wagmi';
 import { fetchNfts } from '~/loaders';
-import { get, set } from '~/cache';
-import { useEffect, useState } from 'react';
 import type { Nft } from '@minimart/types';
-import { useLocation } from 'react-router';
-import { useNavigation } from 'react-router';
+import { useCache, primeCache } from '~/hooks/useCache';
+import { Suspense } from 'react';
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-    const cacheData = get(`nfts:${params.address}`);
-    if (cacheData) return;
-    const nfts = await fetchNfts(params.address);
-    set({ key: `nfts:${params.address}`, value: nfts, ttl: 120_000 });
+export function clientLoader({ params }: Route.ClientLoaderArgs) {
+    primeCache(`nfts:${params.address}`, () => fetchNfts(params.address), {
+        ttl: 120_000,
+    });
+    return null;
 }
 
-export function HydrateFallback() {
+export function Fallback() {
     return (
         <div className="min-h-screen">
             <main className="container mx-auto px-4 py-8 sm:py-16">
@@ -33,17 +32,11 @@ export function HydrateFallback() {
     );
 }
 
-export default function ViewNfts() {
-    const account = useAccount();
-    const [nfts, setNfts] = useState<Nft[]>();
-    const location = useLocation();
-    const navigation = useNavigation();
-
-    useEffect(() => {
-        setNfts(() => {
-            return get<Nft[]>(`nfts:${account.address}`);
-        });
-    }, [account]);
+function ViewNftsContent({ address }: { address: `0x${string}` }) {
+    const nfts = useCache<Nft[]>(`nfts:${address}`, () => fetchNfts(address), {
+        ttl: 120_000,
+        enabled: !!address,
+    });
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -56,16 +49,6 @@ export default function ViewNfts() {
                         Here are the NFTs you own. Select any NFT to create a listing.
                     </p>
                 </div>
-                {/* {isError ? ( */}
-                {/*     <div className="text-center py-20"> */}
-                {/*         <div */}
-                {/*             className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20  */}
-                {/*                       rounded-lg text-red-400 backdrop-blur-sm" */}
-                {/*         > */}
-                {/*             <span>Error fetching NFTs </span> */}
-                {/*         </div> */}
-                {/*     </div> */}
-                {/* ) : null} */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                     {nfts &&
                         nfts.map((nft, index) => (
@@ -91,5 +74,21 @@ export default function ViewNfts() {
                 ) : null}
             </main>
         </div>
+    );
+}
+
+export default function ViewNfts() {
+    const { address, isConnecting } = useAccount();
+
+    if (isConnecting || !address) {
+        return <Fallback />;
+    }
+
+    return (
+        <ErrorBoundary>
+            <Suspense fallback={<Fallback />}>
+                <ViewNftsContent address={address} />
+            </Suspense>
+        </ErrorBoundary>
     );
 }
