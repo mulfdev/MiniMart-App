@@ -11,13 +11,13 @@ import {
     ScrollRestoration,
 } from 'react-router';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, createConfig, WagmiProvider } from 'wagmi';
 import { base, baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 import { Navigation } from './components/Navigation';
+import { Suspense } from 'react';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
@@ -66,14 +66,6 @@ export const config = createConfig(
     })
 );
 
-export const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            refetchOnWindowFocus: false,
-        },
-    },
-});
-
 const backgroundStyle = {
     backgroundColor: '#0a0a0a',
     backgroundImage: `
@@ -118,24 +110,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { HydrateFallback } from './routes/view/listings';
-import { Suspense } from 'react';
 
 export default function App() {
     return (
         <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-                <ConnectKitProvider
-                    options={{
-                        language: 'en-US',
-                    }}
-                >
-                    <FcConnect />
-                    <Navigation />
-                    <Suspense fallback={<HydrateFallback />}>
-                        <Outlet />
-                    </Suspense>
-                </ConnectKitProvider>
-            </QueryClientProvider>
+            <ConnectKitProvider
+                options={{
+                    language: 'en-US',
+                }}
+            >
+                <FcConnect />
+                <Navigation />
+                <Suspense fallback={<HydrateFallback />}>
+                    <Outlet />
+                </Suspense>
+            </ConnectKitProvider>
         </WagmiProvider>
     );
 }

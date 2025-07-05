@@ -4,10 +4,11 @@ import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 import type { Nft } from '@minimart/types';
-import { API_URL, queryClient } from '~/root';
+import { API_URL } from '~/root';
 import { useNavigate } from 'react-router';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import React from 'react';
+import React, { useState } from 'react';
+import { set, get } from '~/cache';
 
 async function fetchOrders() {
     try {
@@ -23,22 +24,16 @@ async function fetchOrders() {
     }
 }
 
-export function clientLoader() {
-    queryClient.prefetchQuery({
-        queryKey: ['orders'],
-        queryFn: fetchOrders,
-        staleTime: 120_000,
-    });
-    return null;
+export async function clientLoader() {
+    const data = await fetchOrders();
+    set({ key: 'frontpageOrders', value: data, ttl: 120_000 });
 }
 
 function OpenListings() {
-    const { data: nfts } = useSuspenseQuery<Nft[]>({
-        queryKey: ['orders'],
-        queryFn: fetchOrders,
-        staleTime: 120_000,
+    const [nfts, _] = useState(() => {
+        const data = get('frontpageOrders') as Nft[];
+        return data;
     });
-
     return (
         <>
             {nfts?.map((nft, index) => (

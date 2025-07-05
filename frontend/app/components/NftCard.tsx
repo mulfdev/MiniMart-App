@@ -4,7 +4,6 @@ import { Link, useParams } from 'react-router';
 import { useSimulateMinimartRemoveOrder, useWriteMinimartRemoveOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
-import { queryClient } from '~/root';
 import { useAccount, useConfig } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { waitForTransactionReceipt } from 'wagmi/actions';
@@ -44,35 +43,6 @@ export function NftCard({
             }
             const hash = await writeContractAsync(simulation.request);
             return waitForTransactionReceipt(config, { hash });
-        },
-        onMutate: async () => {
-            const queryKey = ['listings', ownerAddress];
-            // Cancel any outgoing refetches so they don't overwrite our optimistic update
-            await queryClient.cancelQueries({ queryKey });
-
-            // Snapshot the previous value
-            const previousNfts = queryClient.getQueryData(queryKey);
-
-            // Optimistically update to the new value
-            queryClient.setQueryData(queryKey, (old: Nft[] | undefined) => {
-                if (!old) return [];
-                return old.filter((n) => n.orderId !== nft.orderId);
-            });
-
-            // Return a context object with the snapshotted value
-            return { previousNfts, queryKey };
-        },
-        onError: (err, _vars, context) => {
-            // If the mutation fails, roll back the optimistic update
-            if (context?.previousNfts) {
-                queryClient.setQueryData(context.queryKey, context.previousNfts);
-            }
-        },
-        onSettled: (_data, _error, _vars, context) => {
-            // Invalidate the query to ensure eventual consistency with the subgraph.
-            if (context?.queryKey) {
-                queryClient.invalidateQueries({ queryKey: context.queryKey });
-            }
         },
     });
 
@@ -258,4 +228,3 @@ export function NftCard({
         </div>
     );
 }
-

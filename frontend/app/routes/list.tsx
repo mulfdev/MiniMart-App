@@ -10,17 +10,16 @@ import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
 
 import { fetchNft } from '~/loaders';
-import { queryClient } from '~/root';
-import { useQuery } from '@tanstack/react-query';
 import { Toast } from '~/components/Toast';
+import { get, set } from '~/cache';
+import type { Nft } from '@minimart/types';
 
-export function clientLoader({ params }: Route.LoaderArgs) {
-    const { contract, tokenId } = params;
-    queryClient.prefetchQuery({
-        queryKey: ['nft', contract, tokenId],
-        queryFn: () => fetchNft(contract, tokenId, false),
-    });
-    return null;
+export async function clientLoader({ params }: Route.LoaderArgs) {
+    const cacheData = get(`nft:${params.contract}:${params.tokenId}`);
+    if (cacheData) return;
+
+    const nft = await fetchNft(params.contract, params.tokenId, false);
+    set({ key: `nft:${params.contract}:${params.tokenId}`, value: nft, ttl: 120_000 });
 }
 export function HydrateFallback() {
     return (
@@ -69,34 +68,30 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
 
 export default function ListNft() {
     const params = useParams();
-    const { data: token, isLoading } = useQuery({
-        queryKey: ['nft', params.contract, params.tokenId],
-        queryFn: () => fetchNft(params.contract!, params.tokenId!, false),
-        enabled: !!params.contract && !!params.tokenId,
-    });
 
     const { address } = useAccount();
     if (!params.tokenId || !params.contract) {
         return <>Wrong info</>;
     }
 
-    const isQueryEnabled = !!params.contract && !!address;
-
+    const [token, _] = useState(() => {
+        return get<{ orderData: string | null; nft: { nft: Nft } }>(
+            `nft:${params.contract}:${params.tokenId}`
+        );
+    });
     const { data: isApproved } = useReadContract({
         abi: nftAbi,
         address: params.contract as `0x${string}`,
         functionName: 'isApprovedForAll',
-        args: isQueryEnabled ? [address, miniMartAddr] : undefined,
+        args: [address!!, miniMartAddr],
         query: {
-            enabled: isQueryEnabled,
+            enabled: !!params.contract && !!address,
         },
     });
 
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
-
-    if (isLoading) return <HydrateFallback />;
 
     if (!token?.nft) {
         return (
@@ -235,7 +230,6 @@ export default function ListNft() {
                                     nftContract={token.nft.contract.address}
                                     tokenId={token.nft.tokenId}
                                     onSuccess={() => {
-                                        queryClient.invalidateQueries({ queryKey: ['nfts'] });
                                         setStatus('success');
                                     }}
                                     onError={(err: Error) =>

@@ -1,19 +1,21 @@
 import { useQuery } from '@tanstack/react-query';
-import { queryClient } from '~/root';
 import { useAccount } from 'wagmi';
 import type { Route } from '../+types/view';
 import { fetchOrders } from '~/loaders';
 import { Sparkles } from 'lucide-react';
 import { NftCard } from '~/components/NftCard';
 import { useParams } from 'react-router';
+import { get, set } from '~/cache';
+import { useState } from 'react';
+import type { Nft } from '@minimart/types';
 
-export function clientLoader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.LoaderArgs) {
     const { address } = params;
-    queryClient.prefetchQuery({
-        queryKey: ['listings', address],
-        queryFn: () => fetchOrders(address),
-    });
-    return null;
+    console.log(address);
+
+    const data = await fetchOrders(address);
+
+    set({ key: `listings:${address}`, value: data, ttl: 120_000 });
 }
 
 export function HydrateFallback() {
@@ -35,22 +37,12 @@ export function HydrateFallback() {
 
 export default function () {
     const params = useParams();
-    const {
-        data: nfts,
-        isPending,
-        isError,
-        refetch,
-    } = useQuery({
-        queryKey: ['listings', params.address],
-        queryFn: async () => {
-            const nfts = await fetchOrders(params.address!);
-            return nfts;
-        },
-        enabled: !!params.address,
-        staleTime: 240_000,
+    const [nfts, _] = useState(() => {
+        return get<Nft[]>(`listings:${params.address!}`);
     });
 
-    if (isPending) return <HydrateFallback />;
+    console.log(nfts);
+
     return (
         <div className="max-w-7xl mx-auto">
             <main className="container mx-auto px-4 py-8 sm:py-16">
@@ -90,4 +82,3 @@ export default function () {
         </div>
     );
 }
-
