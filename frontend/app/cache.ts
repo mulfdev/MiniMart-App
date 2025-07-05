@@ -3,44 +3,30 @@
 // the data-fetching function is only executed once within the specified TTL.
 
 interface CacheEntry<T> {
-    promise: Promise<T>;
+    value: T;
     expiry: number;
 }
 
-const cache = new Map<string, CacheEntry<any>>();
+const Cache = new Map<string, CacheEntry<unknown> | undefined>();
 
-export function getFromCache<T>(key: string, ttl: number, fetcher: () => Promise<T>): Promise<T> {
-    const now = Date.now();
-    const existing = cache.get(key);
+export function get<T>(key: string) {
+    const entry = Cache.get(key);
+    if (typeof entry === 'undefined') return undefined;
 
-    if (existing && now < existing.expiry) {
-        return existing.promise;
+    if (entry.expiry < Date.now()) {
+        Cache.delete(key);
+        return undefined;
     }
+    return entry.value as T;
+}
 
-    const fetchData = async (): Promise<T> => {
-        try {
-            const data = await fetcher();
-            return data;
-        } catch (error) {
-            // If the fetcher fails, remove the promise from the cache to allow for retries.
-            // This check prevents a race condition where a new, valid promise is overwritten.
-            if (cache.get(key)?.promise === promise) {
-                cache.delete(key);
-            }
-            throw error;
-        }
-    };
-
-    const promise = fetchData();
-    cache.set(key, {
-        promise,
-        expiry: now + ttl,
+export function set({ key, value, ttl }: { key: string; value: unknown; ttl: number }) {
+    Cache.set(key, {
+        value: value,
+        expiry: Date.now() + ttl,
     });
-
-    return promise;
 }
 
-export function invalidateCache(key: string) {
-    cache.delete(key);
+export function remove(key: string) {
+    Cache.delete(key);
 }
-
