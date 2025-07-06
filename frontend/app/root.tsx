@@ -111,7 +111,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-import { HydrateFallback } from './routes/view/listings';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function App() {
@@ -125,9 +124,7 @@ export default function App() {
                 >
                     <FcConnect />
                     <Navigation />
-                    <Suspense fallback={<HydrateFallback />}>
-                        <Outlet />
-                    </Suspense>
+                    <Outlet />
                 </ConnectKitProvider>
             </QueryClientProvider>
         </WagmiProvider>
