@@ -6,5 +6,5 @@ export default [
     route('/user/listings/:address', './routes/view/listings.tsx'),
     route('/list/:contract/:tokenId', './routes/list.tsx'),
     route('/token/:contract/:tokenId', './routes/view/token.tsx'),
+    route('orders', './routes/view/allOrders.tsx'),
 ] satisfies RouteConfig;
-
