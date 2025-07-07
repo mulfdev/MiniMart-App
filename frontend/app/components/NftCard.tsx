@@ -11,11 +11,9 @@ import { waitForTransactionReceipt } from 'wagmi/actions';
 export function NftCard({
     nft,
     variant = 'list',
-    ownerAddress,
 }: {
     nft: Nft;
     variant?: 'list' | 'view' | 'remove';
-    ownerAddress: `0x${string}`;
 }) {
     const { writeContractAsync } = useWriteMinimartRemoveOrder();
     const { refetch: simulateTx } = useSimulateMinimartRemoveOrder({
