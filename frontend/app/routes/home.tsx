@@ -1,39 +1,20 @@
-import { ArrowRight, Zap, Shield, Users, Sparkles, Smartphone, Clock, Globe } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
-import type { Nft } from '@minimart/types';
-import { API_URL } from '~/root';
 import { useNavigate } from 'react-router';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import React, { useState } from 'react';
-import { set, get } from '~/cache';
+import { Suspense } from 'react';
+import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
+import { fetchAllOrders } from '~/loaders';
 
-async function fetchOrders() {
-    try {
-        const response = await fetch(`${API_URL}/all-orders`);
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        return data.nfts as Nft[];
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        return [];
-    }
-}
-
-export async function clientLoader() {
-    const data = await fetchOrders();
-    set({ key: 'frontpageOrders', value: data, ttl: 120_000 });
+export function clientLoader() {
+    primeCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
+    return null;
 }
 
 function OpenListings() {
-    const [nfts, _] = useState(() => {
-        const data = get('frontpageOrders') as Nft[];
-        return data;
-    });
+    const nfts = useCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
     return (
         <>
             {nfts?.map((nft, index) => (
@@ -54,25 +35,6 @@ export default function LandingPage() {
     const { setOpen } = useModal();
     const navigate = useNavigate();
 
-    const features = [
-        {
-            icon: Zap,
-            title: 'Quick Listing',
-            description: 'List your NFTs for sale directly from Farcaster without switching apps',
-        },
-        {
-            icon: Shield,
-            title: 'Secure Trading',
-            description:
-                'Built on established blockchain infrastructure with standard security practices',
-        },
-        {
-            icon: Users,
-            title: 'Social Reach',
-            description: 'Share your listings with your existing Farcaster followers and network',
-        },
-    ];
-
     const steps = [
         {
             number: '01',
@@ -88,24 +50,6 @@ export default function LandingPage() {
             number: '03',
             title: 'Set Price & Share',
             description: 'Set your price and share with your Farcaster network',
-        },
-    ];
-
-    const benefits = [
-        {
-            icon: Smartphone,
-            title: 'All in One App',
-            description: 'Manage your NFT sales without leaving Farcaster',
-        },
-        {
-            icon: Clock,
-            title: 'Save Time',
-            description: 'No need to switch between multiple platforms and apps',
-        },
-        {
-            icon: Globe,
-            title: 'Reach Your Network',
-            description: 'Leverage your existing social connections for sales',
         },
     ];
 
@@ -169,7 +113,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
-                    <React.Suspense
+                    <Suspense
                         fallback={Array.from({ length: 4 }).map((_, index) => (
                             <div key={index} className="snap-center shrink-0 w-80">
                                 <NftCardSkeleton />
@@ -177,7 +121,7 @@ export default function LandingPage() {
                         ))}
                     >
                         <OpenListings />
-                    </React.Suspense>
+                    </Suspense>
                 </div>
             </section>
 
