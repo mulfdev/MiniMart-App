@@ -17,15 +17,12 @@ import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-conne
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 import { Navigation } from './components/Navigation';
-import { Suspense } from 'react';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
 export const API_URL = import.meta.env.VITE_API_URL;
 
 const queryClient = new QueryClient();
-
-const IS_PROD = import.meta.env.VITE_IS_PROD;
 
 const frameConfig = {
     version: 'next',
@@ -56,17 +53,13 @@ if (typeof API_URL !== 'string') {
     throw new Error('API_URL must be set');
 }
 
-export const config = createConfig(
-    getDefaultConfig({
-        chains: [baseSepolia],
-        transports: {
-            [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
-        },
-        connectors: [miniAppConnector()],
-        walletConnectProjectId: '87e248dc258d19281189f5f2b92affc5',
-        appName: 'MiniMart',
-    })
-);
+export const config = createConfig({
+    chains: [baseSepolia],
+    transports: {
+        [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
+    },
+    connectors: [miniAppConnector()],
+});
 
 const backgroundStyle = {
     backgroundColor: '#0a0a0a',

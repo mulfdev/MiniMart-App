@@ -13,10 +13,15 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
     const [isMiniApp, setIsMiniApp] = useState(false);
     useEffect(() => {
+        (async () => {
+            await sdk.actions.ready();
+        })();
         sdk.isInMiniApp()
             .then((data) => setIsMiniApp(data))
             .catch((err) => console.log(err));
     }, []);
+
+    console.log(isMiniApp);
 
     function SidebarLink({ url, label, icon }: { url: string; label: string; icon: JSX.Element }) {
         return (
