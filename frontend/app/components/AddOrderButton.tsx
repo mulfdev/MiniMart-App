@@ -3,6 +3,7 @@ import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicCl
 import { type Address, zeroAddress } from 'viem';
 import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
+import { cacheKeys, remove } from '~/hooks/useCache';
 
 type Order = {
     seller: Address;
@@ -69,6 +70,8 @@ export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError
                 functionName: 'addOrder',
                 args: [msg, sig],
             });
+            remove(cacheKeys.listings(address));
+            remove(cacheKeys.nfts(address));
             onSuccess?.();
         } catch (err) {
             onError?.(
