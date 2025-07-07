@@ -1,12 +1,12 @@
 import { Shield, Sparkles } from 'lucide-react';
 import type { Nft } from '@minimart/types';
-import { Link, useParams } from 'react-router';
+import { Link } from 'react-router';
 import { useSimulateMinimartRemoveOrder, useWriteMinimartRemoveOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
-import { useAccount, useConfig } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
-import { waitForTransactionReceipt } from 'wagmi/actions';
+import { cacheKeys, remove } from '~/hooks/useCache';
 
 export function NftCard({
     nft,
@@ -24,23 +24,20 @@ export function NftCard({
         },
     });
 
-    const config = useConfig();
-    const account = useAccount();
-
+    const { address } = useAccount();
     const {
         mutate: removeListing,
         isPending,
         isSuccess,
         isError,
     } = useMutation({
-        mutationKey: ['removeOrder', nft.orderId],
         mutationFn: async () => {
             const { data: simulation, error: simulationError } = await simulateTx();
             if (!simulation?.request || simulationError) {
                 throw new Error(simulationError?.message ?? 'Transaction simulation failed');
             }
-            const hash = await writeContractAsync(simulation.request);
-            return waitForTransactionReceipt(config, { hash });
+            await writeContractAsync(simulation.request);
+            if (address) remove(cacheKeys.listings(address));
         },
     });
 
