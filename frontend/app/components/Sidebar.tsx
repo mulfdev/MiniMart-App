@@ -1,5 +1,5 @@
 import { ConnectKitButton } from 'connectkit';
-import { Home, Shapes, NotebookTabs } from 'lucide-react';
+import { Home, Shapes, NotebookTabs, Logs } from 'lucide-react';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import sdk from '@farcaster/frame-sdk';
 import { Link } from 'react-router';
@@ -54,6 +54,11 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                     url={address ? `/user/listings/${address}` : `/`}
                     label="Your Listings"
                     icon={<NotebookTabs className="h-6 w-6 text-zinc-400" />}
+                />
+                <SidebarLink
+                    url="/orders"
+                    label="All Orders"
+                    icon={<Logs className="h-6 w-6 text-zinc-400" />}
                 />
             </div>
         </div>
