@@ -3,7 +3,7 @@ import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { Suspense } from 'react';
 import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
 import { fetchAllOrders } from '~/loaders';
@@ -54,9 +54,9 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto snap-y snap-mandatory h-screen overflow-y-scroll">
             {/* Hero Section */}
-            <section className="max-w-7xl mx-auto px-4 py-12">
+            <section className="container mx-auto px-4 py-12 snap-start">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm">
@@ -102,14 +102,26 @@ export default function LandingPage() {
             </section>
 
             {/* Open Listings Section */}
-            <section className="container mx-auto px-4 py-16">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                        Open Listings
-                    </h2>
-                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-                        Check out some of the latest NFTs available for purchase
-                    </p>
+            <section className="container mx-auto px-4 py-16 snap-start">
+                <div className="flex flex-col items-center md:flex-row md:justify-between md:items-center gap-4 mb-8">
+                    <div className="text-center md:text-left">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+                            Open Listings
+                        </h2>
+                        <p className="text-lg text-zinc-400">
+                            Check out the latest NFTs available for purchase.
+                        </p>
+                    </div>
+                    <Link
+                        to="/orders"
+                        className="flex-shrink-0 mt-4 md:mt-0 group flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 
+                                     text-white font-semibold rounded-xl
+                                     transform hover:scale-105 active:scale-95
+                                     transition-all duration-200 ease-out"
+                    >
+                        <span>View All</span>
+                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
+                    </Link>
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
@@ -126,7 +138,7 @@ export default function LandingPage() {
             </section>
 
             {/* How It Works */}
-            <section className="container mx-auto px-4 py-16">
+            <section className="container mx-auto px-4 py-16 snap-start">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">How It Works</h2>
                     <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
@@ -159,7 +171,7 @@ export default function LandingPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="container mx-auto px-4 py-16">
+            <section className="container mx-auto px-4 py-16 snap-start">
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                         Ready to Try It?
@@ -180,7 +192,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50">
+            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50 snap-start">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center">
@@ -188,18 +200,6 @@ export default function LandingPage() {
                         </div>
                         <span className="text-white font-semibold">MiniMart</span>
                     </div>
-                    {/**/}
-                    {/* <div className="flex items-center gap-6 text-sm text-zinc-400"> */}
-                    {/*     <a href="#" className="hover:text-white transition-colors duration-200"> */}
-                    {/*         Privacy */}
-                    {/*     </a> */}
-                    {/*     <a href="#" className="hover:text-white transition-colors duration-200"> */}
-                    {/*         Terms */}
-                    {/*     </a> */}
-                    {/*     <a href="#" className="hover:text-white transition-colors duration-200"> */}
-                    {/*         Support */}
-                    {/*     </a> */}
-                    {/* </div> */}
                 </div>
             </footer>
         </div>
