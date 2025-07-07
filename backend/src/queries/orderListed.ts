@@ -74,10 +74,6 @@ export async function getSingleOrder(contract: string, tokenId: string, fetchOrd
             nftContract: contract,
         });
 
-        if (orderInfo.orderListeds.length !== 1) {
-            throw new HTTPException(400, { message: 'There was a problem with your request' });
-        }
-
         return {
             listingInfo: orderInfo.orderListeds[0],
             nft,

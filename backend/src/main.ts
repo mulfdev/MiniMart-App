@@ -78,8 +78,6 @@ app.get('/user-orders', async (c) => {
 
     const orders = await getUserTokens(address);
 
-    console.log(orders);
-
     const tokenData: Nft[] = [];
     for (const order of orders) {
         const res = await fetch(
