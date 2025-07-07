@@ -9,10 +9,11 @@ import { CACHE_KEYS, miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
 import { cacheKeys, primeCache, useCache } from '~/hooks/useCache';
 import { Suspense } from 'react';
+import { Loader } from '~/components/Loader';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     primeCache(
-        cacheKeys.nft(params.contract, params.tokenId),
+        cacheKeys.nft(params.contract, params.tokenId, true),
         () => fetchNft(params.contract, params.tokenId, true),
         {
             ttl: 120_000,
@@ -22,26 +23,13 @@ export function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 function HydrateFallback() {
-    return (
-        <div className="min-h-screen">
-            <main className="container mx-auto px-4 py-8 sm:py-16">
-                {/* Loading State */}
-                <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                    <div className="relative">
-                        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                        <div className="absolute inset-0 w-8 h-8 border-2 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
-                    </div>
-                    <p className="text-zinc-400 font-medium">Loading Token Data...</p>
-                </div>
-            </main>
-        </div>
-    );
+    return <Loader text="Loading Token Data..." />;
 }
 
 function Token() {
     const params = useParams();
     const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!),
+        cacheKeys.nft(params.contract!, params.tokenId!, true),
         () => fetchNft(params.contract!, params.tokenId!, true),
         {
             ttl: 120_000,
@@ -51,7 +39,7 @@ function Token() {
     const { writeContractAsync, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,
-        args: [token?.orderData.orderId as `0x${string}`],
+        args: [token?.orderData?.orderId as `0x${string}`],
         value: token?.orderData?.price ? BigInt(token.orderData.price) : undefined,
         query: {
             enabled: !!token?.orderData?.orderId && !!token.orderData.price,
