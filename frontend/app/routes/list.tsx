@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
@@ -11,15 +11,14 @@ import { miniMartAddr, nftAbi } from '~/utils';
 
 import { fetchNft } from '~/loaders';
 import { Toast } from '~/components/Toast';
-import { get, set } from '~/cache';
-import type { Nft } from '@minimart/types';
+import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
 
-export async function clientLoader({ params }: Route.LoaderArgs) {
-    const cacheData = get(`nft:${params.contract}:${params.tokenId}`);
-    if (cacheData) return;
-
-    const nft = await fetchNft(params.contract, params.tokenId, false);
-    set({ key: `nft:${params.contract}:${params.tokenId}`, value: nft, ttl: 120_000 });
+export function clientLoader({ params }: Route.LoaderArgs) {
+    primeCache(
+        cacheKeys.nft(params.contract, params.tokenId),
+        () => fetchNft(params.contract, params.tokenId, false),
+        { ttl: 120_000 }
+    );
 }
 export function HydrateFallback() {
     return (
@@ -66,19 +65,10 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
     );
 }
 
-export default function ListNft() {
+function SingleToken() {
     const params = useParams();
-
     const { address } = useAccount();
-    if (!params.tokenId || !params.contract) {
-        return <>Wrong info</>;
-    }
 
-    const [token, _] = useState(() => {
-        return get<{ orderData: string | null; nft: { nft: Nft } }>(
-            `nft:${params.contract}:${params.tokenId}`
-        );
-    });
     const { data: isApproved } = useReadContract({
         abi: nftAbi,
         address: params.contract as `0x${string}`,
@@ -92,6 +82,15 @@ export default function ListNft() {
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
+
+    const defaultButtonStyles =
+        'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
+
+    const token = useCache(
+        cacheKeys.nft(params.contract!, params.tokenId!),
+        () => fetchNft(params.contract!, params.tokenId!, false),
+        { ttl: 120_000, enabled: !!params.tokenId || !!params.contract }
+    );
 
     if (!token?.nft) {
         return (
@@ -112,61 +111,52 @@ export default function ListNft() {
             </div>
         );
     }
-
-    const defaultButtonStyles =
-        'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
-
     return (
         <main className="mx-auto px-4 py-8 sm:py-16">
             <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-3 md:p-6 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
+                <div className="grid grid-cols-1 items-center mb-6 gap-8">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-white">List Your NFT</h1>
+
+                    <div className="flex flex-col md:flex-row gap-5">
+                        <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
+                            <img
+                                src={
+                                    token.nft.image.originalUrl ||
+                                    token.nft.tokenUri ||
+                                    '/placeholder.svg'
+                                }
+                                alt={token.nft.name || 'NFT Image'}
+                                className="max-w-full max-h-64 object-contain rounded-lg"
+                            />
+                        </div>
+                        <div className="md:w-1/2 space-y-4">
+                            <h2 className="text-2xl font-bold text-white">
+                                {token.nft.name || token.nft.contract.name} #{token.nft.tokenId}
+                            </h2>
+                            <p className="text-zinc-400 text-sm">
+                                Collection:{' '}
+                                <span className="font-mono text-zinc-300 break-all">
+                                    {token.nft.contract.name}
+                                </span>
+                            </p>
+                            <p className="text-zinc-400 text-sm">
+                                Token ID:{' '}
+                                <span className="font-mono text-zinc-300">{token.nft.tokenId}</span>
+                            </p>
+                            {token.nft.description ? (
+                                <p className="text-zinc-300 text-base line-clamp-3">
+                                    {token.nft.description}
+                                </p>
+                            ) : (
+                                <p className="text-zinc-500 text-base italic">
+                                    No description available.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
                 {status !== 'success' && (
                     <>
-                        <div className="flex items-center mb-6">
-                            <h1 className="text-3xl sm:text-4xl font-bold text-white">
-                                List Your NFT
-                            </h1>
-                        </div>
-
-                        <div className="flex flex-col md:flex-row gap-8 mb-8">
-                            <div className="md:w-1/2 flex justify-center items-center p-4 bg-zinc-800 rounded-xl border border-zinc-700/50">
-                                <img
-                                    src={
-                                        token.nft.image.originalUrl ||
-                                        token.nft.tokenUri ||
-                                        '/placeholder.svg'
-                                    }
-                                    alt={token.nft.name || 'NFT Image'}
-                                    className="max-w-full max-h-64 object-contain rounded-lg"
-                                />
-                            </div>
-                            <div className="md:w-1/2 space-y-4">
-                                <h2 className="text-2xl font-bold text-white">
-                                    {token.nft.name || token.nft.contract.name} #{token.nft.tokenId}
-                                </h2>
-                                <p className="text-zinc-400 text-sm">
-                                    Collection:{' '}
-                                    <span className="font-mono text-zinc-300 break-all">
-                                        {token.nft.contract.name}
-                                    </span>
-                                </p>
-                                <p className="text-zinc-400 text-sm">
-                                    Token ID:{' '}
-                                    <span className="font-mono text-zinc-300">
-                                        {token.nft.tokenId}
-                                    </span>
-                                </p>
-                                {token.nft.description ? (
-                                    <p className="text-zinc-300 text-base line-clamp-3">
-                                        {token.nft.description}
-                                    </p>
-                                ) : (
-                                    <p className="text-zinc-500 text-base italic">
-                                        No description available.
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-
                         {isApproved ? (
                             <div className="space-y-6">
                                 <div>
@@ -253,25 +243,17 @@ export default function ListNft() {
                         )}
                     </>
                 )}
-
-                {status === 'success' && (
-                    <div className="text-center py-10 space-y-6">
-                        <CheckCircle2 className="mx-auto w-20 h-20 text-green-400" />
-                        <h2 className="text-3xl font-bold text-white">NFT Listed Successfully!</h2>
-                        <p className="text-zinc-300 text-lg">
-                            Your item is now live on the marketplace.
-                        </p>
-                        <Link
-                            to={`/user/${address || ''}`}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl"
-                        >
-                            View My Collection
-                        </Link>
-                    </div>
-                )}
             </div>
             {status === 'success' ? <Toast variant="success" message="Success" /> : null}
             {errorInfo.isError ? <Toast variant="error" message={errorInfo.message} /> : null}
         </main>
+    );
+}
+
+export default function ListNft() {
+    return (
+        <Suspense fallback={<HydrateFallback />}>
+            <SingleToken />
+        </Suspense>
     );
 }
