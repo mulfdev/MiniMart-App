@@ -1,30 +1,53 @@
 import { useParams, Link } from 'react-router';
 import type { Route } from './+types/token';
 import { fetchNft } from '~/loaders';
-import { API_URL, queryClient } from '~/root';
+import { API_URL } from '~/root';
 import { useQuery } from '@tanstack/react-query';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
 import { CACHE_KEYS, miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
+import { cacheKeys, primeCache, useCache } from '~/hooks/useCache';
+import { Suspense } from 'react';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
-    const { contract, tokenId } = params;
-    queryClient.prefetchQuery({
-        queryKey: ['nft', contract, tokenId],
-        queryFn: () => fetchNft(contract, tokenId, true),
-    });
+    primeCache(
+        cacheKeys.nft(params.contract, params.tokenId),
+        () => fetchNft(params.contract, params.tokenId, true),
+        {
+            ttl: 120_000,
+        }
+    );
     return null;
 }
 
-export default function ViewToken() {
-    const params = useParams();
-    const { data: token, isLoading } = useQuery({
-        queryKey: ['nft', params.contract, params.tokenId],
-        queryFn: () => fetchNft(params.contract!, params.tokenId!, true),
-        enabled: !!params.contract && !!params.tokenId,
-    });
+function HydrateFallback() {
+    return (
+        <div className="min-h-screen">
+            <main className="container mx-auto px-4 py-8 sm:py-16">
+                {/* Loading State */}
+                <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                    <div className="relative">
+                        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                        <div className="absolute inset-0 w-8 h-8 border-2 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
+                    </div>
+                    <p className="text-zinc-400 font-medium">Loading Token Data...</p>
+                </div>
+            </main>
+        </div>
+    );
+}
 
+function Token() {
+    const params = useParams();
+    const token = useCache(
+        cacheKeys.nft(params.contract!, params.tokenId!),
+        () => fetchNft(params.contract!, params.tokenId!, true),
+        {
+            ttl: 120_000,
+            enabled: !!params.contract || !!params.tokenId,
+        }
+    );
     const { writeContractAsync, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,
@@ -34,23 +57,6 @@ export default function ViewToken() {
             enabled: !!token?.orderData?.orderId && !!token.orderData.price,
         },
     });
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen">
-                <main className="container mx-auto px-4 py-8 sm:py-16">
-                    {/* Loading State */}
-                    <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                        <div className="relative">
-                            <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                            <div className="absolute inset-0 w-8 h-8 border-2 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
-                        </div>
-                        <p className="text-zinc-400 font-medium">Loading Token Data...</p>
-                    </div>
-                </main>
-            </div>
-        );
-    }
 
     if (!token?.nft) {
         return (
@@ -220,5 +226,13 @@ export default function ViewToken() {
             {isSuccess ? <Toast variant="success" message="Your order was filled!" /> : null}
             {isError ? <Toast variant="error" message="Could not complete your order" /> : null}
         </div>
+    );
+}
+
+export default function ViewToken() {
+    return (
+        <Suspense fallback={<HydrateFallback />}>
+            <Token />
+        </Suspense>
     );
 }
