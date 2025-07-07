@@ -1,5 +1,5 @@
 import type { Nft, OrderListed } from '@minimart/types';
-import { ALCHEMY_API_KEY, API_URL } from '~/root';
+import { API_URL } from '~/root';
 export type ListNftLoaderData = Nft | null;
 
 interface TokenWithOrderData {
@@ -7,14 +7,9 @@ interface TokenWithOrderData {
     orderData: OrderListed;
 }
 
-export async function fetchNft(
-    contract: string,
-    tokenId: string,
-    orderInfo: boolean
-): Promise<TokenWithOrderData | null> {
+export async function fetchNft(contract: string, tokenId: string, orderInfo: boolean) {
     if (!contract || !tokenId) {
-        console.error('Contract address or token ID missing in params.');
-        return null;
+        throw new Error('Contract address or token ID missing in params.');
     }
 
     try {
@@ -29,7 +24,6 @@ export async function fetchNft(
 
         const res = await fetch(url);
         const data = (await res.json()) as TokenWithOrderData;
-        console.log(data);
         return data;
     } catch (error) {
         console.error('Failed to fetch NFT metadata:', error);
@@ -50,7 +44,7 @@ export async function fetchNfts(address: string) {
     }
 }
 
-export async function fetchOrders(address: string) {
+export async function fetchUserOrders(address: string) {
     try {
         const url = new URL(`${API_URL}/user-orders`);
         url.searchParams.set('address', address);
@@ -60,5 +54,19 @@ export async function fetchOrders(address: string) {
         return data;
     } catch (e) {
         throw new Error('Could not fetch NFTs');
+    }
+}
+
+export async function fetchAllOrders() {
+    try {
+        const response = await fetch(`${API_URL}/all-orders`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data.nfts as Nft[];
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        return [];
     }
 }
