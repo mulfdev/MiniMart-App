@@ -12,28 +12,17 @@ import { miniMartAddr, nftAbi } from '~/utils';
 import { fetchNft } from '~/loaders';
 import { Toast } from '~/components/Toast';
 import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
+import { Loader } from '~/components/Loader';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     primeCache(
-        cacheKeys.nft(params.contract, params.tokenId),
+        cacheKeys.nft(params.contract, params.tokenId, false),
         () => fetchNft(params.contract, params.tokenId, false),
         { ttl: 120_000 }
     );
 }
 export function HydrateFallback() {
-    return (
-        <div className="min-h-screen">
-            <main className="container mx-auto px-4 py-8 sm:py-16">
-                <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                    <div className="relative">
-                        <div className="w-8 h-8 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                        <div className="absolute inset-0 w-8 h-8 border-2 border-purple-500/20 border-b-purple-500 rounded-full animate-spin animate-reverse" />
-                    </div>
-                    <p className="text-zinc-400 font-medium">Loading NFT details...</p>
-                </div>
-            </main>
-        </div>
-    );
+    return <Loader text="Loading NFT details..." />;
 }
 
 function ApproveButton({ nftContract, className }: { nftContract: Address; className?: string }) {
@@ -87,7 +76,7 @@ function SingleToken() {
         'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
 
     const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!),
+        cacheKeys.nft(params.contract!, params.tokenId!, false),
         () => fetchNft(params.contract!, params.tokenId!, false),
         { ttl: 120_000, enabled: !!params.tokenId || !!params.contract }
     );
