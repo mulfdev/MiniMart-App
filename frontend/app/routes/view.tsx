@@ -4,12 +4,11 @@ import { Sparkles } from 'lucide-react';
 import type { Route } from './+types/view';
 import { useAccount } from 'wagmi';
 import { fetchNfts } from '~/loaders';
-import type { Nft } from '@minimart/types';
-import { useCache, primeCache } from '~/hooks/useCache';
+import { useCache, primeCache, cacheKeys } from '~/hooks/useCache';
 import { Suspense } from 'react';
 
 export function clientLoader({ params }: Route.ClientLoaderArgs) {
-    primeCache(`nfts:${params.address}`, () => fetchNfts(params.address), {
+    primeCache(cacheKeys.nfts(params.address), () => fetchNfts(params.address), {
         ttl: 120_000,
     });
     return null;
@@ -33,7 +32,7 @@ export function Fallback() {
 }
 
 function ViewNftsContent({ address }: { address: `0x${string}` }) {
-    const nfts = useCache<Nft[]>(`nfts:${address}`, () => fetchNfts(address), {
+    const nfts = useCache(cacheKeys.nfts(address), () => fetchNfts(address), {
         ttl: 120_000,
         enabled: !!address,
     });
