@@ -16,7 +16,7 @@ export function clientLoader({ params }: Route.ClientLoaderArgs) {
 }
 
 export function Fallback() {
-    return <Loader text="Loading your NFT collection..." />;
+    return <Loader className="h-20 w-20" text="Loading your NFT collection..." />;
 }
 
 function ViewNftsContent({ address }: { address: `0x${string}` }) {
@@ -25,22 +25,11 @@ function ViewNftsContent({ address }: { address: `0x${string}` }) {
         enabled: !!address,
     });
 
-    if (!nfts) {
-        return <Loader text="Loading your NFT collection..." />;
+    if (!nfts || nfts.length === 0) {
+        return <EmptyState message="No listings found." />;
     }
 
-    return (
-        <Page
-            title="Your Collection"
-            description="Here are the NFTs you own. Select any NFT to create a listing."
-        >
-            {nfts.length > 0 ? (
-                <NftGrid nfts={nfts} />
-            ) : (
-                <EmptyState message="No NFTs found in your collection" />
-            )}
-        </Page>
-    );
+    return <NftGrid nfts={nfts} />;
 }
 
 export default function ViewNfts() {
@@ -51,10 +40,15 @@ export default function ViewNfts() {
     }
 
     return (
-        <ErrorBoundary>
-            <Suspense fallback={<Fallback />}>
-                <ViewNftsContent address={address} />
-            </Suspense>
-        </ErrorBoundary>
+        <Page
+            title="Your Collection"
+            description="Here are the NFTs you own. Select any NFT to create a listing."
+        >
+            <ErrorBoundary>
+                <Suspense fallback={<Fallback />}>
+                    <ViewNftsContent address={address} />
+                </Suspense>
+            </ErrorBoundary>
+        </Page>
     );
 }
