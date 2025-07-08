@@ -4,8 +4,23 @@ import { ALCHEMY_API_KEY } from '../main.js';
 import { HTTPException } from 'hono/http-exception';
 
 const GET_ORDERS = gql`
-    query GetOrders($filter: OrderListed_filter, $first: Int) {
-        orderListeds(where: $filter, first: $first) {
+    query GetOrders($first: Int) {
+        orderListeds(first: $first) {
+            id
+            orderId
+            seller
+            blockNumber
+            tokenId
+            nftContract
+            price
+            blockTimestamp
+        }
+    }
+`;
+
+const GET_USER_ORDERS = gql`
+    query GetUserOrders($seller: String!) {
+        orderListeds(where: { seller: $seller }) {
             id
             orderId
             seller
@@ -86,9 +101,9 @@ export async function getSingleOrder(contract: string, tokenId: string, fetchOrd
 
 export async function getUserTokens(address: string) {
     try {
-        const filters = { seller: address };
-
-        const req = await client.request<GetOrderListedEvents>(GET_ORDERS, { filters });
+        const req = await client.request<GetOrderListedEvents>(GET_USER_ORDERS, {
+            seller: address,
+        });
 
         return req.orderListeds;
     } catch (e) {
