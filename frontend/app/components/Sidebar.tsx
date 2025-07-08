@@ -13,21 +13,6 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
 
     useOnClickOutside(ref, onClose);
 
-    const [isMiniApp, setIsMiniApp] = useState(false);
-    useEffect(() => {
-        (async () => {
-            await sdk.actions.ready();
-        })();
-        sdk.isInMiniApp()
-            .then((data) => {
-                setIsMiniApp(data);
-                connect({ connector: connectors[0] });
-            })
-            .catch((err) => console.log(err));
-    }, []);
-
-    console.log(isMiniApp);
-
     function SidebarLink({ url, label, icon }: { url: string; label: string; icon: JSX.Element }) {
         return (
             <Link
@@ -47,7 +32,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 isOpen ? 'translate-x-0' : 'translate-x-full'
             } w-64 p-4`}
         >
-            {isMiniApp ? null : <ConnectKitButton />}
+            <ConnectKitButton />
 
             <div className="my-8 flex flex-col gap-y-3">
                 <SidebarLink

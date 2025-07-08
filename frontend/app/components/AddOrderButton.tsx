@@ -4,6 +4,7 @@ import { type Address, zeroAddress } from 'viem';
 import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
 import { cacheKeys, remove } from '~/hooks/useCache';
+import { API_URL } from '~/root';
 
 type Order = {
     seller: Address;
@@ -72,6 +73,8 @@ export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError
             });
             remove(cacheKeys.listings(address));
             remove(cacheKeys.nfts(address));
+            remove(cacheKeys.homepageOrders);
+            fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
             onSuccess?.();
         } catch (err) {
             onError?.(

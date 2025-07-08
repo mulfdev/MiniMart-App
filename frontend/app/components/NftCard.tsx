@@ -7,6 +7,7 @@ import { Toast } from './Toast';
 import { useAccount } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { cacheKeys, remove } from '~/hooks/useCache';
+import { API_URL } from '~/root';
 
 export function NftCard({
     nft,
@@ -38,6 +39,7 @@ export function NftCard({
             }
             await writeContractAsync(simulation.request);
             if (address) remove(cacheKeys.listings(address));
+            fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
         },
     });
 
