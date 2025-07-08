@@ -3,12 +3,14 @@ import { Home, Shapes, NotebookTabs, Logs } from 'lucide-react';
 import { useEffect, useRef, useState, type JSX } from 'react';
 import sdk from '@farcaster/frame-sdk';
 import { Link } from 'react-router';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
 
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const ref = useRef<HTMLDivElement>(null);
     const { address } = useAccount();
+    const { connect, connectors } = useConnect();
+
     useOnClickOutside(ref, onClose);
 
     const [isMiniApp, setIsMiniApp] = useState(false);
@@ -17,7 +19,10 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
             await sdk.actions.ready();
         })();
         sdk.isInMiniApp()
-            .then((data) => setIsMiniApp(data))
+            .then((data) => {
+                setIsMiniApp(data);
+                connect({ connector: connectors[0] });
+            })
             .catch((err) => console.log(err));
     }, []);
 
