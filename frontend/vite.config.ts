@@ -10,4 +10,10 @@ export default defineConfig({
             allow: [searchForWorkspaceRoot(process.cwd())],
         },
     },
+    resolve: {
+        alias: {
+            buffer: 'buffer/',
+        },
+    },
 });
+
