@@ -5,6 +5,7 @@ import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
 import { cacheKeys, remove } from '~/hooks/useCache';
 import { API_URL } from '~/root';
+import { LoadingSpinner } from './LoadingSpinner';
 
 type Order = {
     seller: Address;
@@ -16,7 +17,15 @@ type Order = {
     tokenId: bigint;
 };
 
-export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError, ...props }: any) {
+export function AddOrderButton({
+    price,
+    nftContract,
+    tokenId,
+    onSuccess,
+    onError,
+    children,
+    ...props
+}: any) {
     const { address } = useAccount();
     const chainId = useChainId();
     const publicClient = usePublicClient();
@@ -86,5 +95,16 @@ export function AddOrderButton({ price, nftContract, tokenId, onSuccess, onError
     }
 
     const disabled = busy || signing || writing;
-    return <button onClick={submit} disabled={disabled} {...props} />;
+    return (
+        <button onClick={submit} disabled={disabled} {...props}>
+            {disabled ? (
+                <div className="flex items-center justify-center gap-2">
+    <LoadingSpinner className="w-5 h-5" />
+    <span>Listing...</span>
+</div>
+            ) : (
+                children
+            )}
+        </button>
+    );
 }
