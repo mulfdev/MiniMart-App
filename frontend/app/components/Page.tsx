@@ -25,7 +25,7 @@ export function Page({
 
 export function NftGrid({ nfts, variant }: { nfts: Nft[]; variant?: 'view' | 'remove' }) {
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
             {nfts.map((nft, index) => (
                 <div
                     key={`${nft.contract.address}+${nft.tokenId}`}
