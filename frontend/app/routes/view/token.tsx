@@ -1,19 +1,21 @@
 import { useParams, Link } from 'react-router';
 import type { Route } from './+types/token';
 import { fetchNft } from '~/loaders';
-import { API_URL } from '~/root';
-import { useQuery } from '@tanstack/react-query';
-import { ExternalLink, Shield, Hash, FileText, Fingerprint } from 'lucide-react';
+import { API_URL, config } from '~/root';
+import { ExternalLink, Shield, Hash, FileText, Fingerprint, Tag } from 'lucide-react';
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
 import { CACHE_KEYS, miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
-import { cacheKeys, primeCache, useCache } from '~/hooks/useCache';
-import { Suspense } from 'react';
+import { cacheKeys, primeCache, useCache, remove } from '~/hooks/useCache';
+import { Suspense, useState } from 'react';
 import { Loader } from '~/components/Loader';
+import { formatEther } from 'viem';
+import { waitForTransactionReceipt } from 'wagmi/actions';
+import { LoadingSpinner } from '~/components/LoadingSpinner';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     primeCache(
-        cacheKeys.nft(params.contract, params.tokenId, true),
+        cacheKeys.nft(params.contract, params.tokenId),
         () => fetchNft(params.contract, params.tokenId, true),
         {
             ttl: 120_000,
@@ -28,21 +30,26 @@ function HydrateFallback() {
 
 function Token() {
     const params = useParams();
+    const [isPurchasing, setIsPurchasing] = useState(false);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
+
     const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!, true),
+        cacheKeys.nft(params.contract!, params.tokenId!),
         () => fetchNft(params.contract!, params.tokenId!, true),
         {
             ttl: 120_000,
             enabled: !!params.contract || !!params.tokenId,
         }
     );
-    const { writeContractAsync, isPending, isSuccess, isError } = useWriteMinimartFulfillOrder();
+    const { writeContractAsync, isPending } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,
         args: [token?.orderData?.orderId as `0x${string}`],
         value: token?.orderData?.price ? BigInt(token.orderData.price) : undefined,
         query: {
-            enabled: !!token?.orderData?.orderId && !!token.orderData.price,
+            enabled: !!token?.orderData?.orderId && !!token.orderData.price && !isPurchaseComplete,
         },
     });
 
@@ -83,6 +90,35 @@ function Token() {
         },
     ];
 
+    const handlePurchase = async () => {
+        if (!fulfillOrderSim) return;
+
+        setShowSuccessToast(false);
+        setShowErrorToast(false);
+        setIsPurchasing(true);
+
+        try {
+            const hash = await writeContractAsync(fulfillOrderSim.request);
+            if (hash) {
+                const receipt = await waitForTransactionReceipt(config, { hash });
+                if (receipt.status === 'success') {
+                    remove(cacheKeys.listings(token.orderData.seller));
+                    remove(cacheKeys.homepageOrders);
+                    await fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
+                    setShowSuccessToast(true);
+                    setIsPurchaseComplete(true); // Mark purchase as complete
+                } else {
+                    setShowErrorToast(true);
+                }
+            }
+        } catch (e) {
+            console.error(e);
+            setShowErrorToast(true);
+        } finally {
+            setIsPurchasing(false);
+        }
+    };
+
     return (
         <div className="relative">
             <div className="flex-grow flex flex-col lg:flex-row overflow-hidden h-[calc(100vh-64px)] lg:h-[calc(100vh-88px)]">
@@ -120,7 +156,7 @@ function Token() {
                 {/* Right side: Details */}
                 <div className="lg:w-1/3 overflow-y-scroll">
                     <div className="mx-auto w-full px-8">
-                        <div className="flex flex-col h-full py-8 sm:py-0">
+                        <div className="flex flex-col h-full pt-8 pb-20 sm:py-0">
                             {/* Header */}
                             <div className="mb-6">
                                 <p className="text-blue-400 text-3xl font-semibold mb-2">
@@ -184,35 +220,51 @@ function Token() {
                                     </div>
                                 </div>
                                 <div className="mt-auto py-4 order-first lg:order-last">
-                                    <button
-                                        className="w-full lg:w-64 group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
+                                    <div className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-4 mb-4">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <Tag className="w-5 h-5 text-zinc-500" />
+                                                <p className="text-sm text-zinc-400">Price</p>
+                                            </div>
+                                            <p className="font-mono text-xl text-white font-bold">
+                                                {token.orderData?.price
+                                                    ? `${formatEther(
+                                                          BigInt(token.orderData.price)
+                                                      )} ETH`
+                                                    : 'Not Listed'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {!isPurchaseComplete && (
+                                        <button
+                                            className="w-full lg:w-64 group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
                                              text-white font-semibold rounded-xl
                                              transform hover:scale-105 active:scale-95
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                                        disabled={!fulfillOrderSim || isPending}
-                                        onClick={async () => {
-                                            if (!fulfillOrderSim) return;
-                                            try {
-                                                await writeContractAsync(fulfillOrderSim.request);
-                                                fetch(
-                                                    `${API_URL}/reset-cache?cacheKey=${CACHE_KEYS.frontpageOrders}`
-                                                );
-                                            } catch (e) {
-                                                console.log(e);
-                                            }
-                                        }}
-                                    >
-                                        <span>Buy Now</span>
-                                    </button>
+                                            disabled={!fulfillOrderSim || isPending || isPurchasing}
+                                            onClick={handlePurchase}
+                                        >
+                                            {isPurchasing ? (
+                                                <>
+                                                    <LoadingSpinner />
+                                                    <span>Purchasing...</span>
+                                                </>
+                                            ) : (
+                                                <span>Buy Now</span>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {isSuccess ? <Toast variant="success" message="Your order was filled!" /> : null}
-            {isError ? <Toast variant="error" message="Could not complete your order" /> : null}
+            {showSuccessToast ? <Toast variant="success" message="Your order was filled!" /> : null}
+            {showErrorToast ? (
+                <Toast variant="error" message="Could not complete your order" />
+            ) : null}
         </div>
     );
 }

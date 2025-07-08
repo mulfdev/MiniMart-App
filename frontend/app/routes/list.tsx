@@ -1,13 +1,17 @@
 import { Suspense, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
-import { ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useAccount, useReadContract } from 'wagmi';
+import { useWriteContract } from 'wagmi';
+import { ChevronLeft, AlertCircle } from 'lucide-react';
+import { waitForTransactionReceipt } from 'wagmi/actions';
 
 import { AddOrderButton } from '~/components/AddOrderButton';
+import { LoadingSpinner } from '~/components/LoadingSpinner';
 
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
+import { config } from '~/root';
 
 import { fetchNft } from '~/loaders';
 import { Toast } from '~/components/Toast';
@@ -16,7 +20,7 @@ import { Loader } from '~/components/Loader';
 
 export function clientLoader({ params }: Route.LoaderArgs) {
     primeCache(
-        cacheKeys.nft(params.contract, params.tokenId, false),
+        cacheKeys.nft(params.contract, params.tokenId),
         () => fetchNft(params.contract, params.tokenId, false),
         { ttl: 120_000 }
     );
@@ -27,14 +31,18 @@ export function HydrateFallback() {
 
 function ApproveButton({ nftContract, className }: { nftContract: Address; className?: string }) {
     const { writeContractAsync, isPending, error } = useWriteContract();
+
     async function handleApprove() {
         try {
-            await writeContractAsync({
+            const hash = await writeContractAsync({
                 address: nftContract,
                 abi: nftAbi,
                 functionName: 'setApprovalForAll',
                 args: [miniMartAddr, true],
             });
+            if (hash) {
+                await waitForTransactionReceipt(config, { hash });
+            }
         } catch (err) {
             console.error('Approval transaction failed:', err);
         }
@@ -43,7 +51,14 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
     return (
         <div className="w-full">
             <button onClick={handleApprove} disabled={isPending} className={className}>
-                {isPending ? 'Approving in Wallet...' : 'Approve Marketplace'}
+                {isPending ? (
+                    <div className="flex items-center justify-center gap-2">
+                        <LoadingSpinner />
+                        <span>Approving...</span>
+                    </div>
+                ) : (
+                    'Approve Marketplace'
+                )}
             </button>
             {error && (
                 <p className="text-red-400 text-sm mt-2 text-center">
@@ -58,7 +73,7 @@ function SingleToken() {
     const params = useParams();
     const { address } = useAccount();
 
-    const { data: isApproved } = useReadContract({
+    const { data: isApproved, isLoading: isCheckingApproval } = useReadContract({
         abi: nftAbi,
         address: params.contract as `0x${string}`,
         functionName: 'isApprovedForAll',
@@ -73,10 +88,10 @@ function SingleToken() {
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
 
     const defaultButtonStyles =
-        'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50';
+        'w-full sm:w-64 px-6 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg disabled:opacity-50 disabled:cursor-wait';
 
     const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!, false),
+        cacheKeys.nft(params.contract!, params.tokenId!),
         () => fetchNft(params.contract!, params.tokenId!, false),
         { ttl: 120_000, enabled: !!params.tokenId || !!params.contract }
     );
@@ -146,7 +161,14 @@ function SingleToken() {
                 </div>
                 {status !== 'success' && (
                     <>
-                        {isApproved ? (
+                        {isCheckingApproval ? (
+                            <div className="flex items-center justify-center p-8">
+                                <LoadingSpinner />
+                                <span className="ml-2 text-zinc-400">
+                                    Checking approval status...
+                                </span>
+                            </div>
+                        ) : isApproved ? (
                             <div className="space-y-6">
                                 <div>
                                     <label
@@ -224,6 +246,15 @@ function SingleToken() {
                             </div>
                         ) : (
                             <div className="space-y-4 p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl">
+                                <div className="text-center">
+                                    <h3 className="text-xl font-bold text-white mb-2">
+                                        Approve Marketplace
+                                    </h3>
+                                    <p className="text-zinc-400">
+                                        To list this NFT, you first need to grant the MiniMart
+                                        marketplace permission to transfer it on your behalf.
+                                    </p>
+                                </div>
                                 <ApproveButton
                                     nftContract={token.nft.contract.address as Address}
                                     className={defaultButtonStyles}

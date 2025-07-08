@@ -102,7 +102,7 @@ export default function LandingPage() {
             </section>
 
             {/* Open Listings Section */}
-            <section className="container mx-auto px-4 py-16 snap-start">
+            <section className="container mx-auto px-4 py-8 md:py-16 snap-start">
                 <div className="flex flex-col items-center md:flex-row md:justify-between md:items-center gap-4 mb-8">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
