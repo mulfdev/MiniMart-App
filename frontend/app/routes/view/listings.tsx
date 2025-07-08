@@ -13,21 +13,20 @@ export function clientLoader({ params }: Route.LoaderArgs) {
 }
 
 export function HydrateFallback() {
-    return <Loader text="Loading your listings..." />;
+    return <Loader className="h-12 w-12" text="Loading your listings..." />;
 }
 
 function Listings() {
     const params = useParams();
-    const nfts = useCache(cacheKeys.listings(params.address!), () => fetchUserOrders(params.address!), {
-        ttl: 120_000,
-        enabled: !!params.address,
-    });
-
-    if (!nfts) {
-        return <Loader text="Loading your listings..." />;
-    }
-
-    if (nfts.length === 0) {
+    const nfts = useCache(
+        cacheKeys.listings(params.address!),
+        () => fetchUserOrders(params.address!),
+        {
+            ttl: 120_000,
+            enabled: !!params.address,
+        }
+    );
+    if (!nfts || nfts.length === 0) {
         return <EmptyState message="No listings found." />;
     }
 
