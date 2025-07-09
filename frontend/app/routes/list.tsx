@@ -11,7 +11,8 @@ import { LoadingSpinner } from '~/components/LoadingSpinner';
 
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
-import { config } from '~/root';
+
+import { wagmiConfig } from '~/config';
 
 import { fetchNft } from '~/loaders';
 import { Toast } from '~/components/Toast';
@@ -41,7 +42,7 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
                 args: [miniMartAddr, true],
             });
             if (hash) {
-                await waitForTransactionReceipt(config, { hash });
+                await waitForTransactionReceipt(wagmiConfig, { hash });
             }
         } catch (err) {
             console.error('Approval transaction failed:', err);

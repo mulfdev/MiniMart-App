@@ -1,8 +1,10 @@
 import { useParams, Link } from 'react-router';
 import type { Route } from './+types/token';
 import { fetchNft } from '~/loaders';
-import { API_URL, config } from '~/root';
+import { API_URL } from '~/root';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint, Tag } from 'lucide-react';
+import { wagmiConfig } from '~/config';
+
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
 import { CACHE_KEYS, miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
@@ -100,7 +102,7 @@ function Token() {
         try {
             const hash = await writeContractAsync(fulfillOrderSim.request);
             if (hash) {
-                const receipt = await waitForTransactionReceipt(config, { hash });
+                const receipt = await waitForTransactionReceipt(wagmiConfig, { hash });
                 if (receipt.status === 'success') {
                     remove(cacheKeys.listings(token.orderData.seller));
                     remove(cacheKeys.homepageOrders);

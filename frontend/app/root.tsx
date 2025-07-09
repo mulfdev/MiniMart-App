@@ -18,7 +18,7 @@ import { Loader } from './components/Loader';
 const Web3Provider = lazy(() =>
     import('./components/Web3Provider').then(({ Web3Provider }) => ({
         default: Web3Provider,
-    })),
+    }))
 );
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
@@ -94,13 +94,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
     return (
-        <Suspense fallback={<Loader />}>
-            <Web3Provider>
-                <FcConnect />
-                <Navigation />
-                <Outlet />
-            </Web3Provider>
-        </Suspense>
+        <Web3Provider>
+            <FcConnect />
+            <Navigation />
+            <Outlet />
+        </Web3Provider>
     );
 }
 
