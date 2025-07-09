@@ -117,7 +117,7 @@ function SingleToken() {
         );
     }
     return (
-        <main className="mx-auto px-4 py-8 sm:py-16">
+        <main className="mx-auto px-4 pt-8 pb-16 sm:py-16">
             <div className="max-w-2xl mx-auto bg-zinc-900/70 rounded-3xl p-3 md:p-6 border border-zinc-800/50 backdrop-blur-sm shadow-xl">
                 <div className="grid grid-cols-1 items-center mb-6 gap-8">
                     <h1 className="text-3xl sm:text-4xl font-bold text-white">List Your NFT</h1>

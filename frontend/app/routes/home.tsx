@@ -54,7 +54,7 @@ export default function LandingPage() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto snap-y snap-mandatory h-screen overflow-y-scroll">
+        <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto overflow-y-scroll">
             {/* Hero Section */}
             <section className="container mx-auto px-4 py-12 ">
                 <div className="text-center max-w-4xl mx-auto">
