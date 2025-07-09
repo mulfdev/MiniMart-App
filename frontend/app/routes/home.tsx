@@ -103,24 +103,23 @@ export default function LandingPage() {
 
             {/* Open Listings Section */}
             <section className="container mx-auto px-4 py-8 md:py-16 snap-start">
-                <div className="flex flex-col items-center md:flex-row md:justify-between md:items-center gap-4 mb-8">
+                <div className="flex items-end justify-between md:items-center gap-4 mb-8">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
                             Open Listings
                         </h2>
-                        <p className="text-lg text-zinc-400">
+                        <p className="hidden md:inline text-lg text-zinc-400">
                             Check out the latest NFTs available for purchase.
                         </p>
                     </div>
                     <Link
                         to="/orders"
-                        className="flex-shrink-0 mt-4 md:mt-0 group flex items-center gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 
+                        className="flex-shrink-0 md:mt-0 group flex items-start gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 
                                      text-white font-semibold rounded-xl
                                      transform hover:scale-105 active:scale-95
                                      transition-all duration-200 ease-out"
                     >
                         <span>View All</span>
-                        <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
                     </Link>
                 </div>
 
