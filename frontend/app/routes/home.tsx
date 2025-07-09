@@ -56,7 +56,7 @@ export default function LandingPage() {
     return (
         <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto snap-y snap-mandatory h-screen overflow-y-scroll">
             {/* Hero Section */}
-            <section className="container mx-auto px-4 py-12 snap-start">
+            <section className="container mx-auto px-4 py-12 ">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Badge */}
                     <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm">
@@ -102,7 +102,7 @@ export default function LandingPage() {
             </section>
 
             {/* Open Listings Section */}
-            <section className="container mx-auto px-4 py-8 md:py-16 snap-start">
+            <section className="container mx-auto px-4 py-8 md:py-16">
                 <div className="flex items-end justify-between md:items-center gap-4 mb-8">
                     <div className="text-center md:text-left">
                         <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
@@ -137,7 +137,7 @@ export default function LandingPage() {
             </section>
 
             {/* How It Works */}
-            <section className="container mx-auto px-4 py-16 snap-start">
+            <section className="container mx-auto px-4 py-16 ">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">How It Works</h2>
                     <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
@@ -170,7 +170,7 @@ export default function LandingPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="container mx-auto px-4 py-16 snap-start">
+            <section className="container mx-auto px-4 py-16 ">
                 <div className="text-center max-w-3xl mx-auto">
                     <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
                         Ready to Try It?
@@ -191,7 +191,7 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50 snap-start">
+            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50 ">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center">
