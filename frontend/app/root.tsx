@@ -1,7 +1,7 @@
 import './app.css';
 
 import type { Route } from './+types/root';
-
+import { lazy, Suspense } from 'react';
 import {
     isRouteErrorResponse,
     Links,
@@ -11,18 +11,18 @@ import {
     ScrollRestoration,
 } from 'react-router';
 
-import { http, createConfig, WagmiProvider } from 'wagmi';
-import { baseSepolia } from 'wagmi/chains';
-import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
-import { ConnectKitProvider } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 import { Navigation } from './components/Navigation';
+import { Loader } from './components/Loader';
+
+const Web3Provider = lazy(() =>
+    import('./components/Web3Provider').then(({ Web3Provider }) => ({
+        default: Web3Provider,
+    })),
+);
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
-export const BASE_SEPOLIA_RPC_URL = import.meta.env.VITE_BASE_SEPOLIA_RPC_URL;
 export const API_URL = import.meta.env.VITE_API_URL;
-
-const queryClient = new QueryClient();
 
 const frameConfig = {
     version: 'next',
@@ -45,21 +45,9 @@ if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
 }
 
-if (typeof BASE_SEPOLIA_RPC_URL !== 'string') {
-    throw new Error('BASE_RPC_URL must be set');
-}
-
 if (typeof API_URL !== 'string') {
     throw new Error('API_URL must be set');
 }
-
-export const config = createConfig({
-    chains: [baseSepolia],
-    transports: {
-        [baseSepolia.id]: http(BASE_SEPOLIA_RPC_URL),
-    },
-    connectors: [miniAppConnector()],
-});
 
 const backgroundStyle = {
     backgroundColor: '#0a0a0a',
@@ -104,23 +92,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     );
 }
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
 export default function App() {
     return (
-        <WagmiProvider config={config}>
-            <QueryClientProvider client={queryClient}>
-                <ConnectKitProvider
-                    options={{
-                        language: 'en-US',
-                    }}
-                >
-                    <FcConnect />
-                    <Navigation />
-                    <Outlet />
-                </ConnectKitProvider>
-            </QueryClientProvider>
-        </WagmiProvider>
+        <Suspense fallback={<Loader />}>
+            <Web3Provider>
+                <FcConnect />
+                <Navigation />
+                <Outlet />
+            </Web3Provider>
+        </Suspense>
     );
 }
 
