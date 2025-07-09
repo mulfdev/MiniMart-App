@@ -12,9 +12,9 @@ import {
 } from 'react-router';
 
 import { http, createConfig, WagmiProvider } from 'wagmi';
-import { base, baseSepolia } from 'wagmi/chains';
+import { baseSepolia } from 'wagmi/chains';
 import { farcasterFrame as miniAppConnector } from '@farcaster/frame-wagmi-connector';
-import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
+import { ConnectKitProvider } from 'connectkit';
 import FcConnect from '~/components/FcConnect';
 import { Navigation } from './components/Navigation';
 

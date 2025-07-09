@@ -1,10 +1,10 @@
-import { ConnectKitButton } from 'connectkit';
+import { lazy, Suspense, type JSX, useRef } from 'react';
 import { Home, Shapes, NotebookTabs, Logs } from 'lucide-react';
-import { useEffect, useRef, useState, type JSX } from 'react';
-import sdk from '@farcaster/frame-sdk';
 import { Link } from 'react-router';
 import { useAccount, useConnect } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
+
+const ConnectButton = lazy(() => import('./ConnectButton'));
 
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const ref = useRef<HTMLDivElement>(null);
@@ -32,7 +32,9 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 isOpen ? 'translate-x-0' : 'translate-x-full'
             } w-64 p-4`}
         >
-            <ConnectKitButton />
+            <Suspense fallback={<div className="h-12 w-full animate-pulse rounded-lg bg-zinc-800" />}>
+                <ConnectButton />
+            </Suspense>
 
             <div className="my-8 flex flex-col gap-y-3">
                 <SidebarLink
