@@ -64,7 +64,7 @@ export async function fetchAllOrders() {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        return data.nfts as Nft[];
+        return data.nfts as { nft: Nft; orderInfo: OrderListed }[];
     } catch (error) {
         console.error('Error fetching orders:', error);
         return [];
