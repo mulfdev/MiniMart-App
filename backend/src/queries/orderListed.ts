@@ -47,8 +47,6 @@ const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/l
 
 const client = new GraphQLClient(endpoint);
 
-// function findUniqueNfts(arrayA: Nft[], arrayB: Nft[]): Nft[] {}
-
 export async function getListedOrders(numItems: number) {
     try {
         const req = await client.request<GetOrderListedEvents>(GET_ORDERS, {
