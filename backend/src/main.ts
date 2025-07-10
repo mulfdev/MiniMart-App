@@ -3,7 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderListed.js';
-import type { Nft } from '@minimart/types';
+import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
 import { CACHE_KEYS, isValidCacheKey, localCache } from './cache.js';
 
@@ -39,7 +39,7 @@ app.get('/all-orders', async (c) => {
             return c.json({ nfts: [] });
         }
 
-        const tokenData: Nft[] = [];
+        const tokenData: { nft: Nft; orderInfo: OrderListed }[] = [];
         for (const order of orders) {
             const res = await fetch(
                 `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
@@ -55,7 +55,7 @@ app.get('/all-orders', async (c) => {
             }
 
             const data = (await res.json()) as Nft;
-            tokenData.push(data);
+            tokenData.push({ nft: data, orderInfo: order });
         }
 
         localCache.set(CACHE_KEYS.frontpageOrders, tokenData);
