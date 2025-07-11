@@ -5,7 +5,6 @@ import { cors } from 'hono/cors';
 import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderListed.js';
 import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
-import { CACHE_KEYS, isValidCacheKey, localCache } from './cache.js';
 
 //////////// Startup checks
 
@@ -23,14 +22,10 @@ app.use(
 );
 
 app.get('/', (c) => {
-    return c.text('Hello Hono!');
+    return c.json({ status: 'running' });
 });
 
 app.get('/all-orders', async (c) => {
-    const cachedOrderData = localCache.get(CACHE_KEYS.frontpageOrders);
-    if (cachedOrderData) {
-        return c.json({ nfts: cachedOrderData }, 200);
-    }
     try {
         const orders = await getListedOrders(6);
 
@@ -57,9 +52,7 @@ app.get('/all-orders', async (c) => {
             const data = (await res.json()) as Nft;
             tokenData.push({ nft: data, orderInfo: order });
         }
-
-        localCache.set(CACHE_KEYS.frontpageOrders, tokenData);
-
+        c.header('Cache-Control', 'private, s-maxage=60, stale-while-revalidate=30');
         return c.json({ nfts: tokenData }, 200);
     } catch (e) {
         console.error('Error in get-orders handler:', e);
@@ -148,6 +141,7 @@ app.get('/user-inventory', async (c) => {
                     nftA.tokenId === nftB.tokenId,
             ),
     );
+    c.header('Cache-Control', 'private, s-maxage=60, stale-while-revalidate=30');
 
     return c.json({ nfts: difference }, 200);
 });
@@ -171,19 +165,7 @@ app.get('/single-token', async (c) => {
 });
 
 app.get('/reset-cache', (c) => {
-    const cacheKey = c.req.query('cacheKey');
-
-    if (!cacheKey) {
-        throw new HTTPException(400, { message: 'cacheKey is required' });
-    }
-
-    const isValid = isValidCacheKey(cacheKey);
-
-    if (!isValid) throw new HTTPException(400, { message: 'invalid cache key' });
-
-    localCache.set(cacheKey, undefined);
-
-    return c.json({ message: `cahce key ${cacheKey} cleared` });
+    return c.json({ message: `cahce key cleared` });
 });
 
 ////////////// Start Server and handle shutdowns

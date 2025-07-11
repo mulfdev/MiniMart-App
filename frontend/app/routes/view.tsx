@@ -2,18 +2,16 @@ import { ErrorBoundary } from '~/components/ErrorBoundary';
 import type { Route } from './+types/view';
 import { useAccount } from 'wagmi';
 import { fetchNfts } from '~/loaders';
-import { useCache, primeCache, cacheKeys } from '~/hooks/useCache';
 import { Suspense } from 'react';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
 import { NftCard } from '~/components/NftCard';
+import { useLoaderData } from 'react-router';
 
-export function clientLoader({ params }: Route.ClientLoaderArgs) {
-    primeCache(cacheKeys.nfts(params.address), () => fetchNfts(params.address), {
-        ttl: 120_000,
-    });
-    return null;
+export async function clientLoader({ params }: Route.ClientLoaderArgs) {
+    const nfts = await fetchNfts(params.address);
+    return nfts;
 }
 
 export function Fallback() {
@@ -21,11 +19,7 @@ export function Fallback() {
 }
 
 function ViewNftsContent({ address }: { address: `0x${string}` }) {
-    const data = useCache(cacheKeys.nfts(address), () => fetchNfts(address), {
-        ttl: 120_000,
-        enabled: !!address,
-    });
-
+    const data = useLoaderData<typeof clientLoader>();
     if (!data || !data.nfts || data.nfts.length === 0) {
         return <EmptyState message="No listings found." />;
     }

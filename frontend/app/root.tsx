@@ -9,12 +9,14 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
+    useNavigation,
 } from 'react-router';
 
 const FcConnect = lazy(() => import('~/components/FcConnect'));
 
 import { Navigation } from './components/Navigation';
 import { Loader } from './components/Loader';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 const Web3Provider = lazy(() =>
     import('./components/Web3Provider').then(({ Web3Provider }) => ({
@@ -72,7 +74,21 @@ export const links: Route.LinksFunction = () => [
         href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
     },
 ];
+
+export function HydrateFallback() {
+    return (
+        <div className="flex flex-col justify-center items-center h-[100svh] w-[100svw]">
+            <h1 className="text-4xl mb-12">MiniMart</h1>
+            <LoadingSpinner className="w-32 h-32" />
+        </div>
+    );
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+    const navigation = useNavigation();
+
+    const isNavigating = Boolean(navigation.location);
+
     return (
         <html lang="en" style={backgroundStyle}>
             <head>
@@ -85,6 +101,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="min-h-[100svh] mx-auto">
+                {isNavigating && (
+                    <div className="flex flex-col justify-center items-center h-[100svh] w-[100svw]">
+                        <h1 className="text-4xl mb-12">MiniMart</h1>
+                        <LoadingSpinner className="w-32 h-32" />
+                    </div>
+                )}
                 {children}
                 <ScrollRestoration />
                 <Scripts />

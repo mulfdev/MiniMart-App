@@ -4,7 +4,6 @@ import { Link } from 'react-router';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
 import { useAccount } from 'wagmi';
-import { cacheKeys, remove } from '~/hooks/useCache';
 import { API_URL } from '~/root';
 import { formatEther } from 'viem';
 import { simulateContract, writeContract } from 'wagmi/actions';

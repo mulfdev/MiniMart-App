@@ -3,7 +3,6 @@ import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicCl
 import { type Address, zeroAddress } from 'viem';
 import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
-import { cacheKeys, remove } from '~/hooks/useCache';
 import { API_URL } from '~/root';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -80,9 +79,6 @@ export function AddOrderButton({
                 functionName: 'addOrder',
                 args: [msg, sig],
             });
-            remove(cacheKeys.listings(address));
-            remove(cacheKeys.nfts(address));
-            remove(cacheKeys.homepageOrders);
             fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
             onSuccess?.();
         } catch (err) {
@@ -99,9 +95,9 @@ export function AddOrderButton({
         <button onClick={submit} disabled={disabled} {...props}>
             {disabled ? (
                 <div className="flex items-center justify-center gap-2">
-    <LoadingSpinner className="w-5 h-5" />
-    <span>Listing...</span>
-</div>
+                    <LoadingSpinner className="w-5 h-5" />
+                    <span>Listing...</span>
+                </div>
             ) : (
                 children
             )}

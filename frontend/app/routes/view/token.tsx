@@ -8,23 +8,13 @@ import { wagmiConfig } from '~/config';
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
 import { CACHE_KEYS, miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
-import { cacheKeys, primeCache, useCache, remove } from '~/hooks/useCache';
 import { Suspense, useState } from 'react';
 import { Loader } from '~/components/Loader';
 import { formatEther } from 'viem';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { LoadingSpinner } from '~/components/LoadingSpinner';
 
-export function clientLoader({ params }: Route.LoaderArgs) {
-    primeCache(
-        cacheKeys.nft(params.contract, params.tokenId),
-        () => fetchNft(params.contract, params.tokenId, true),
-        {
-            ttl: 120_000,
-        }
-    );
-    return null;
-}
+export function clientLoader({ params }: Route.LoaderArgs) {}
 
 function Token() {
     const params = useParams();
@@ -33,14 +23,7 @@ function Token() {
     const [showErrorToast, setShowErrorToast] = useState(false);
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
 
-    const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!),
-        () => fetchNft(params.contract!, params.tokenId!, true),
-        {
-            ttl: 120_000,
-            enabled: !!params.contract || !!params.tokenId,
-        }
-    );
+    const token = null;
     const { writeContractAsync, isPending } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,

@@ -31,12 +31,12 @@ export async function fetchNft(contract: string, tokenId: string, orderInfo: boo
     }
 }
 
-export async function fetchNfts(address: string) {
+export async function fetchNfts(address: string, reload: boolean = false) {
     try {
         const url = new URL(`${API_URL}/user-inventory`);
         url.searchParams.set('address', address);
 
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: reload ? 'reload' : 'default' });
         const data = (await res.json()) as { nfts: Nft[] };
         return data;
     } catch (e) {
