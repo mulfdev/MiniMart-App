@@ -74,11 +74,7 @@ function AllOrdersContent() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
                     {data.nfts.map((nft) => (
-                        <div
-                            key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}
-                            className="animate-in fade-in slide-in-from-bottom-4"
-                            style={{ animationDelay: '100ms' }}
-                        >
+                        <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>
                             <NftCard nft={nft.nft} variant="view" />
                         </div>
                     ))}

@@ -5,6 +5,8 @@ import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
 import { API_URL } from '~/root';
 import { LoadingSpinner } from './LoadingSpinner';
+import { waitForTransactionReceipt } from 'wagmi/actions';
+import { wagmiConfig } from '~/config';
 
 type Order = {
     seller: Address;
@@ -73,13 +75,14 @@ export function AddOrderButton({
                 primaryType: 'Order',
                 message: msg,
             });
-            await writeContractAsync({
+            const txHash = await writeContractAsync({
                 address: miniMartAddr,
                 abi: minimartAbi,
                 functionName: 'addOrder',
                 args: [msg, sig],
             });
-            fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
+
+            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
             onSuccess?.();
         } catch (err) {
             onError?.(

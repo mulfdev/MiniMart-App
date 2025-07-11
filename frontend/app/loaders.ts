@@ -44,12 +44,12 @@ export async function fetchNfts(address: string, reload: boolean = false) {
     }
 }
 
-export async function fetchUserOrders(address: string) {
+export async function fetchUserOrders(address: string, reload: boolean = false) {
     try {
         const url = new URL(`${API_URL}/user-orders`);
         url.searchParams.set('address', address);
 
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(url, { cache: reload ? 'reload' : 'default' });
         const data = (await res.json()) as { nfts: Nft[] };
         return data;
     } catch (e) {

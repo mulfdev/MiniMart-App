@@ -1,7 +1,6 @@
 import type { Route } from '../+types/view';
 import { fetchUserOrders } from '~/loaders';
 import { useLoaderData, useParams } from 'react-router';
-import { Suspense } from 'react';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
@@ -21,11 +20,7 @@ function Listings() {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
             {data.nfts.map((nft) => (
-                <div
-                    key={`${nft.contract.address}+${nft.tokenId}`}
-                    className="animate-in fade-in slide-in-from-bottom-4"
-                    style={{ animationDelay: '100ms' }}
-                >
+                <div key={`${nft.contract.address}+${nft.tokenId}`}>
                     <NftCard nft={nft} variant="remove" />
                 </div>
             ))}
@@ -36,9 +31,7 @@ function Listings() {
 export default function UserListings() {
     return (
         <Page title="Your Listings" description="Manage your active NFT listings.">
-            <Suspense fallback={<Loader className="h-12 w-12" text="Loading your listings..." />}>
-                <Listings />
-            </Suspense>
+            <Listings />
         </Page>
     );
 }

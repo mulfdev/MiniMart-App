@@ -1,16 +1,16 @@
 import { Shield, Sparkles, Tag } from 'lucide-react';
 import type { Nft, OrderListed } from '@minimart/types';
-import { Link } from 'react-router';
+import { Link, useRevalidator, useSubmit } from 'react-router';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
 import { useAccount } from 'wagmi';
-import { API_URL } from '~/root';
 import { formatEther } from 'viem';
-import { simulateContract, writeContract } from 'wagmi/actions';
+import { simulateContract, writeContract, waitForTransactionReceipt } from 'wagmi/actions';
 import { wagmiConfig } from '~/config';
 import minimartAbi from '~/minimartAbi';
 import { useState } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
+import { fetchNfts, fetchUserOrders } from '~/loaders';
 
 export function NftCard({
     nft,
@@ -25,6 +25,8 @@ export function NftCard({
     const [inProgress, setInProgress] = useState(false);
     const [isSuccess, setIsSucess] = useState<boolean | null>(null);
     const [isError, setIsError] = useState<boolean | null>(null);
+
+    const revalidator = useRevalidator();
 
     async function removeOrder() {
         try {
@@ -41,13 +43,14 @@ export function NftCard({
             if (!simulateTx.request) {
                 throw new Error('Transaction simulation failed');
             }
-            await writeContract(wagmiConfig, simulateTx.request);
+            const txHash = await writeContract(wagmiConfig, simulateTx.request);
+            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
 
-            fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
             setIsSucess(true);
-            setTimeout(() => {
-                if (address) remove(cacheKeys.listings(address));
-            }, 5000);
+
+            fetchNfts(address!, true);
+            await fetchUserOrders(address!, true);
+            revalidator.revalidate();
         } catch (e) {
             setIsError(true);
         } finally {
@@ -56,7 +59,7 @@ export function NftCard({
     }
 
     return (
-        <div className="group relative">
+        <div className={`group relative ${isSuccess ? 'invisible' : 'visible'}`}>
             {/* Main Card Container */}
             <div
                 className="relative bg-zinc-900 rounded-2xl overflow-hidden 
@@ -253,14 +256,7 @@ export function NftCard({
                 </div>
             </div>
             {isSuccess ? (
-                <Toast
-                    variant="success"
-                    message="Listing Removed"
-                    onClose={() => {
-                        remove(cacheKeys.nfts(address!));
-                        remove(cacheKeys.listings(address!));
-                    }}
-                />
+                <Toast variant="success" message="Listing Removed" onClose={() => {}} />
             ) : null}
             {isError ? <Toast variant="error" message="Could not remove the listing" /> : null}
         </div>

@@ -1,5 +1,6 @@
 import './app.css';
 
+import { useEffect, useState } from 'react';
 import type { Route } from './+types/root';
 import { lazy, Suspense } from 'react';
 import {
@@ -86,8 +87,20 @@ export function HydrateFallback() {
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const navigation = useNavigation();
+    const [showLoader, setShowLoader] = useState(false);
 
     const isNavigating = Boolean(navigation.location);
+
+    useEffect(() => {
+        if (isNavigating) {
+            const timer = setTimeout(() => {
+                setShowLoader(true);
+            }, 250);
+            return () => clearTimeout(timer);
+        } else {
+            setShowLoader(false);
+        }
+    }, [isNavigating]);
 
     return (
         <html lang="en" style={backgroundStyle}>
@@ -101,7 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="min-h-[100svh] mx-auto">
-                {isNavigating && (
+                {showLoader && (
                     <div className="flex flex-col justify-center items-center h-[100svh] w-[100svw]">
                         <h1 className="text-4xl mb-12">MiniMart</h1>
                         <LoadingSpinner className="w-32 h-32" />

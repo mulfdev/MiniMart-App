@@ -19,10 +19,9 @@ import { LoadingSpinner } from '~/components/LoadingSpinner';
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
 import { wagmiConfig } from '~/config';
-import { fetchNft } from '~/loaders';
+import { fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
 import { Toast } from '~/components/Toast';
 import { Loader } from '~/components/Loader';
-import { Page } from '~/components/Page';
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
     const nft = await fetchNft(params.contract, params.tokenId, false);
@@ -281,6 +280,8 @@ function SingleToken() {
                                             tokenId={token.nft.tokenId}
                                             onSuccess={() => {
                                                 setStatus('success');
+                                                fetchNfts(address!, true);
+                                                fetchUserOrders(address!, true);
                                             }}
                                             onError={(err: Error) =>
                                                 setErrorInfo({
@@ -361,14 +362,7 @@ function SingleToken() {
                 </div>
             </div>
             {status === 'success' ? (
-                <Toast
-                    variant="success"
-                    message="NFT Listed Successfully!"
-                    onClose={() => {
-                        remove(cacheKeys.nfts(address!));
-                        remove(cacheKeys.listings(address!));
-                    }}
-                />
+                <Toast variant="success" message="NFT Listed Successfully!" />
             ) : null}
             {errorInfo.isError ? <Toast variant="error" message={errorInfo.message} /> : null}
         </div>

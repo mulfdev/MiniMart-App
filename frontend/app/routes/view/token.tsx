@@ -1,6 +1,6 @@
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useLoaderData } from 'react-router';
 import type { Route } from './+types/token';
-import { fetchNft } from '~/loaders';
+import { fetchNft, fetchUserOrders } from '~/loaders';
 import { API_URL } from '~/root';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint, Tag } from 'lucide-react';
 import { wagmiConfig } from '~/config';
@@ -13,17 +13,23 @@ import { Loader } from '~/components/Loader';
 import { formatEther } from 'viem';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { LoadingSpinner } from '~/components/LoadingSpinner';
+import { useAccount } from 'wagmi';
 
-export function clientLoader({ params }: Route.LoaderArgs) {}
+export async function clientLoader({ params }: Route.LoaderArgs) {
+    const nft = await fetchNft(params.contract, params.tokenId, true);
+    return nft;
+}
 
 function Token() {
-    const params = useParams();
+    const token = useLoaderData<typeof clientLoader>();
+
+    const { address } = useAccount();
+
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
     const [showErrorToast, setShowErrorToast] = useState(false);
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
 
-    const token = null;
     const { writeContractAsync, isPending } = useWriteMinimartFulfillOrder();
     const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
         address: miniMartAddr,
@@ -81,17 +87,18 @@ function Token() {
         try {
             const hash = await writeContractAsync(fulfillOrderSim.request);
             if (hash) {
-                const receipt = await waitForTransactionReceipt(wagmiConfig, { hash });
+                const receipt = await waitForTransactionReceipt(wagmiConfig, {
+                    hash,
+                    confirmations: 4,
+                });
                 if (receipt.status === 'success') {
-                    remove(cacheKeys.listings(token.orderData.seller));
-                    remove(cacheKeys.homepageOrders);
-                    await fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
                     setShowSuccessToast(true);
                     setIsPurchaseComplete(true); // Mark purchase as complete
                 } else {
                     setShowErrorToast(true);
                 }
             }
+            fetchUserOrders(address!);
         } catch (e) {
             console.error(e);
             setShowErrorToast(true);
