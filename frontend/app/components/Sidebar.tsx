@@ -12,10 +12,11 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     const { connect, connectors } = useConnect();
     useOnClickOutside(ref, onClose);
 
-    function SidebarLink({ url, label, icon }: { url: string; label: string; icon: JSX.Element }) {
+    function SidebarLink({ url, label, icon, onClick }: { url: string; label: string; icon: JSX.Element; onClick: () => void }) {
         return (
             <Link
                 to={url}
+                onClick={onClick}
                 className="flex items-center gap-x-3 rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-base font-semibold text-zinc-100 transition-colors duration-150 hover:bg-zinc-700 active:bg-zinc-600"
             >
                 {icon}
@@ -36,21 +37,25 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                     url="/"
                     label="Home"
                     icon={<Home className="h-6 w-6 text-zinc-400" />}
+                    onClick={onClose}
                 />
                 <SidebarLink
                     url={address ? `/user/${address}` : `/`}
                     label="Your Tokens"
                     icon={<Shapes className="h-6 w-6 text-zinc-400" />}
+                    onClick={onClose}
                 />
                 <SidebarLink
                     url={address ? `/user/listings/${address}` : `/`}
                     label="Your Listings"
                     icon={<NotebookTabs className="h-6 w-6 text-zinc-400" />}
+                    onClick={onClose}
                 />
                 <SidebarLink
                     url="/orders"
                     label="All Orders"
                     icon={<Logs className="h-6 w-6 text-zinc-400" />}
+                    onClick={onClose}
                 />
                 <span className="mt-auto">
                     <ConnectButton />
