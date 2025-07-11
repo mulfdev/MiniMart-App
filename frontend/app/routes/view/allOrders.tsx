@@ -31,8 +31,6 @@ function AllOrdersContent() {
         return <Loader text="Loading all orders..." />;
     }
 
-    console.log(data, 'ALL ORDERS');
-
     const handleSortChange = (newValue: SortValue) => {
         setCurrentSort(newValue);
 
@@ -75,7 +73,7 @@ function AllOrdersContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
                     {data.nfts.map((nft) => (
                         <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>
-                            <NftCard nft={nft.nft} variant="view" />
+                            <NftCard nft={nft.nft} orderInfo={nft.orderInfo} variant="view" />
                         </div>
                     ))}
                 </div>
