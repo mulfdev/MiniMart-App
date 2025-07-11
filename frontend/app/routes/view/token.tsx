@@ -120,7 +120,7 @@ function Token() {
     return (
         <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
             {/* Left side: Image with background effect */}
-            <div className="lg:w-2/3 h-1/2 lg:h-full flex items-center justify-center relative">
+            <div className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center relative">
                 <div className="w-full h-full relative">
                     <div className="relative h-full bg-transparent">
                         <div className="absolute inset-0 md:overflow-hidden">
