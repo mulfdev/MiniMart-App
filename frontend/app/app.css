@@ -6,6 +6,10 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
+body.noscroll {
+    overflow: hidden;
+}
+
 html,
 body {
     overscroll-behavior: none;

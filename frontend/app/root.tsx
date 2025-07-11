@@ -92,6 +92,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const isNavigating = Boolean(navigation.location);
 
     useEffect(() => {
+        if (showLoader) {
+            document.body.classList.add('noscroll');
+        } else {
+            document.body.classList.remove('noscroll');
+        }
+    }, [showLoader]);
+
+    useEffect(() => {
         if (isNavigating) {
             const timer = setTimeout(() => {
                 setShowLoader(true);
@@ -115,7 +123,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </head>
             <body className="min-h-[100svh] mx-auto">
                 {showLoader && (
-                    <div className="flex flex-col justify-center items-center h-[100svh] w-[100svw]">
+                    <div
+                        className="fixed inset-0 flex flex-col justify-center items-center h-[100svh] w-[100svw] z-50"
+                        style={backgroundStyle}
+                    >
                         <h1 className="text-4xl mb-12">MiniMart</h1>
                         <LoadingSpinner className="w-32 h-32" />
                     </div>
