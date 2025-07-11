@@ -1,54 +1,60 @@
-import { Shield, Sparkles } from 'lucide-react';
-import type { Nft } from '@minimart/types';
+import { Shield, Sparkles, Tag } from 'lucide-react';
+import type { Nft, OrderListed } from '@minimart/types';
 import { Link } from 'react-router';
-import { useSimulateMinimartRemoveOrder, useWriteMinimartRemoveOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
 import { useAccount } from 'wagmi';
 import { useMutation } from '@tanstack/react-query';
 import { cacheKeys, remove } from '~/hooks/useCache';
 import { API_URL } from '~/root';
+import { formatEther, formatUnits } from 'viem';
+import { simulateContract, writeContract } from 'wagmi/actions';
+import { wagmiConfig } from '~/config';
+import minimartAbi from '~/minimartAbi';
 
 export function NftCard({
     nft,
+    orderInfo,
     variant = 'list',
 }: {
     nft: Nft;
+    orderInfo?: OrderListed;
     variant?: 'list' | 'view' | 'remove';
 }) {
-    const { writeContractAsync } = useWriteMinimartRemoveOrder();
-    const { refetch: simulateTx } = useSimulateMinimartRemoveOrder({
-        args: [nft.orderId! as `0x${string}`],
-        address: miniMartAddr,
-        query: {
-            enabled: false,
-        },
-    });
-
     const { address } = useAccount();
-    const {
-        mutate: removeListing,
-        isPending,
-        isSuccess,
-        isError,
-    } = useMutation({
-        mutationFn: async () => {
-            const { data: simulation, error: simulationError } = await simulateTx();
-            if (!simulation?.request || simulationError) {
-                throw new Error(simulationError?.message ?? 'Transaction simulation failed');
+    async function removeOrder() {
+        try {
+            console.log('mutate');
+            if (!nft.orderId) {
+                console.log('no order id');
+                return;
             }
-            await writeContractAsync(simulation.request);
+            const simulateTx = await simulateContract(wagmiConfig, {
+                abi: minimartAbi,
+                address: miniMartAddr,
+                functionName: 'removeOrder',
+                args: [nft.orderId as `0x${string}`],
+            });
+            console.log('pas');
+            if (!simulateTx.request) {
+                console.log('ERROR');
+                throw new Error('Transaction simulation failed');
+            }
+            console.log('made it past sim');
+            await writeContract(wagmiConfig, simulateTx.request);
             if (address) remove(cacheKeys.listings(address));
             fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
-        },
-    });
+        } catch (e) {
+            console.log(e);
+        }
+    }
 
     return (
         <div className="group relative">
             {/* Main Card Container */}
             <div
                 className="relative bg-zinc-900 rounded-2xl overflow-hidden 
-                        h-[490px] flex flex-col
+                        h-[530px] max- flex flex-col
                         shadow-[0_8px_30px_rgb(0,0,0,0.12)] 
                         hover:shadow-[0_20px_60px_rgb(0,0,0,0.3)]
                         transform hover:-translate-y-2 
@@ -59,7 +65,7 @@ export function NftCard({
                 <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {/* Enhanced Image Container with artistic background */}
-                <div className="relative overflow-hidden h-2/3 bg-zinc-800">
+                <div className="relative overflow-hidden h-[320px] bg-zinc-800">
                     {/* Blurred background image for artistic effect */}
                     <div className="absolute inset-0">
                         <img
@@ -85,7 +91,7 @@ export function NftCard({
                     <div className="relative w-full h-full flex items-center justify-center p-4">
                         <img
                             src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
-                            className="max-w-full max-h-full object-contain
+                            className="w-full h-full object-contain
                                      transform group-hover:scale-105 
                                      transition-transform duration-700 ease-out
                                      filter group-hover:brightness-110 group-hover:contrast-110
@@ -168,6 +174,19 @@ export function NftCard({
                                   border-t border-gradient-to-r from-zinc-800/50 via-zinc-700/80 to-zinc-800/50
                                   transition-colors duration-300"
                     >
+                        {orderInfo && (
+                            <div className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-2 mb-4">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-3">
+                                        <Tag className="w-5 h-5 text-zinc-500" />
+                                        <p className="text-sm text-zinc-400">Price</p>
+                                    </div>
+                                    <p className="font-mono text-xl text-white font-bold">
+                                        ${formatEther(BigInt(orderInfo.price))} ETH
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex justify-between items-center gap-2">
                             {variant === 'list' ? (
                                 <Link to={`/list/${nft.contract.address}/${nft.tokenId}`}>
@@ -201,10 +220,9 @@ export function NftCard({
                             ) : null}
                             {variant === 'remove' ? (
                                 <button
-                                    onClick={() => {
-                                        removeListing();
+                                    onClick={async () => {
+                                        await removeOrder();
                                     }}
-                                    disabled={isPending}
                                     className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                              border border-zinc-700/50 hover:border-zinc-600/80
@@ -213,14 +231,14 @@ export function NftCard({
                                              transition-all duration-200 ease-out
                                              shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
                                 >
-                                    {isPending ? 'Processing' : 'Remove'}
+                                    Remove
                                 </button>
                             ) : null}
                         </div>
                     </div>
                 </div>
             </div>
-            {isSuccess ? <Toast variant="success" message="Listing Removed" /> : null}
+            {/* {isSuccess ? <Toast variant="success" message="Listing Removed" /> : null} */}
             {/* {isError ? <Toast variant="error" message="Could not remove the listing" /> : null} */}
         </div>
     );

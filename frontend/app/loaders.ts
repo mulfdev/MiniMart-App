@@ -37,10 +37,10 @@ export async function fetchNfts(address: string) {
         url.searchParams.set('address', address);
 
         const res = await fetch(url);
-        const data = (await res.json()) as Nft[];
+        const data = (await res.json()) as { nfts: Nft }[];
         return data;
     } catch (e) {
-        throw new Error('Could not fetch NFTs');
+        return { nfts: [] };
     }
 }
 
@@ -50,7 +50,7 @@ export async function fetchUserOrders(address: string) {
         url.searchParams.set('address', address);
 
         const res = await fetch(url, { cache: 'no-store' });
-        const data = (await res.json()) as Nft[];
+        const data = (await res.json()) as { nfts: Nft[] };
         return data;
     } catch (e) {
         throw new Error('Could not fetch NFTs');
@@ -64,9 +64,14 @@ export async function fetchAllOrders() {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        return data.nfts as { nft: Nft; orderInfo: OrderListed }[];
+        return data as {
+            nfts: {
+                nft: Nft;
+                orderInfo: OrderListed;
+            }[];
+        };
     } catch (error) {
         console.error('Error fetching orders:', error);
-        return [];
+        return { nfts: [], orderInfo: [] };
     }
 }

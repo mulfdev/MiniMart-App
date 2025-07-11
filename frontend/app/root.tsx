@@ -11,7 +11,8 @@ import {
     ScrollRestoration,
 } from 'react-router';
 
-import FcConnect from '~/components/FcConnect';
+const FcConnect = lazy(() => import('~/components/FcConnect'));
+
 import { Navigation } from './components/Navigation';
 import { Loader } from './components/Loader';
 
@@ -97,7 +98,9 @@ export default function App() {
         <Web3Provider>
             <FcConnect />
             <Navigation />
-            <Outlet />
+            <main className="pt-16">
+                <Outlet />
+            </main>
         </Web3Provider>
     );
 }

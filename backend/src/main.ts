@@ -96,7 +96,7 @@ app.get('/user-orders', async (c) => {
         tokenData.push({ ...data, orderId: order.id });
     }
 
-    return c.json(tokenData, 200);
+    return c.json({ nfts: tokenData }, 200);
 });
 
 app.get('/user-inventory', async (c) => {
@@ -129,14 +129,16 @@ app.get('/user-inventory', async (c) => {
 
     const nfts = data.ownedNfts as Nft[];
 
-    const filteredNfts =
-        nfts
-            .filter((nft) => !nft.contract.isSpam)
-            .filter((nft) => nft.tokenType === 'ERC721')
-            .filter(
-                (nft) =>
-                    nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
-            ) ?? [];
+    const filteredNfts = nfts
+        .filter((nft) => !nft.contract.isSpam)
+        .filter((nft) => nft.tokenType === 'ERC721')
+        .filter(
+            (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
+        );
+
+    if (filteredNfts.length === 0) {
+        return c.json(filteredNfts, 200);
+    }
 
     const difference = filteredNfts.filter(
         (nftA) =>
@@ -147,7 +149,7 @@ app.get('/user-inventory', async (c) => {
             ),
     );
 
-    return c.json(difference, 200);
+    return c.json({ nfts: difference }, 200);
 });
 
 app.get('/single-token', async (c) => {

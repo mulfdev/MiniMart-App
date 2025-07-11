@@ -14,16 +14,16 @@ export function clientLoader() {
 }
 
 function OpenListings() {
-    const nfts = useCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
+    const data = useCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
     return (
         <>
-            {nfts?.map((nft, index) => (
+            {data?.nfts?.map(({ nft, orderInfo }, index) => (
                 <div
                     key={`${nft.contract.address}+${nft.tokenId}`}
                     className="snap-center shrink-0 w-80"
                     style={{ animationDelay: `${index * 100}ms` }}
                 >
-                    <NftCard nft={nft} variant="view" />
+                    <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
                 </div>
             ))}
         </>

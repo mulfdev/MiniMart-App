@@ -14,6 +14,14 @@ export default defineConfig({
             filename: 'bundle-stats.html',
         }),
     ],
+    ssr: {
+        external: [
+            'wagmi',
+            'connectkit',
+            '@farcaster/frame-sdk',
+            '@farcaster/frame-wagmi-connector',
+        ],
+    },
     server: {
         fs: {
             allow: [searchForWorkspaceRoot(process.cwd())],
@@ -25,4 +33,3 @@ export default defineConfig({
         },
     },
 });
-

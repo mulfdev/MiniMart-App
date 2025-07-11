@@ -28,19 +28,17 @@ export function SortDropdown({ options, currentSort, onSortChange }: SortDropdow
     };
 
     return (
-        <div ref={dropdownRef} className="relative inline-block text-left z-20 mb-6">
-            <div>
-                <button
-                    type="button"
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="inline-flex w-full justify-center items-center gap-x-2 rounded-lg bg-zinc-800/70 px-4 py-2.5 text-sm font-medium text-zinc-300 shadow-sm ring-1 ring-inset ring-zinc-700/80 hover:bg-zinc-700/90 transition-colors duration-150"
-                    aria-expanded={isOpen}
-                    aria-haspopup="true"
-                >
-                    {selectedLabel}
-                    <ChevronsUpDown className="-mr-1 h-5 w-5 text-zinc-400" aria-hidden="true" />
-                </button>
-            </div>
+        <div ref={dropdownRef} className="relative inline-block text-left z-10">
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="inline-flex w-full justify-center items-center gap-x-2 rounded-lg bg-zinc-800/70 px-4 py-2.5 text-sm font-medium text-zinc-300 shadow-sm ring-1 ring-inset ring-zinc-700/80 hover:bg-zinc-700/90 transition-colors duration-150"
+                aria-expanded={isOpen}
+                aria-haspopup="true"
+            >
+                {selectedLabel}
+                <ChevronsUpDown className="-mr-1 h-5 w-5 text-zinc-400" aria-hidden="true" />
+            </button>
 
             {isOpen && (
                 <div

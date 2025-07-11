@@ -1,25 +1,25 @@
 import { useEffect, useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Menu, Sparkles, X } from 'lucide-react';
 import { useLocation } from 'react-router';
 import { MobileBackButton } from './MobileBackButton';
 import { Hamburger } from './Hamburger';
 import { Sidebar } from './Sidebar';
 
 export function Navigation() {
-    const location = useLocation();
+    const { pathname } = useLocation();
     const [isSidebarOpen, setSidebarOpen] = useState(false);
-    const [oldPath, setOldPath] = useState('');
-    const isHomePage = location.pathname === '/';
+    const isHomePage = pathname === '/';
 
     useEffect(() => {
-        setSidebarOpen(() => (oldPath !== location.pathname ? false : true));
-        setOldPath(location.pathname);
-    }, [location.pathname]);
+        if (isSidebarOpen) {
+            setSidebarOpen(false);
+        }
+    }, [pathname]);
 
     return (
-        <header className="mx-auto px-4 py-3 md:px-8 md:py-6 h-[64px] md:h-[88px]">
+        <header className="mx-auto px-4 py-3 h-[64px] fixed w-full top-0 bg-zinc-900/40 backdrop-blur-sm z-20">
             <nav className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex items-end gap-2">
                     <div className="lg:hidden">
                         {isHomePage ? (
                             <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -39,12 +39,8 @@ export function Navigation() {
                         {isHomePage ? 'MiniMart' : ''}
                     </span>
                 </div>
-                <div className="flex">
-                    <Hamburger
-                        isOpen={isSidebarOpen}
-                        onClick={() => setSidebarOpen(!isSidebarOpen)}
-                        className="text-white"
-                    />
+                <div className={`${isSidebarOpen ? 'opacity-0' : 'opacity-100'}`}>
+                    <Menu onClick={() => setSidebarOpen(true)} className="w-9 h-9" />
                 </div>
             </nav>
             <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
