@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 interface CacheEntry<T> {
     value: T;
     expiry: number;
@@ -6,6 +8,25 @@ interface CacheEntry<T> {
 const statusCache = new Map<string, { promise?: Promise<any>; error?: any }>();
 
 const Cache = new Map<string, CacheEntry<unknown> | undefined>();
+const listeners = new Map<string, Set<() => void>>();
+
+function subscribe(key: string, callback: () => void) {
+    listeners.set(key, (listeners.get(key) || new Set()).add(callback));
+}
+
+function unsubscribe(key: string, callback: () => void) {
+    const keyListeners = listeners.get(key);
+    if (keyListeners) {
+        keyListeners.delete(callback);
+        if (keyListeners.size === 0) {
+            listeners.delete(key);
+        }
+    }
+}
+
+function notify(key: string) {
+    listeners.get(key)?.forEach((callback) => callback());
+}
 
 export const cacheKeys = {
     homepageOrders: 'homepageOrders',
@@ -30,10 +51,12 @@ export function set({ key, value, ttl }: { key: string; value: unknown; ttl: num
         value: value,
         expiry: Date.now() + ttl,
     });
+    notify(key);
 }
 
 export function remove(key: string) {
     Cache.delete(key);
+    notify(key);
 }
 
 export function primeCache<T extends () => Promise<any>>(
@@ -65,6 +88,17 @@ export function useCache<T extends () => Promise<any>>(
     fetcher: T,
     { ttl, enabled = true }: { ttl: number; enabled?: boolean }
 ): Awaited<ReturnType<T>> | undefined {
+    const [_, forceUpdate] = useState(0);
+
+    useEffect(() => {
+        if (!enabled) return;
+
+        const callback = () => forceUpdate((x) => x + 1);
+
+        subscribe(key, callback);
+        return () => unsubscribe(key, callback);
+    }, [key, enabled]);
+
     if (!enabled) return;
     const cachedData = get(key);
     if (cachedData !== undefined) {
@@ -96,4 +130,3 @@ export function useCache<T extends () => Promise<any>>(
     statusCache.set(key, { promise });
     throw promise;
 }
-
