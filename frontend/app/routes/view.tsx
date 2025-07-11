@@ -26,7 +26,7 @@ function ViewNftsContent({ address }: { address: `0x${string}` }) {
         enabled: !!address,
     });
 
-    if (!data || data.nfts.length === 0) {
+    if (!data || !data.nfts || data.nfts.length === 0) {
         return <EmptyState message="No listings found." />;
     }
 
