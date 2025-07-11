@@ -25,8 +25,6 @@ function Listings() {
         }
     );
 
-    console.log(data);
-
     if (!data || data.nfts.length === 0) {
         return <EmptyState message="No listings found." />;
     }
