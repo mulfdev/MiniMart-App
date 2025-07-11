@@ -4,13 +4,14 @@ import { Link } from 'react-router';
 import { miniMartAddr } from '~/utils';
 import { Toast } from './Toast';
 import { useAccount } from 'wagmi';
-import { useMutation } from '@tanstack/react-query';
 import { cacheKeys, remove } from '~/hooks/useCache';
 import { API_URL } from '~/root';
-import { formatEther, formatUnits } from 'viem';
+import { formatEther } from 'viem';
 import { simulateContract, writeContract } from 'wagmi/actions';
 import { wagmiConfig } from '~/config';
 import minimartAbi from '~/minimartAbi';
+import { useState } from 'react';
+import { LoadingSpinner } from './LoadingSpinner';
 
 export function NftCard({
     nft,
@@ -22,11 +23,14 @@ export function NftCard({
     variant?: 'list' | 'view' | 'remove';
 }) {
     const { address } = useAccount();
+    const [inProgress, setInProgress] = useState(false);
+    const [isSuccess, setIsSucess] = useState<boolean | null>(null);
+    const [isError, setIsError] = useState<boolean | null>(null);
+
     async function removeOrder() {
         try {
-            console.log('mutate');
+            setInProgress(true);
             if (!nft.orderId) {
-                console.log('no order id');
                 return;
             }
             const simulateTx = await simulateContract(wagmiConfig, {
@@ -35,17 +39,20 @@ export function NftCard({
                 functionName: 'removeOrder',
                 args: [nft.orderId as `0x${string}`],
             });
-            console.log('pas');
             if (!simulateTx.request) {
-                console.log('ERROR');
                 throw new Error('Transaction simulation failed');
             }
-            console.log('made it past sim');
             await writeContract(wagmiConfig, simulateTx.request);
-            if (address) remove(cacheKeys.listings(address));
+
             fetch(`${API_URL}/reset-cache?cacheKey=frontpageOrders`);
+            setIsSucess(true);
+            setTimeout(() => {
+                if (address) remove(cacheKeys.listings(address));
+            }, 5000);
         } catch (e) {
-            console.log(e);
+            setIsError(true);
+        } finally {
+            setInProgress(false);
         }
     }
 
@@ -223,23 +230,40 @@ export function NftCard({
                                     onClick={async () => {
                                         await removeOrder();
                                     }}
+                                    disabled={inProgress}
                                     className="group/link flex items-center gap-2 px-6 py-2.5 
                                              bg-gradient-to-r from-zinc-800/80 to-zinc-700/80 hover:from-zinc-700/80 hover:to-zinc-600/80
                                              border border-zinc-700/50 hover:border-zinc-600/80
                                              rounded-xl font-semibold text-white text-lg
                                              transform hover:scale-105 active:scale-95
                                              transition-all duration-200 ease-out
-                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/10"
+                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/10 
+                                             disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    Remove
+                                    {inProgress ? (
+                                        <>
+                                            <LoadingSpinner /> Removing
+                                        </>
+                                    ) : (
+                                        'Remove'
+                                    )}
                                 </button>
                             ) : null}
                         </div>
                     </div>
                 </div>
             </div>
-            {/* {isSuccess ? <Toast variant="success" message="Listing Removed" /> : null} */}
-            {/* {isError ? <Toast variant="error" message="Could not remove the listing" /> : null} */}
+            {isSuccess ? (
+                <Toast
+                    variant="success"
+                    message="Listing Removed"
+                    onClose={() => {
+                        remove(cacheKeys.nfts(address!));
+                        remove(cacheKeys.listings(address!));
+                    }}
+                />
+            ) : null}
+            {isError ? <Toast variant="error" message="Could not remove the listing" /> : null}
         </div>
     );
 }
