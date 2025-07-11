@@ -3,21 +3,20 @@ import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { NftCardSkeleton } from '~/components/NftCardSkeleton';
-import { useNavigate, Link } from 'react-router';
+import { useNavigate, Link, useLoaderData } from 'react-router';
 import { Suspense } from 'react';
-import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
 import { fetchAllOrders } from '~/loaders';
 
-export function clientLoader() {
-    primeCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
-    return null;
+export async function clientLoader() {
+    const allOrders = await fetchAllOrders();
+    return allOrders;
 }
 
 function OpenListings() {
-    const data = useCache(cacheKeys.homepageOrders, () => fetchAllOrders(), { ttl: 120_000 });
+    let allOrders = useLoaderData<typeof clientLoader>();
     return (
         <>
-            {data?.nfts?.map(({ nft, orderInfo }, index) => (
+            {allOrders.nfts.map(({ nft, orderInfo }, index) => (
                 <div
                     key={`${nft.contract.address}+${nft.tokenId}`}
                     className="snap-center shrink-0 w-80"

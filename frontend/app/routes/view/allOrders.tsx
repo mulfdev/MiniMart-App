@@ -1,6 +1,5 @@
 import { ErrorBoundary } from '~/components/ErrorBoundary';
 import { fetchAllOrders } from '~/loaders';
-import { useCache, primeCache, cacheKeys } from '~/hooks/useCache';
 import { Suspense, useState } from 'react';
 import type { Nft, OrderListed } from '@minimart/types';
 import { Loader } from '~/components/Loader';
@@ -9,19 +8,15 @@ import { EmptyState } from '~/components/EmptyState';
 import { SortDropdown, type SortOption, type SortValue } from '~/components/SortDropdown';
 import { parseUnits } from 'viem';
 import { NftCard } from '~/components/NftCard';
+import { useLoaderData } from 'react-router';
 
-export function clientLoader() {
-    primeCache(cacheKeys.homepageOrders, () => fetchAllOrders(), {
-        ttl: 120_000,
-    });
-    return null;
-}
-
-export function Fallback() {
-    return <Loader text="Loading all orders..." />;
+export async function clientLoader() {
+    const allOrders = await fetchAllOrders();
+    return allOrders;
 }
 
 function AllOrdersContent() {
+    const data = useLoaderData<typeof clientLoader>();
     const sortOptions: SortOption[] = [
         { value: 'listedAt_desc', label: 'Recently Listed' },
         { value: 'price_asc', label: 'Price: Low to High' },
@@ -29,10 +24,6 @@ function AllOrdersContent() {
     ] as const;
 
     const [currentSort, setCurrentSort] = useState<SortValue>(sortOptions[0].value);
-
-    const data = useCache(cacheKeys.homepageOrders, () => fetchAllOrders(), {
-        ttl: 120_000,
-    });
 
     const [sortedNfts, setSortedNfts] = useState<{ nft: Nft; orderInfo: OrderListed }[]>();
 
@@ -100,9 +91,7 @@ function AllOrdersContent() {
 export default function AllOrders() {
     return (
         <ErrorBoundary>
-            <Suspense fallback={<Fallback />}>
-                <AllOrdersContent />
-            </Suspense>
+            <AllOrdersContent />
         </ErrorBoundary>
     );
 }

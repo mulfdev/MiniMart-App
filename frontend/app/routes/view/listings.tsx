@@ -1,30 +1,19 @@
 import type { Route } from '../+types/view';
 import { fetchUserOrders } from '~/loaders';
-import { useParams } from 'react-router';
-import { primeCache, useCache, cacheKeys } from '~/hooks/useCache';
+import { useLoaderData, useParams } from 'react-router';
 import { Suspense } from 'react';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
 import { NftCard } from '~/components/NftCard';
 
-export function clientLoader({ params }: Route.LoaderArgs) {
-    const { address } = params;
-    primeCache(cacheKeys.listings(address), () => fetchUserOrders(address), { ttl: 120_000 });
-    return null;
+export async function clientLoader({ params }: Route.LoaderArgs) {
+    const listings = fetchUserOrders(params.address);
+    return listings;
 }
 
 function Listings() {
-    const params = useParams();
-    const data = useCache(
-        cacheKeys.listings(params.address!),
-        () => fetchUserOrders(params.address!),
-        {
-            ttl: 120_000,
-            enabled: !!params.address,
-        }
-    );
-
+    const data = useLoaderData<typeof clientLoader>();
     if (!data || data.nfts.length === 0) {
         return <EmptyState message="No listings found." />;
     }

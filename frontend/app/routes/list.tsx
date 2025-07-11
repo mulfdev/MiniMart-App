@@ -1,5 +1,5 @@
 import { Suspense, useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { Link, useLoaderData, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 import { useWriteContract } from 'wagmi';
@@ -21,19 +21,12 @@ import { miniMartAddr, nftAbi } from '~/utils';
 import { wagmiConfig } from '~/config';
 import { fetchNft } from '~/loaders';
 import { Toast } from '~/components/Toast';
-import { primeCache, useCache, cacheKeys, remove } from '~/hooks/useCache';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 
-export function clientLoader({ params }: Route.LoaderArgs) {
-    primeCache(
-        cacheKeys.nft(params.contract, params.tokenId),
-        () => fetchNft(params.contract, params.tokenId, false),
-        {
-            ttl: 120_000,
-        }
-    );
-    return null;
+export async function clientLoader({ params }: Route.LoaderArgs) {
+    const nft = await fetchNft(params.contract, params.tokenId, false);
+    return nft;
 }
 
 function ApproveButton({ nftContract, className }: { nftContract: Address; className?: string }) {
@@ -78,6 +71,7 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
 
 function SingleToken() {
     const params = useParams();
+    const token = useLoaderData<typeof clientLoader>();
     const { address } = useAccount();
     const { data: isApproved, isLoading: isCheckingApproval } = useReadContract({
         abi: nftAbi,
@@ -92,12 +86,6 @@ function SingleToken() {
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
-
-    const token = useCache(
-        cacheKeys.nft(params.contract!, params.tokenId!),
-        () => fetchNft(params.contract!, params.tokenId!, false),
-        { ttl: 120_000, enabled: !!params.tokenId || !!params.contract }
-    );
 
     if (!token?.nft) {
         return (
