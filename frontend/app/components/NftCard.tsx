@@ -10,7 +10,7 @@ import { wagmiConfig } from '~/config';
 import minimartAbi from '~/minimartAbi';
 import { useState } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
-import { fetchNfts, fetchUserOrders } from '~/loaders';
+import { fetchAllOrders, fetchNfts, fetchUserOrders } from '~/loaders';
 
 export function NftCard({
     nft,
@@ -49,6 +49,7 @@ export function NftCard({
             setIsSucess(true);
 
             fetchNfts(address!, true);
+            await fetchAllOrders(true);
             await fetchUserOrders(address!, true);
             revalidator.revalidate();
         } catch (e) {

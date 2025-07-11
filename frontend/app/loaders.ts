@@ -57,9 +57,11 @@ export async function fetchUserOrders(address: string, reload: boolean = false) 
     }
 }
 
-export async function fetchAllOrders() {
+export async function fetchAllOrders(reload: boolean = false) {
     try {
-        const response = await fetch(`${API_URL}/all-orders`);
+        const response = await fetch(`${API_URL}/all-orders`, {
+            cache: reload ? 'reload' : 'default',
+        });
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }

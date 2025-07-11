@@ -19,7 +19,7 @@ import { LoadingSpinner } from '~/components/LoadingSpinner';
 import type { Route } from './+types/list';
 import { miniMartAddr, nftAbi } from '~/utils';
 import { wagmiConfig } from '~/config';
-import { fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
+import { fetchAllOrders, fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
 import { Toast } from '~/components/Toast';
 import { Loader } from '~/components/Loader';
 
@@ -282,6 +282,7 @@ function SingleToken() {
                                                 setStatus('success');
                                                 fetchNfts(address!, true);
                                                 fetchUserOrders(address!, true);
+                                                fetchAllOrders();
                                             }}
                                             onError={(err: Error) =>
                                                 setErrorInfo({
