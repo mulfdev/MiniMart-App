@@ -282,7 +282,7 @@ function SingleToken() {
                                                 setStatus('success');
                                                 fetchNfts(address!, true);
                                                 fetchUserOrders(address!, true);
-                                                fetchAllOrders();
+                                                fetchAllOrders(true);
                                             }}
                                             onError={(err: Error) =>
                                                 setErrorInfo({
