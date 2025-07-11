@@ -26,6 +26,8 @@ app.get('/', (c) => {
 });
 
 app.get('/all-orders', async (c) => {
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
+
     try {
         const orders = await getListedOrders(6);
 
@@ -34,25 +36,18 @@ app.get('/all-orders', async (c) => {
             return c.json({ nfts: [] });
         }
 
-        const tokenData: { nft: Nft; orderInfo: OrderListed }[] = [];
-        for (const order of orders) {
-            const res = await fetch(
+        const promises = orders.map((order) =>
+            fetch(
                 `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
-            );
+            ).then((res) => {
+                if (!res.ok) return null;
+                return res.json().then((data: Nft) => ({ nft: data, orderInfo: order }));
+            }),
+        );
 
-            if (!res.ok) {
-                console.log(
-                    `Failed to fetch metadata for token ${order.tokenId}. Status: ${res.status}`,
-                );
-                const errorBody = await res.text();
-                console.log(`Alchemy error body: ${errorBody}`);
-                continue;
-            }
+        const results = await Promise.all(promises);
+        const tokenData = results.filter(Boolean) as { nft: Nft; orderInfo: OrderListed }[];
 
-            const data = (await res.json()) as Nft;
-            tokenData.push({ nft: data, orderInfo: order });
-        }
-        c.header('Cache-Control', 'private, s-maxage=60, stale-while-revalidate=30');
         return c.json({ nfts: tokenData }, 200);
     } catch (e) {
         console.error('Error in get-orders handler:', e);
@@ -69,27 +64,38 @@ app.get('/user-orders', async (c) => {
         throw new HTTPException(400, { message: 'address is required' });
     }
 
-    const orders = await getUserTokens(address);
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
-    const tokenData: Nft[] = [];
-    for (const order of orders) {
-        const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
+    try {
+        const orders = await getUserTokens(address);
+
+        if (!orders || orders.length === 0) {
+            return c.json({ nfts: [] }, 200);
+        }
+
+        const promises = orders.map((order) =>
+            fetch(
+                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
+            ).then((res) => {
+                if (!res.ok) return null;
+                return res.json().then((data) => ({ ...data, orderId: order.id }));
+            }),
         );
 
-        if (!res.ok) {
-            console.log(
-                `Failed to fetch metadata for token ${order.tokenId}. Status: ${res.status}`,
-            );
-            const errorBody = await res.text();
-            console.log(`Alchemy error body: ${errorBody}`);
-            continue;
-        }
-        const data = (await res.json()) as Nft;
-        tokenData.push({ ...data, orderId: order.id });
-    }
+        const results = await Promise.all(promises);
+        const tokenData = results.filter(Boolean) as Nft[];
 
-    return c.json({ nfts: tokenData }, 200);
+        return c.json({ nfts: tokenData }, 200);
+    } catch (e) {
+        console.error('Error in user-orders handler:', e);
+        if (e instanceof Error) {
+            throw new HTTPException(400, {
+                message: 'Could not get user order data',
+                cause: e.message,
+            });
+        }
+        throw new HTTPException(400, { message: 'Could not get user order data' });
+    }
 });
 
 app.get('/user-inventory', async (c) => {
@@ -141,7 +147,7 @@ app.get('/user-inventory', async (c) => {
                     nftA.tokenId === nftB.tokenId,
             ),
     );
-    c.header('Cache-Control', 'private, s-maxage=60, stale-while-revalidate=30');
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
     return c.json({ nfts: difference }, 200);
 });
@@ -160,6 +166,8 @@ app.get('/single-token', async (c) => {
     if (!orderInfo) {
         throw new HTTPException(404, { message: 'Could not locate token info' });
     }
+
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
     return c.json({ orderData: orderInfo.listingInfo, nft: orderInfo.nft }, 200);
 });
