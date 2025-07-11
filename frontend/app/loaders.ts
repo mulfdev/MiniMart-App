@@ -37,10 +37,10 @@ export async function fetchNfts(address: string) {
         url.searchParams.set('address', address);
 
         const res = await fetch(url);
-        const data = (await res.json()) as { nfts: Nft }[];
+        const data = (await res.json()) as { nfts: Nft[] };
         return data;
     } catch (e) {
-        return { nfts: [] };
+        return { nfts: [] } as { nfts: Nft[] };
     }
 }
 
