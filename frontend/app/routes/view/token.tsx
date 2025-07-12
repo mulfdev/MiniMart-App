@@ -1,15 +1,13 @@
-import { useParams, Link, useLoaderData } from 'react-router';
+import { Link, useLoaderData } from 'react-router';
 import type { Route } from './+types/token';
 import { fetchNft, fetchUserOrders } from '~/loaders';
-import { API_URL } from '~/root';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint, Tag } from 'lucide-react';
 import { wagmiConfig } from '~/config';
 
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
-import { CACHE_KEYS, miniMartAddr } from '~/utils';
+import { miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
-import { Suspense, useState } from 'react';
-import { Loader } from '~/components/Loader';
+import { useState } from 'react';
 import { formatEther } from 'viem';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { LoadingSpinner } from '~/components/LoadingSpinner';
@@ -254,9 +252,5 @@ function Token() {
 }
 
 export default function ViewToken() {
-    return (
-        <Suspense fallback={<Loader text="Loading Token Data..." />}>
-            <Token />
-        </Suspense>
-    );
+    return <Token />;
 }

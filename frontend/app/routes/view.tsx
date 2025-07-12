@@ -1,8 +1,6 @@
 import { ErrorBoundary } from '~/components/ErrorBoundary';
 import type { Route } from './+types/view';
-import { useAccount } from 'wagmi';
 import { fetchNfts } from '~/loaders';
-import { Suspense } from 'react';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
 import { NftCard } from '~/components/NftCard';

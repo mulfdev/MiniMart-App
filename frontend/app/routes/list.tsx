@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLoaderData, useParams } from 'react-router';
 import { type Address, parseEther } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
@@ -371,9 +371,5 @@ function SingleToken() {
 }
 
 export default function ListNft() {
-    return (
-        <Suspense fallback={<Loader text="Loading NFT details..." />}>
-            <SingleToken />
-        </Suspense>
-    );
+    return <SingleToken />;
 }

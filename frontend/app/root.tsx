@@ -2,7 +2,7 @@ import './app.css';
 
 import { useEffect, useState } from 'react';
 import type { Route } from './+types/root';
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import {
     isRouteErrorResponse,
     Links,
@@ -16,7 +16,6 @@ import {
 const FcConnect = lazy(() => import('~/components/FcConnect'));
 
 import { Navigation } from './components/Navigation';
-import { Loader } from './components/Loader';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 const Web3Provider = lazy(() =>

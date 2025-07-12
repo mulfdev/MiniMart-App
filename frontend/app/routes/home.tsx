@@ -2,9 +2,7 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
-import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 import { useNavigate, Link, useLoaderData } from 'react-router';
-import { Suspense } from 'react';
 import { fetchAllOrders } from '~/loaders';
 
 export async function clientLoader() {
@@ -123,15 +121,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
-                    <Suspense
-                        fallback={Array.from({ length: 4 }).map((_, index) => (
-                            <div key={index} className="snap-center shrink-0 w-80">
-                                <NftCardSkeleton />
-                            </div>
-                        ))}
-                    >
-                        <OpenListings />
-                    </Suspense>
+                    <OpenListings />
                 </div>
             </section>
 

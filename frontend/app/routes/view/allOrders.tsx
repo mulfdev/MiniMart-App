@@ -1,6 +1,6 @@
 import { ErrorBoundary } from '~/components/ErrorBoundary';
 import { fetchAllOrders } from '~/loaders';
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import type { Nft, OrderListed } from '@minimart/types';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
