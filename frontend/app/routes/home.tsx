@@ -125,60 +125,6 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* How It Works */}
-            <section className="container mx-auto px-4 py-16 ">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">How It Works</h2>
-                    <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-                        Three simple steps to start selling
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                    {steps.map((step, index) => (
-                        <div key={index} className="relative">
-                            {/* Connection line */}
-                            {index < steps.length - 1 && (
-                                <div className="hidden md:block absolute top-12 left-full w-full h-px bg-zinc-700/50 z-0" />
-                            )}
-
-                            <div className="relative z-10 text-center">
-                                {/* Step number */}
-                                <div className="w-24 h-24 bg-zinc-900 border-2 border-zinc-700/50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                    <span className="text-2xl font-bold text-blue-400">
-                                        {step.number}
-                                    </span>
-                                </div>
-
-                                <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                                <p className="text-zinc-400 leading-relaxed">{step.description}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <section className="container mx-auto px-4 py-16 ">
-                <div className="text-center max-w-3xl mx-auto">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                        Ready to Try It?
-                    </h2>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button
-                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
-                                     text-white font-semibold rounded-xl
-                                     transform hover:scale-105 active:scale-95
-                                     transition-all duration-200 ease-out
-                                     shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
-                        >
-                            <span>Get Started</span>
-                            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
-                        </button>
-                    </div>
-                </div>
-            </section>
-
             {/* Footer */}
             <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50 ">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">

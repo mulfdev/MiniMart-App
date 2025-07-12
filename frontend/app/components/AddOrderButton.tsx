@@ -82,7 +82,7 @@ export function AddOrderButton({
                 args: [msg, sig],
             });
 
-            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
+            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 3 });
             onSuccess?.();
         } catch (err) {
             onError?.(

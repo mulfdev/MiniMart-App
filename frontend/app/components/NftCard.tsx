@@ -41,7 +41,7 @@ export function NftCard({
                 throw new Error('Transaction simulation failed');
             }
             const txHash = await writeContract(wagmiConfig, simulateTx.request);
-            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
+            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 3 });
 
             fetchNfts(address!, true);
             fetchAllOrders(true);
