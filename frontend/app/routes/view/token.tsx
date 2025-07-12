@@ -87,7 +87,7 @@ function Token() {
             if (hash) {
                 const receipt = await waitForTransactionReceipt(wagmiConfig, {
                     hash,
-                    confirmations: 3,
+                    confirmations: 5,
                 });
                 if (receipt.status === 'success') {
                     setShowSuccessToast(true);
