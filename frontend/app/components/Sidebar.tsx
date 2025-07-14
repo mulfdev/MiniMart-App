@@ -1,7 +1,7 @@
 import { lazy, type JSX, useRef } from 'react';
 import { Home, Shapes, NotebookTabs, Logs } from 'lucide-react';
 import { Link } from 'react-router';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
 
 const ConnectButton = lazy(() => import('./ConnectButton'));
@@ -30,7 +30,7 @@ function SidebarLink({
     );
 }
 
-function DisconnectedNav() {
+function ConnectedNav({ onClose }: { onClose: () => void }) {
     const { address } = useAccount();
 
     return (
@@ -66,10 +66,25 @@ function DisconnectedNav() {
     );
 }
 
+function DisconnectedNav({ onClose }: { onClose: () => void }) {
+    return (
+        <div className="pt-2 flex flex-col gap-y-4 h-full">
+            <SidebarLink
+                url="/"
+                label="Home"
+                icon={<Home className="h-6 w-6 text-zinc-400" />}
+                onClick={onClose}
+            />
+            <span className="mt-auto">
+                <ConnectButton />
+            </span>
+        </div>
+    );
+}
+
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const ref = useRef<HTMLDivElement>(null);
     const { address } = useAccount();
-    const { connect, connectors } = useConnect();
     useOnClickOutside(ref, onClose);
 
     return (
@@ -81,6 +96,8 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                         ? 'translate-x-0 visibility-visible'
                         : 'translate-x-full visibility-hidden'
                 } w-64 p-6 pb-8`}
-        ></div>
+        >
+            {address ? <ConnectedNav onClose={onClose} /> : <DisconnectedNav onClose={onClose} />}
+        </div>
     );
 }
