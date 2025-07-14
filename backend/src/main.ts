@@ -71,7 +71,7 @@ app.get('/user-orders', async (c) => {
 
         const tokenData = await getOrdersWithMetadata(orders);
 
-        return c.json({ nfts: tokenData }, 200);
+        return c.json(tokenData, 200);
     } catch (e) {
         console.error('Error in user-orders handler:', e);
         if (e instanceof Error) {
