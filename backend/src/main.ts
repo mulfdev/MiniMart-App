@@ -7,6 +7,7 @@ import {
     getUserTokens,
     getOrdersWithMetadata,
     getBatchOrders,
+    getSingleOrder,
 } from './queries/orderListed.js';
 import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
@@ -68,16 +69,7 @@ app.get('/user-orders', async (c) => {
             return c.json({ nfts: [] }, 200);
         }
 
-        const ordersWithMetadata = await getOrdersWithMetadata(orders);
-
-        if (!ordersWithMetadata) {
-            return c.json({ nfts: [] }, 200);
-        }
-
-        const tokenData = ordersWithMetadata.map((data) => ({
-            ...data.nft,
-            orderId: data.orderInfo.id,
-        }));
+        const tokenData = await getOrdersWithMetadata(orders);
 
         return c.json({ nfts: tokenData }, 200);
     } catch (e) {
@@ -155,21 +147,15 @@ app.get('/single-token', async (c) => {
         throw new HTTPException(400, { message: 'nftContract and tokenId required' });
     }
 
-    const orders = await getBatchOrders([{ contract: nftContract, tokenId: tokenId }]);
+    const orderInfo = await getSingleOrder(nftContract, tokenId, Boolean(getOrderInfo));
 
-    if (!orders) {
-        throw new HTTPException(404, { message: 'Could not locate token info' });
-    }
-
-    const orderWithMetadata = await getOrdersWithMetadata(orders);
-
-    if (!orderWithMetadata) {
+    if (!orderInfo) {
         throw new HTTPException(404, { message: 'Could not locate token info' });
     }
 
     c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
-    return c.json({ orderData: orderWithMetadata[0].orderInfo, nft: orderWithMetadata[0].nft }, 200);
+    return c.json({ orderData: orderInfo.listingInfo, nft: orderInfo.nft }, 200);
 });
 
 app.get('/reset-cache', (c) => {

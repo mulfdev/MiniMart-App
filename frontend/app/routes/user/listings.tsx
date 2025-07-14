@@ -19,9 +19,9 @@ function Listings() {
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
-            {data.nfts.map((nft) => (
+            {data.nfts.map(({ nft, orderInfo }) => (
                 <div key={`${nft.contract.address}+${nft.tokenId}`}>
-                    <NftCard nft={nft} variant="remove" />
+                    <NftCard nft={nft} orderInfo={orderInfo} variant="remove" />
                 </div>
             ))}
         </div>
