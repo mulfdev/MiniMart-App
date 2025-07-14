@@ -65,7 +65,9 @@ app.get('/collections', async (c) => {
             return c.json({ collections: [] });
         }
 
-        const uniqueContractAddresses = Array.from(new Set(orders.map(order => order.nftContract)));
+        const uniqueContractAddresses = Array.from(
+            new Set(orders.map((order) => order.nftContract)),
+        );
 
         const collectionPromises = uniqueContractAddresses.map(async (contractAddress) => {
             const res = await fetch(
@@ -74,7 +76,9 @@ app.get('/collections', async (c) => {
 
             if (!res.ok) {
                 const errorText = await res.text();
-                console.error(`Error fetching collection metadata for ${contractAddress}: ${res.status} - ${errorText}`);
+                console.error(
+                    `Error fetching collection metadata for ${contractAddress}: ${res.status} - ${errorText}`,
+                );
                 // Attempt to parse JSON even on error to get more details if available
                 try {
                     const errorData = JSON.parse(errorText);
@@ -89,7 +93,9 @@ app.get('/collections', async (c) => {
             const contractMetadata = data.contractMetadata;
 
             if (!contractMetadata) {
-                console.warn(`No contract metadata found for ${contractAddress}. Using placeholders.`);
+                console.warn(
+                    `No contract metadata found for ${contractAddress}. Using placeholders.`,
+                );
                 return {
                     contractAddress,
                     name: 'Unknown Collection',
@@ -101,7 +107,11 @@ app.get('/collections', async (c) => {
             return {
                 contractAddress,
                 name: contractMetadata.name || 'This Collection',
-                image: contractMetadata.openSea?.imageUrl || contractMetadata.image?.cachedUrl || contractMetadata.image?.originalUrl || '/placeholder-collection.svg',
+                image:
+                    contractMetadata.openSea?.imageUrl ||
+                    contractMetadata.image?.cachedUrl ||
+                    contractMetadata.image?.originalUrl ||
+                    '/placeholder-collection.svg',
                 description: contractMetadata.openSea?.description || '',
             };
         });
@@ -112,7 +122,10 @@ app.get('/collections', async (c) => {
     } catch (e) {
         console.error('Error in get-collections handler:', e);
         if (e instanceof Error) {
-            throw new HTTPException(400, { message: 'Could not get collection data', cause: e.message });
+            throw new HTTPException(400, {
+                message: 'Could not get collection data',
+                cause: e.message,
+            });
         }
         throw new HTTPException(400, { message: 'Could not get collection data' });
     }
@@ -152,7 +165,10 @@ app.get('/collections/:contractAddress', async (c) => {
     } catch (e) {
         console.error('Error in get-collection-listings handler:', e);
         if (e instanceof Error) {
-            throw new HTTPException(400, { message: 'Could not get collection listings', cause: e.message });
+            throw new HTTPException(400, {
+                message: 'Could not get collection listings',
+                cause: e.message,
+            });
         }
         throw new HTTPException(400, { message: 'Could not get collection listings' });
     }
@@ -170,7 +186,7 @@ app.get('/user-orders', async (c) => {
         const orders = await getUserTokens(address);
 
         if (!orders || orders.length === 0) {
-            return c.json({ nfts: [] }, 200);
+            return c.json([], 200);
         }
 
         const tokenData = await getOrdersWithMetadata(orders);
