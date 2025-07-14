@@ -58,12 +58,17 @@ function CollectionListingsContent() {
         setCurrentSort(newValue);
     };
 
-    if (nfts.length === 0) return <EmptyState message={`No active listings found for this collection (${displayCollectionName}).`} />;
+    if (nfts.length === 0)
+        return (
+            <EmptyState
+                message={`No active listings found for this collection (${displayCollectionName}).`}
+            />
+        );
 
     return (
         <Page
             title={`Listings for ${collectionName}`}
-            description={`Browse all the NFTs listed for sale from collection ${collectionName}.`}
+            description={`Browse all the NFTs listed for sale from ${collectionName}.`}
         >
             <>
                 <div className="flex justify-end mb-8 gap-4">
