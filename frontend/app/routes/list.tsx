@@ -134,7 +134,10 @@ function SingleToken() {
     return (
         <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
             {/* Left side: Image with background effect */}
-            <div className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center relative">
+            <div
+                className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center
+                    relative"
+            >
                 <div className="w-full h-full relative">
                     <div className="relative h-full bg-transparent">
                         <div className="absolute inset-0 md:overflow-hidden">
@@ -157,7 +160,8 @@ function SingleToken() {
                                     token.nft.tokenUri ||
                                     '/placeholder.svg'
                                 }
-                                className="max-w-full max-h-full object-contain transform transition-transform duration-700 ease-out drop-shadow-2xl"
+                                className="max-w-full max-h-full object-contain transform
+                                    transition-transform duration-700 ease-out drop-shadow-2xl"
                             />
                         </div>
                     </div>
@@ -195,8 +199,14 @@ function SingleToken() {
                                     </div>
                                 ) : isApproved ? (
                                     <div className="space-y-6">
-                                        <div className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-6">
-                                            <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                                        <div
+                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                                rounded-xl p-6"
+                                        >
+                                            <h3
+                                                className="text-xl font-semibold text-white mb-4
+                                                    flex items-center gap-2"
+                                            >
                                                 <Tag className="w-5 h-5 text-zinc-500" />
                                                 Set Listing Price
                                             </h3>
@@ -204,7 +214,8 @@ function SingleToken() {
                                                 <div>
                                                     <label
                                                         htmlFor="price"
-                                                        className="block text-zinc-300 font-medium text-sm mb-2"
+                                                        className="block text-zinc-300 font-medium
+                                                            text-sm mb-2"
                                                     >
                                                         Price (ETH)
                                                     </label>
@@ -239,14 +250,22 @@ function SingleToken() {
                                                             }
                                                         }}
                                                         placeholder="e.g., 0.05"
-                                                        className="w-full px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-500 focus:ring-2 focus:ring-blue-500 outline-none"
+                                                        className="w-full px-4 py-3 rounded-xl
+                                                            bg-zinc-800 border border-zinc-700
+                                                            text-white placeholder-zinc-500
+                                                            focus:ring-2 focus:ring-blue-500
+                                                            outline-none"
                                                     />
                                                 </div>
 
                                                 {price &&
                                                 !isNaN(Number.parseFloat(price)) &&
                                                 Number.parseFloat(price) > 0 ? (
-                                                    <div className="p-4 bg-zinc-800/50 border border-zinc-700 rounded-xl space-y-2 text-sm">
+                                                    <div
+                                                        className="p-4 bg-zinc-800/50 border
+                                                            border-zinc-700 rounded-xl space-y-2
+                                                            text-sm"
+                                                    >
                                                         <div className="flex justify-between">
                                                             <p className="text-zinc-400">
                                                                 Fee (3%)
@@ -258,7 +277,10 @@ function SingleToken() {
                                                                 ETH
                                                             </p>
                                                         </div>
-                                                        <div className="flex justify-between font-semibold">
+                                                        <div
+                                                            className="flex justify-between
+                                                                font-semibold"
+                                                        >
                                                             <p className="text-zinc-300">
                                                                 You receive
                                                             </p>
@@ -296,7 +318,10 @@ function SingleToken() {
                                         </AddOrderButton>
                                     </div>
                                 ) : (
-                                    <div className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-6">
+                                    <div
+                                        className="bg-zinc-900/70 border border-zinc-800/80
+                                            rounded-xl p-6"
+                                    >
                                         <div className="text-center mb-6">
                                             <h3 className="text-xl font-bold text-white mb-2">
                                                 Approve Marketplace
@@ -326,7 +351,8 @@ function SingleToken() {
                                     {properties.map((prop) => (
                                         <div
                                             key={prop.label}
-                                            className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-4"
+                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                                rounded-xl p-4"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <prop.icon className="w-5 h-5 text-zinc-500" />
@@ -339,7 +365,11 @@ function SingleToken() {
                                                             href={`https://basescan.org/address/${prop.value}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="font-mono text-sm text-zinc-300 break-all hover:text-blue-400 transition-colors duration-200 flex items-center gap-1"
+                                                            className="font-mono text-sm
+                                                                text-zinc-300 break-all
+                                                                hover:text-blue-400
+                                                                transition-colors duration-200 flex
+                                                                items-center gap-1"
                                                         >
                                                             <span>{`${prop.value.slice(
                                                                 0,
@@ -348,7 +378,10 @@ function SingleToken() {
                                                             <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                     ) : (
-                                                        <p className="font-mono text-sm text-zinc-300 break-all">
+                                                        <p
+                                                            className="font-mono text-sm
+                                                                text-zinc-300 break-all"
+                                                        >
                                                             {prop.value}
                                                         </p>
                                                     )}

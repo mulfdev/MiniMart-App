@@ -108,7 +108,10 @@ function Token() {
     return (
         <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
             {/* Left side: Image with background effect */}
-            <div className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center relative">
+            <div
+                className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center
+                    relative"
+            >
                 <div className="w-full h-full relative">
                     <div className="relative h-full bg-transparent">
                         <div className="absolute inset-0 md:overflow-hidden">
@@ -131,7 +134,8 @@ function Token() {
                                     token.nft.tokenUri ||
                                     '/placeholder.svg'
                                 }
-                                className="max-w-full max-h-full object-contain transform transition-transform duration-700 ease-out drop-shadow-2xl"
+                                className="max-w-full max-h-full object-contain transform
+                                    transition-transform duration-700 ease-out drop-shadow-2xl"
                             />
                         </div>
                     </div>
@@ -170,7 +174,8 @@ function Token() {
                                     {properties.map((prop) => (
                                         <div
                                             key={prop.label}
-                                            className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-4"
+                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                                rounded-xl p-4"
                                         >
                                             <div className="flex items-center gap-3">
                                                 <prop.icon className="w-5 h-5 text-zinc-500" />
@@ -183,7 +188,11 @@ function Token() {
                                                             href={`https://basescan.org/address/${prop.value}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="font-mono text-sm text-zinc-300 break-all hover:text-blue-400 transition-colors duration-200 flex items-center gap-1"
+                                                            className="font-mono text-sm
+                                                                text-zinc-300 break-all
+                                                                hover:text-blue-400
+                                                                transition-colors duration-200 flex
+                                                                items-center gap-1"
                                                         >
                                                             <span>{`${prop.value.slice(
                                                                 0,
@@ -192,7 +201,10 @@ function Token() {
                                                             <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                     ) : (
-                                                        <p className="font-mono text-sm text-zinc-300 break-all">
+                                                        <p
+                                                            className="font-mono text-sm
+                                                                text-zinc-300 break-all"
+                                                        >
                                                             {prop.value}
                                                         </p>
                                                     )}
@@ -203,7 +215,10 @@ function Token() {
                                 </div>
                             </div>
                             <div className="mt-auto py-4 order-first lg:order-last">
-                                <div className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-4 mb-4">
+                                <div
+                                    className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl
+                                        p-4 mb-4"
+                                >
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-3">
                                             <Tag className="w-5 h-5 text-zinc-500" />
@@ -220,11 +235,13 @@ function Token() {
                                 </div>
                                 {!isPurchaseComplete && (
                                     <button
-                                        className="w-full lg:w-64 group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
-                                             text-white font-semibold rounded-xl
-                                             transform hover:scale-105 active:scale-95
-                                             transition-all duration-200 ease-out
-                                             shadow-lg hover:shadow-xl hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full lg:w-64 group flex items-center
+                                            justify-center gap-2 px-8 py-4 bg-blue-600
+                                            hover:bg-blue-500 text-white font-semibold rounded-xl
+                                            transform hover:scale-105 active:scale-95 transition-all
+                                            duration-200 ease-out shadow-lg hover:shadow-xl
+                                            hover:shadow-blue-500/25 disabled:opacity-50
+                                            disabled:cursor-not-allowed"
                                         disabled={!fulfillOrderSim || isPending || isPurchasing}
                                         onClick={handlePurchase}
                                     >

@@ -53,19 +53,28 @@ export default function LandingPage() {
     return (
         <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto overflow-y-scroll">
             {/* Hero Section */}
-            <section className="container mx-auto px-4 py-12 ">
+            <section className="container mx-auto px-4 py-12">
                 <div className="text-center max-w-4xl mx-auto">
                     {/* Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm">
+                    <div
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border
+                            border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm"
+                    >
                         <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
                         <span className="text-sm text-zinc-300 font-medium">Now in Beta</span>
                     </div>
 
                     {/* Main Headline */}
-                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+                    <h1
+                        className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white mb-6
+                            leading-tight"
+                    >
                         Sell Your NFTs
                         <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                        <span
+                            className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400
+                                to-purple-400"
+                        >
                             Directly on Farcaster
                         </span>
                     </h1>
@@ -76,7 +85,10 @@ export default function LandingPage() {
                     </p>
 
                     {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+                    <div
+                        className="flex flex-col sm:flex-row gap-4 justify-center items-center
+                            mb-16"
+                    >
                         <button
                             onClick={() => {
                                 if (address) {
@@ -85,14 +97,16 @@ export default function LandingPage() {
                                 }
                                 setOpen(true);
                             }}
-                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 
-                                     text-white font-semibold rounded-xl
-                                     transform hover:scale-105 active:scale-95
-                                     transition-all duration-200 ease-out
-                                     shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
+                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600
+                                hover:bg-blue-500 text-white font-semibold rounded-xl transform
+                                hover:scale-105 active:scale-95 transition-all duration-200 ease-out
+                                shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
                         >
                             <span>Try It Now</span>
-                            <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-200" />
+                            <ArrowRight
+                                className="w-5 h-5 transform group-hover:translate-x-1
+                                    transition-transform duration-200"
+                            />
                         </button>
                     </div>
                 </div>
@@ -111,25 +125,31 @@ export default function LandingPage() {
                     </div>
                     <Link
                         to="/orders"
-                        className="flex-shrink-0 md:mt-0 group flex items-start gap-2 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 
-                                     text-white font-semibold rounded-xl
-                                     transform hover:scale-105 active:scale-95
-                                     transition-all duration-200 ease-out"
+                        className="flex-shrink-0 md:mt-0 group flex items-start gap-2 px-6 py-3
+                            bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-xl
+                            transform hover:scale-105 active:scale-95 transition-all duration-200
+                            ease-out"
                     >
                         <span>View All</span>
                     </Link>
                 </div>
 
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4 desktop-order-feed">
+                <div
+                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4
+                        desktop-order-feed"
+                >
                     <OpenListings />
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50 ">
+            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50">
                 <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center">
+                        <div
+                            className="w-6 h-6 bg-blue-500 rounded-md flex items-center
+                                justify-center"
+                        >
                             <Sparkles className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-white font-semibold">MiniMart</span>

@@ -123,7 +123,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <body className="min-h-[100svh] mx-auto">
                 {showLoader && (
                     <div
-                        className="fixed inset-0 flex flex-col justify-center items-center h-[100svh] w-[100svw] z-50"
+                        className="fixed inset-0 flex flex-col justify-center items-center
+                            h-[100svh] w-[100svw] z-50"
                         style={backgroundStyle}
                     >
                         <h1 className="text-4xl mb-12">MiniMart</h1>

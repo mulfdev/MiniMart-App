@@ -17,12 +17,18 @@ export function Navigation() {
     }, [pathname]);
 
     return (
-        <header className="mx-auto px-4 py-3 h-[64px] fixed w-full top-0 bg-zinc-900/40 backdrop-blur-sm z-20">
+        <header
+            className="mx-auto px-4 py-3 h-[64px] fixed w-full top-0 bg-zinc-900/40 backdrop-blur-sm
+                z-20"
+        >
             <nav className="flex justify-between items-center">
                 <div className="flex items-end gap-2">
                     <div className="lg:hidden">
                         {isHomePage ? (
-                            <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                            <div
+                                className="w-8 h-8 bg-blue-500 rounded-lg flex items-center
+                                    justify-center"
+                            >
                                 <Sparkles className="w-5 h-5 text-white" />
                             </div>
                         ) : (
@@ -30,7 +36,10 @@ export function Navigation() {
                         )}
                     </div>
                     <div className="hidden lg:flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <div
+                            className="w-8 h-8 bg-blue-500 rounded-lg flex items-center
+                                justify-center"
+                        >
                             <Sparkles className="w-5 h-5 text-white" />
                         </div>
                         <span className="text-xl font-bold text-white">MiniMart</span>
