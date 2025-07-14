@@ -8,6 +8,7 @@ import {
     getOrdersWithMetadata,
     getBatchOrders,
     getSingleOrder,
+    getCollectionOrders,
 } from './queries/orderListed.js';
 import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
@@ -51,6 +52,109 @@ app.get('/all-orders', async (c) => {
             throw new HTTPException(400, { message: 'Could not get nft data', cause: e.message });
         }
         throw new HTTPException(400, { message: 'Could not get nft data' });
+    }
+});
+
+app.get('/collections', async (c) => {
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
+
+    try {
+        const orders = await getListedOrders(1000); // Fetch a larger number to get more collections
+
+        if (!orders || orders.length === 0) {
+            return c.json({ collections: [] });
+        }
+
+        const uniqueContractAddresses = Array.from(new Set(orders.map(order => order.nftContract)));
+
+        const collectionPromises = uniqueContractAddresses.map(async (contractAddress) => {
+            const res = await fetch(
+                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+            );
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                console.error(`Error fetching collection metadata for ${contractAddress}: ${res.status} - ${errorText}`);
+                // Attempt to parse JSON even on error to get more details if available
+                try {
+                    const errorData = JSON.parse(errorText);
+                    console.error('Alchemy API Error Details:', errorData);
+                } catch (parseError) {
+                    // If it's not JSON, just log the raw text
+                    console.error('Raw error response:', errorText);
+                }
+                return null;
+            }
+            const data = await res.json();
+            const contractMetadata = data.contractMetadata;
+
+            if (!contractMetadata) {
+                console.warn(`No contract metadata found for ${contractAddress}. Using placeholders.`);
+                return {
+                    contractAddress,
+                    name: 'Unknown Collection',
+                    image: '/placeholder-collection.svg',
+                    description: '',
+                };
+            }
+
+            return {
+                contractAddress,
+                name: contractMetadata.name || 'This Collection',
+                image: contractMetadata.openSea?.imageUrl || contractMetadata.image?.cachedUrl || contractMetadata.image?.originalUrl || '/placeholder-collection.svg',
+                description: contractMetadata.openSea?.description || '',
+            };
+        });
+
+        const collections = (await Promise.all(collectionPromises)).filter(Boolean);
+
+        return c.json({ collections }, 200);
+    } catch (e) {
+        console.error('Error in get-collections handler:', e);
+        if (e instanceof Error) {
+            throw new HTTPException(400, { message: 'Could not get collection data', cause: e.message });
+        }
+        throw new HTTPException(400, { message: 'Could not get collection data' });
+    }
+});
+
+app.get('/collections/:contractAddress', async (c) => {
+    c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
+
+    try {
+        const contractAddress = c.req.param('contractAddress');
+
+        if (!contractAddress) {
+            throw new HTTPException(400, { message: 'contractAddress is required' });
+        }
+
+        const orders = await getCollectionOrders(contractAddress);
+
+        if (!orders || orders.length === 0) {
+            return c.json({ nfts: [] });
+        }
+
+        const tokenData = await getOrdersWithMetadata(orders);
+
+        const res = await fetch(
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+        );
+
+        let collectionName = 'This Collection';
+        if (res.ok) {
+            const data = await res.json();
+            if (data.contractMetadata && data.contractMetadata.name) {
+                collectionName = data.contractMetadata.name;
+            }
+        }
+
+        return c.json({ nfts: tokenData, collectionName }, 200);
+    } catch (e) {
+        console.error('Error in get-collection-listings handler:', e);
+        if (e instanceof Error) {
+            throw new HTTPException(400, { message: 'Could not get collection listings', cause: e.message });
+        }
+        throw new HTTPException(400, { message: 'Could not get collection listings' });
     }
 });
 

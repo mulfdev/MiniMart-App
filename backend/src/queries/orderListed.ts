@@ -43,6 +43,21 @@ const GET_ORDER = gql`
     }
 `;
 
+const GET_COLLECTION_ORDERS = gql`
+    query GetCollectionOrders($nftContract: String!) {
+        orderListeds(where: { nftContract: $nftContract }) {
+            id
+            orderId
+            seller
+            blockNumber
+            tokenId
+            nftContract
+            price
+            blockTimestamp
+        }
+    }
+`;
+
 const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
 
 const client = new GraphQLClient(endpoint);
@@ -77,6 +92,21 @@ export async function getBatchOrders(orders: { contract: string; tokenId: string
     } catch (e) {
         console.log(e);
         return null;
+    }
+}
+
+export async function getCollectionOrders(nftContract: string) {
+    try {
+        const req = await client.request<GetOrderListedEvents>(GET_COLLECTION_ORDERS, {
+            nftContract,
+        });
+        return req.orderListeds;
+    } catch (e) {
+        console.log(e);
+        if (e instanceof Error) {
+            throw new Error(e.message);
+        }
+        throw new Error('Could not fetch collection orders');
     }
 }
 
