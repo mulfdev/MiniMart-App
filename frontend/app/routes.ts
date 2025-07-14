@@ -8,4 +8,6 @@ export default [
     route('/list/:contract/:tokenId', './routes/list.tsx'),
     route('/token/:contract/:tokenId', './routes/token.tsx'),
     route('orders', './routes/allOrders.tsx'),
+    route('/collections', './routes/collections/index.tsx'),
+    route('/collections/:contractAddress', './routes/collections/collectionDetail.tsx'),
 ] satisfies RouteConfig;

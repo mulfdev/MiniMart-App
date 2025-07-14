@@ -1,5 +1,5 @@
 import { lazy, type JSX, useRef } from 'react';
-import { Home, Shapes, NotebookTabs, Logs } from 'lucide-react';
+import { Home, Shapes, NotebookTabs, Logs, LayoutGrid } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAccount } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
@@ -42,6 +42,12 @@ function ConnectedNav({ onClose }: { onClose: () => void }) {
                 onClick={onClose}
             />
             <SidebarLink
+                url="/collections"
+                label="Collections"
+                icon={<LayoutGrid className="h-6 w-6 text-zinc-400" />}
+                onClick={onClose}
+            />
+            <SidebarLink
                 url={address ? `/user/${address}` : `/`}
                 label="Your Tokens"
                 icon={<Shapes className="h-6 w-6 text-zinc-400" />}
@@ -73,6 +79,12 @@ function DisconnectedNav({ onClose }: { onClose: () => void }) {
                 url="/"
                 label="Home"
                 icon={<Home className="h-6 w-6 text-zinc-400" />}
+                onClick={onClose}
+            />
+            <SidebarLink
+                url="/collections"
+                label="Collections"
+                icon={<LayoutGrid className="h-6 w-6 text-zinc-400" />}
                 onClick={onClose}
             />
             <span className="mt-auto">
