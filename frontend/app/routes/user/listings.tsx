@@ -116,32 +116,34 @@ function Listings() {
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-zinc-700/50">
-                            <thead className="bg-zinc-800/50">
+                            <thead className="bg-zinc-800/50 hidden sm:table-header-group">
                                 <tr>
                                     <th
                                         scope="col"
                                         className="py-4 pl-6 pr-3 text-left text-sm font-semibold
                                             text-white"
                                     >
-                                        <input
-                                            type="checkbox"
-                                            className="form-checkbox h-4 w-4 text-red-600 transition
-                                                duration-150 ease-in-out"
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    setSelectedOrderIds(
-                                                        data.map((item) => item.orderInfo.orderId)
-                                                    );
-                                                } else {
-                                                    setSelectedOrderIds([]);
+                                        <label className="block p-2 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                className="form-checkbox h-4 w-4 text-red-600 transition
+                                                    duration-150 ease-in-out"
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedOrderIds(
+                                                            data.map((item) => item.orderInfo.orderId)
+                                                        );
+                                                    } else {
+                                                        setSelectedOrderIds([]);
+                                                    }
+                                                }}
+                                                checked={
+                                                    selectedOrderIds.length === data.length &&
+                                                    data.length > 0
                                                 }
-                                            }}
-                                            checked={
-                                                selectedOrderIds.length === data.length &&
-                                                data.length > 0
-                                            }
-                                            disabled={!!inProgress}
-                                        />
+                                                disabled={!!inProgress}
+                                            />
+                                        </label>
                                     </th>
                                     <th
                                         scope="col"
@@ -171,84 +173,163 @@ function Listings() {
                                     >
                                         Expires
                                     </th>
+                                    
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-800">
                                 {data.map((item) => (
-                                    <tr
-                                        key={item.orderInfo.id}
-                                        className="hover:bg-zinc-800/50 transition-colors
-                                            duration-150"
-                                    >
-                                        <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm">
-                                            <input
-                                                type="checkbox"
-                                                className="form-checkbox h-4 w-4 text-red-600
-                                                    transition duration-150 ease-in-out"
-                                                checked={selectedOrderIds.includes(
-                                                    item.orderInfo.orderId
-                                                )}
-                                                onChange={(e) =>
-                                                    handleCheckboxChange(
-                                                        item.orderInfo.orderId,
-                                                        e.target.checked
-                                                    )
-                                                }
-                                                disabled={!!inProgress}
-                                            />
-                                        </td>
-                                        <td className="whitespace-nowrap py-5 pl-3 pr-3 text-sm">
-                                            <div className="flex items-center">
-                                                <div className="h-11 w-11 flex-shrink-0">
-                                                    <img
-                                                        loading="lazy"
-                                                        className="h-11 w-11 rounded-lg
-                                                            object-cover"
-                                                        src={
-                                                            item.nft.image.thumbnailUrl ||
-                                                            item.nft.image.originalUrl ||
-                                                            item.nft.tokenUri ||
-                                                            '/placeholder.svg'
+                                    <>
+                                        {/* Desktop/Tablet View */}
+                                        <tr
+                                            key={item.orderInfo.id}
+                                            className="hover:bg-zinc-800/50 transition-colors
+                                                duration-150 hidden sm:table-row"
+                                        >
+                                            <td className="whitespace-nowrap py-5 pl-6 pr-3 text-sm">
+                                                <label className="block p-2 cursor-pointer">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="form-checkbox h-4 w-4 text-red-600
+                                                            transition duration-150 ease-in-out"
+                                                        checked={selectedOrderIds.includes(
+                                                            item.orderInfo.orderId
+                                                        )}
+                                                        onChange={(e) =>
+                                                            handleCheckboxChange(
+                                                                item.orderInfo.orderId,
+                                                                e.target.checked
+                                                            )
                                                         }
-                                                        alt={`${item.nft.contract.name} #${item.nft.tokenId}`}
+                                                        disabled={!!inProgress}
                                                     />
+                                                </label>
+                                            </td>
+                                            <td className="whitespace-nowrap py-5 pl-3 pr-3 text-sm">
+                                                <div className="flex items-center">
+                                                    <div className="h-11 w-11 flex-shrink-0">
+                                                        <img
+                                                            loading="lazy"
+                                                            className="h-11 w-11 rounded-lg
+                                                                object-cover"
+                                                            src={
+                                                                item.nft.image.thumbnailUrl ||
+                                                                item.nft.image.originalUrl ||
+                                                                item.nft.tokenUri ||
+                                                                '/placeholder.svg'
+                                                            }
+                                                            alt={`${item.nft.contract.name} #${item.nft.tokenId}`}
+                                                        />
+                                                    </div>
+                                                    <div className="ml-4">
+                                                        <div className="font-medium text-white">
+                                                            {item.nft.contract.name} #{item.nft.tokenId}
+                                                        </div>
+                                                        <div className="text-zinc-400">
+                                                            {item.nft.contract.symbol}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="ml-4">
-                                                    <div className="font-medium text-white">
-                                                        {item.nft.contract.name} #{item.nft.tokenId}
+                                            </td>
+                                            <td
+                                                className="whitespace-nowrap px-4 py-5 text-sm
+                                                    text-zinc-300"
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-mono text-white">
+                                                        {formatEther(BigInt(item.orderInfo.price))}
+                                                    </span>
+                                                    <span className="text-zinc-400">ETH</span>
+                                                </div>
+                                            </td>
+                                            <td
+                                                className="whitespace-nowrap px-4 py-5 text-sm
+                                                    text-zinc-300"
+                                            >
+                                                {new Date(
+                                                    item.orderInfo.blockTimestamp * 1000
+                                                ).toLocaleDateString()}
+                                            </td>
+                                            <td
+                                                className="whitespace-nowrap px-4 py-5 text-sm
+                                                    text-zinc-300"
+                                            >
+                                                —
+                                            </td>
+                                            
+                                        </tr>
+
+                                        {/* Mobile Card View */}
+                                        <div
+                                            key={`mobile-${item.orderInfo.id}`}
+                                            className="block sm:hidden bg-zinc-800/50 rounded-xl
+                                                mx-4 my-3 p-5 shadow-lg"
+                                        >
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="flex items-center flex-grow min-w-0 pr-2">
+                                                    <label className="flex items-center p-2 -ml-2 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="form-checkbox h-4 w-4 text-red-600
+                                                                transition duration-150 ease-in-out flex-shrink-0"
+                                                            checked={selectedOrderIds.includes(
+                                                                item.orderInfo.orderId
+                                                            )}
+                                                            onChange={(e) =>
+                                                                handleCheckboxChange(
+                                                                    item.orderInfo.orderId,
+                                                                    e.target.checked
+                                                                )
+                                                            }
+                                                            disabled={!!inProgress}
+                                                        />
+                                                    </label>
+                                                    <div className="h-12 w-12 flex-shrink-0 ml-3">
+                                                        <img
+                                                            loading="lazy"
+                                                            className="h-12 w-12 rounded-lg
+                                                                object-cover"
+                                                            src={
+                                                                item.nft.image.thumbnailUrl ||
+                                                                item.nft.image.originalUrl ||
+                                                                item.nft.tokenUri ||
+                                                                '/placeholder.svg'
+                                                            }
+                                                            alt={`${item.nft.contract.name} #${item.nft.tokenId}`}
+                                                        />
                                                     </div>
-                                                    <div className="text-zinc-400">
-                                                        {item.nft.contract.symbol}
+                                                    <div className="ml-4 min-w-0">
+                                                        <div className="font-medium text-white truncate">
+                                                            {item.nft.contract.name} #{item.nft.tokenId}
+                                                        </div>
+                                                        <div className="text-zinc-400 text-sm truncate">
+                                                            {item.nft.contract.symbol}
+                                                        </div>
                                                     </div>
+                                                </div>
+                                                
+                                            </div>
+                                            <div className="flex flex-col gap-3 text-sm mt-4 pt-4 border-t border-zinc-700">
+                                                <div className="flex justify-between">
+                                                    <span className="text-zinc-400">Price</span>
+                                                    <span className="font-mono text-white break-all text-right">
+                                                        {formatEther(BigInt(item.orderInfo.price))} ETH
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-zinc-400">Listed</span>
+                                                    <span className="text-white text-right">
+                                                        {new Date(
+                                                            item.orderInfo.blockTimestamp * 1000
+                                                        ).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-zinc-400">Expires</span>
+                                                    <span className="text-white text-right">—</span>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td
-                                            className="whitespace-nowrap px-4 py-5 text-sm
-                                                text-zinc-300"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-mono text-white">
-                                                    {formatEther(BigInt(item.orderInfo.price))}
-                                                </span>
-                                                <span className="text-zinc-400">ETH</span>
-                                            </div>
-                                        </td>
-                                        <td
-                                            className="whitespace-nowrap px-4 py-5 text-sm
-                                                text-zinc-300"
-                                        >
-                                            {new Date(
-                                                item.orderInfo.blockTimestamp * 1000
-                                            ).toLocaleDateString()}
-                                        </td>
-                                        <td
-                                            className="whitespace-nowrap px-4 py-5 text-sm
-                                                text-zinc-300"
-                                        >
-                                            —
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </>
                                 ))}
                             </tbody>
                         </table>
