@@ -1,12 +1,11 @@
 import { ErrorBoundary } from '~/components/ErrorBoundary';
 import { fetchAllOrders } from '~/loaders';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Nft, OrderListed } from '@minimart/types';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
 import { SortDropdown, type SortOption, type SortValue } from '~/components/SortDropdown';
-import { parseUnits } from 'viem';
 import { NftCard } from '~/components/NftCard';
 import { useLoaderData } from 'react-router';
 
@@ -24,8 +23,24 @@ function AllOrdersContent() {
     ] as const;
 
     const [currentSort, setCurrentSort] = useState<SortValue>(sortOptions[0].value);
+    const [sortedNfts, setSortedNfts] = useState<{ nft: Nft; orderInfo: OrderListed }[]>([]);
 
-    const [sortedNfts, setSortedNfts] = useState<{ nft: Nft; orderInfo: OrderListed }[]>();
+    useEffect(() => {
+        if (data?.nfts) {
+            const sorted = [...data.nfts].sort((a, b) => {
+                switch (currentSort) {
+                    case 'price_asc':
+                        return BigInt(a.orderInfo.price) > BigInt(b.orderInfo.price) ? 1 : -1;
+                    case 'price_desc':
+                        return BigInt(b.orderInfo.price) > BigInt(a.orderInfo.price) ? 1 : -1;
+                    case 'listedAt_desc':
+                    default:
+                        return b.orderInfo.blockTimestamp - a.orderInfo.blockTimestamp;
+                }
+            });
+            setSortedNfts(sorted);
+        }
+    }, [data, currentSort]);
 
     if (!data) {
         return <Loader text="Loading all orders..." />;
@@ -33,25 +48,6 @@ function AllOrdersContent() {
 
     const handleSortChange = (newValue: SortValue) => {
         setCurrentSort(newValue);
-
-        // switch (newValue) {
-        //     case 'listedAt_desc':
-        //         const listedAt = data.sort(
-        //             (a, b) => b.orderInfo.blockTimestamp - a.orderInfo.blockTimestamp
-        //         );
-        //         setSortedNfts(() => listedAt);
-        //         break;
-        //     case 'price_asc':
-        //         console.log('got asc');
-        //         const price_asc = data.sort(
-        //             (a, b) => parseUnits(b.orderInfo.price, 18) - parseUnits(a.orderInfo.price, 18)
-        //         );
-        //         setSortedNfts(price_asc);
-        //         break;
-        //     case 'price_desc':
-        //         console.log('got desc');
-        //         break;
-        // }
     };
 
     if (!data || data.nfts.length === 0) return <EmptyState message="No orders found." />;
@@ -71,7 +67,7 @@ function AllOrdersContent() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-22">
-                    {data.nfts.map((nft) => (
+                    {sortedNfts.map((nft) => (
                         <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>
                             <NftCard nft={nft.nft} orderInfo={nft.orderInfo} variant="view" />
                         </div>
