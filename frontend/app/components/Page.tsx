@@ -1,6 +1,3 @@
-import type { Nft, OrderListed } from '@minimart/types';
-import { NftCard } from './NftCard';
-
 export function Page({
     title,
     description,

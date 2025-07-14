@@ -201,6 +201,7 @@ function Listings() {
                                             <div className="flex items-center">
                                                 <div className="h-11 w-11 flex-shrink-0">
                                                     <img
+                                                        loading="lazy"
                                                         className="h-11 w-11 rounded-lg
                                                             object-cover"
                                                         src={
