@@ -196,8 +196,8 @@ function Token() {
                                                         >
                                                             <span>{`${prop.value.slice(
                                                                 0,
-                                                                9
-                                                            )}...${prop.value.slice(-9)}`}</span>
+                                                                6
+                                                            )}...${prop.value.slice(-6)}`}</span>
                                                             <ExternalLink className="w-3 h-3" />
                                                         </a>
                                                     ) : (
