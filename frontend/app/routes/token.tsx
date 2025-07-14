@@ -7,9 +7,10 @@ import { wagmiConfig } from '~/config';
 import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
-import { useState } from 'react';
+import minimartAbi from '~/minimartAbi';
+import { useEffect, useState } from 'react';
 import { formatEther } from 'viem';
-import { waitForTransactionReceipt } from 'wagmi/actions';
+import { waitForTransactionReceipt, simulateContract } from 'wagmi/actions';
 import { LoadingSpinner } from '~/components/LoadingSpinner';
 import { useAccount } from 'wagmi';
 
@@ -29,14 +30,7 @@ function Token() {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
 
     const { writeContractAsync, isPending } = useWriteMinimartFulfillOrder();
-    const { data: fulfillOrderSim } = useSimulateMinimartFulfillOrder({
-        address: miniMartAddr,
-        args: [token?.orderData?.orderId as `0x${string}`],
-        value: token?.orderData?.price ? BigInt(token.orderData.price) : undefined,
-        query: {
-            enabled: !!token?.orderData?.orderId && !!token.orderData.price && !isPurchaseComplete,
-        },
-    });
+    
 
     if (!token?.nft) {
         return (
@@ -76,14 +70,28 @@ function Token() {
     ];
 
     const handlePurchase = async () => {
-        if (!fulfillOrderSim) return;
-
         setShowSuccessToast(false);
         setShowErrorToast(false);
         setIsPurchasing(true);
 
         try {
-            const hash = await writeContractAsync(fulfillOrderSim.request);
+            if (!token?.orderData?.orderId || !token.orderData.price) {
+                setShowErrorToast(true);
+                return;
+            }
+
+            console.log("Order ID:", token.orderData.orderId);
+            console.log("Price:", token.orderData.price);
+
+            const { request } = await simulateContract(wagmiConfig, {
+                address: miniMartAddr,
+                abi: minimartAbi,
+                functionName: 'fulfillOrder',
+                args: [token.orderData.orderId],
+                value: BigInt(token.orderData.price),
+            });
+
+            const hash = await writeContractAsync(request);
             if (hash) {
                 const receipt = await waitForTransactionReceipt(wagmiConfig, {
                     hash,
@@ -242,7 +250,7 @@ function Token() {
                                             duration-200 ease-out shadow-lg hover:shadow-xl
                                             hover:shadow-blue-500/25 disabled:opacity-50
                                             disabled:cursor-not-allowed"
-                                        disabled={!fulfillOrderSim || isPending || isPurchasing}
+                                        disabled={!token?.orderData?.orderId || !token.orderData.price || isPending || isPurchasing}
                                         onClick={handlePurchase}
                                     >
                                         {isPurchasing ? (
