@@ -59,7 +59,7 @@ function FilterDropdown({ options, currentFilter, onFilterChange }: FilterDropdo
 
             {isOpen && (
                 <div
-                    className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md
+                    className="absolute left-0 z-10 mt-2 w-56 origin-bottom-right rounded-md
                         bg-zinc-800/90 backdrop-blur-md shadow-lg ring-1 ring-zinc-700
                         focus:outline-none animate-in fade-in-0 zoom-in-95"
                     role="menu"
