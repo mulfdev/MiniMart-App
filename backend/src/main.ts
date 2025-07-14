@@ -2,7 +2,12 @@ import { serve } from '@hono/node-server';
 import { HTTPException } from 'hono/http-exception';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { getListedOrders, getSingleOrder, getUserTokens } from './queries/orderListed.js';
+import {
+    getListedOrders,
+    getUserTokens,
+    getOrdersWithMetadata,
+    getBatchOrders,
+} from './queries/orderListed.js';
 import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
 
@@ -36,17 +41,7 @@ app.get('/all-orders', async (c) => {
             return c.json({ nfts: [] });
         }
 
-        const promises = orders.map((order) =>
-            fetch(
-                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
-            ).then((res) => {
-                if (!res.ok) return null;
-                return res.json().then((data: Nft) => ({ nft: data, orderInfo: order }));
-            }),
-        );
-
-        const results = await Promise.all(promises);
-        const tokenData = results.filter(Boolean) as { nft: Nft; orderInfo: OrderListed }[];
+        const tokenData = await getOrdersWithMetadata(orders);
 
         return c.json({ nfts: tokenData }, 200);
     } catch (e) {
@@ -73,17 +68,16 @@ app.get('/user-orders', async (c) => {
             return c.json({ nfts: [] }, 200);
         }
 
-        const promises = orders.map((order) =>
-            fetch(
-                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${order.nftContract}&tokenId=${order.tokenId}&tokenType=ERC721&refreshCache=false`,
-            ).then((res) => {
-                if (!res.ok) return null;
-                return res.json().then((data) => ({ ...data, orderId: order.id }));
-            }),
-        );
+        const ordersWithMetadata = await getOrdersWithMetadata(orders);
 
-        const results = await Promise.all(promises);
-        const tokenData = results.filter(Boolean) as Nft[];
+        if (!ordersWithMetadata) {
+            return c.json({ nfts: [] }, 200);
+        }
+
+        const tokenData = ordersWithMetadata.map((data) => ({
+            ...data.nft,
+            orderId: data.orderInfo.id,
+        }));
 
         return c.json({ nfts: tokenData }, 200);
     } catch (e) {
@@ -161,15 +155,21 @@ app.get('/single-token', async (c) => {
         throw new HTTPException(400, { message: 'nftContract and tokenId required' });
     }
 
-    const orderInfo = await getSingleOrder(nftContract, tokenId, Boolean(getOrderInfo));
+    const orders = await getBatchOrders([{ contract: nftContract, tokenId: tokenId }]);
 
-    if (!orderInfo) {
+    if (!orders) {
+        throw new HTTPException(404, { message: 'Could not locate token info' });
+    }
+
+    const orderWithMetadata = await getOrdersWithMetadata(orders);
+
+    if (!orderWithMetadata) {
         throw new HTTPException(404, { message: 'Could not locate token info' });
     }
 
     c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
-    return c.json({ orderData: orderInfo.listingInfo, nft: orderInfo.nft }, 200);
+    return c.json({ orderData: orderWithMetadata[0].orderInfo, nft: orderWithMetadata[0].nft }, 200);
 });
 
 app.get('/reset-cache', (c) => {

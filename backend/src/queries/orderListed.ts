@@ -34,8 +34,8 @@ const GET_USER_ORDERS = gql`
 `;
 
 const GET_ORDER = gql`
-    query GetSpecificOrders($tokenId: String!, $nftContract: String!) {
-        orderListeds(where: { tokenId: $tokenId, nftContract: $nftContract }) {
+    query GetSpecificOrders($tokenIds: [String!], $nftContracts: [String!]) {
+        orderListeds(where: { tokenId_in: $tokenIds, nftContract_in: $nftContracts }) {
             orderId
             price
             seller
@@ -63,6 +63,73 @@ export async function getListedOrders(numItems: number) {
     }
 }
 
+export async function getBatchOrders(orders: { contract: string; tokenId: string }[]) {
+    try {
+        const tokenIds = orders.map((order) => order.tokenId);
+        const nftContracts = orders.map((order) => order.contract);
+
+        const orderInfo = await client.request<GetOrderListedEvents>(GET_ORDER, {
+            tokenIds,
+            nftContracts,
+        });
+
+        return orderInfo.orderListeds;
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
+export async function getOrdersWithMetadata(orders: OrderListed[]) {
+    try {
+        const tokens = orders.map((order) => ({
+            contractAddress: order.nftContract,
+            tokenId: order.tokenId,
+        }));
+
+        const res = await fetch(`https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadataBatch`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                tokens,
+                tokenType: 'ERC721',
+                refreshCache: false,
+            }),
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error(`Error fetching NFT metadata: ${res.status} - ${errorText}`);
+            return null;
+        }
+
+        const data = (await res.json()) as { nfts: Nft[] };
+
+        const nftsMap = data.nfts.reduce(
+            (acc, nft) => {
+                acc[`${nft.contract.address.toLowerCase()}-${nft.tokenId}`] = nft;
+                return acc;
+            },
+            {} as Record<string, Nft>,
+        );
+
+        const ordersWithMetadata = orders
+            .map((order) => {
+                const nft = nftsMap[`${order.nftContract.toLowerCase()}-${order.tokenId}`];
+                if (!nft) return null;
+                return { nft: nft, orderInfo: order };
+            })
+            .filter(Boolean);
+
+        return ordersWithMetadata as { nft: Nft; orderInfo: OrderListed }[];
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
 export async function getSingleOrder(contract: string, tokenId: string, fetchOrderInfo?: boolean) {
     try {
         const res = await fetch(
@@ -83,8 +150,8 @@ export async function getSingleOrder(contract: string, tokenId: string, fetchOrd
         }
 
         const orderInfo = await client.request<GetOrderListedEvents>(GET_ORDER, {
-            tokenId,
-            nftContract: contract,
+            tokenIds: [tokenId],
+            nftContracts: [contract],
         });
 
         return {
