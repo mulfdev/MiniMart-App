@@ -43,7 +43,7 @@ function FilterDropdown({ options, currentFilter, onFilterChange }: FilterDropdo
     };
 
     return (
-        <div ref={dropdownRef} className="relative inline-block text-left z-20">
+        <div ref={dropdownRef} className="relative inline-block text-left z-10">
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}

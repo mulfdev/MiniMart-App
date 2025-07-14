@@ -50,7 +50,7 @@ export async function fetchUserOrders(address: string, reload: boolean = false) 
         url.searchParams.set('address', address);
 
         const res = await fetch(url, { cache: reload ? 'reload' : 'default' });
-        const data = (await res.json()) as { nfts: Nft[] };
+        const data = (await res.json()) as { nft: Nft; orderInfo: OrderListed }[];
         return data;
     } catch (e) {
         throw new Error('Could not fetch NFTs');

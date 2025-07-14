@@ -90,7 +90,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
     return (
         <div
             ref={ref}
-            className={`fixed top-0 right-0 bg-zinc-900/80 backdrop-blur-sm z-50 rounded-lg
+            className={`fixed top-0 right-0 bg-zinc-900/80 backdrop-blur-sm z-30 rounded-lg
                 transition-transform duration-100 ease-in-out h-[100svh] ${
                     isOpen
                         ? 'translate-x-0 visibility-visible'
