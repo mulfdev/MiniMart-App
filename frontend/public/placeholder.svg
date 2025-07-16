@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="200" height="200" fill="#0a0a0a"/>
+<circle cx="100" cy="100" r="80" stroke="hsl(220, 70%, 50%)" stroke-width="2" stroke-dasharray="4 4" transform="rotate(45 100 100)"/>
+<circle cx="100" cy="100" r="60" stroke="hsl(160, 60%, 45%)" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-45 100 100)"/>
+<circle cx="100" cy="100" r="40" stroke="hsl(30, 80%, 55%)" stroke-width="2" stroke-dasharray="4 4" transform="rotate(45 100 100)"/>
+<circle cx="100" cy="100" r="20" stroke="hsl(280, 65%, 60%)" stroke-width="2" stroke-dasharray="4 4" transform="rotate(-45 100 100)"/>
+</svg>
