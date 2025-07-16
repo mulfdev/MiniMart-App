@@ -28,10 +28,12 @@ export function NftCard({
     nft,
     orderInfo,
     variant = 'list',
+    onImageError,
 }: {
     nft: Nft;
     orderInfo?: OrderListed;
     variant?: 'list' | 'view' | 'remove';
+    onImageError?: () => void;
 }) {
     const [isActionsVisible, setActionsVisible] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
@@ -50,7 +52,7 @@ export function NftCard({
                 className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[530px] flex
                     flex-col shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform hover:-translate-y-2
                     transition-transform duration-500 ease-out border border-zinc-800/50
-                    hover:border-zinc-700/80 max-w-[375px]`}
+                    hover:border-zinc-700/80 w-[375px]`}
             >
                 <div className="relative overflow-hidden h-full bg-zinc-800">
                     <div className="relative w-full h-full flex items-center justify-center">
@@ -58,6 +60,7 @@ export function NftCard({
                             loading="lazy"
                             src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
                             className="w-full h-full object-cover"
+                            onError={onImageError}
                         />
                     </div>
                 </div>
