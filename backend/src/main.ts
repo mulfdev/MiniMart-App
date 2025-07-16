@@ -71,7 +71,7 @@ app.get('/collections', async (c) => {
 
         const collectionPromises = uniqueContractAddresses.map(async (contractAddress) => {
             const res = await fetch(
-                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+                `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
             );
 
             if (!res.ok) {
@@ -150,7 +150,7 @@ app.get('/collections/:contractAddress', async (c) => {
         const tokenData = await getOrdersWithMetadata(orders);
 
         const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
         );
 
         let collectionName = 'This Collection';
@@ -213,7 +213,7 @@ app.get('/user-inventory', async (c) => {
     }
 
     const res = fetch(
-        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
+        `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
     );
 
     const ordersPromise = getUserTokens(address);
@@ -239,7 +239,14 @@ app.get('/user-inventory', async (c) => {
         .filter((nft) => nft.tokenType === 'ERC721')
         .filter(
             (nft) => nft.tokenUri !== null || nft.tokenUri !== '' || nft.image.originalUrl !== null,
-        );
+        )
+        .filter((nft) => !nft.name?.includes('drop'))
+        .filter((nft) => !nft.name?.includes('win'))
+        .filter((nft) => !nft.name?.includes('usdc'))
+        .filter((nft) => !nft.name?.includes('claim'))
+        .filter((nft) => !nft.description?.includes('drop'))
+        .filter((nft) => !nft.description?.includes('win'))
+        .filter((nft) => !nft.description?.includes('claim'));
 
     if (filteredNfts.length === 0) {
         return c.json(filteredNfts, 200);

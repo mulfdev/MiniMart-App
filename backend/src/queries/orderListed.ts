@@ -117,17 +117,20 @@ export async function getOrdersWithMetadata(orders: OrderListed[]) {
             tokenId: order.tokenId,
         }));
 
-        const res = await fetch(`https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadataBatch`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+        const res = await fetch(
+            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadataBatch`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tokens,
+                    tokenType: 'ERC721',
+                    refreshCache: false,
+                }),
             },
-            body: JSON.stringify({
-                tokens,
-                tokenType: 'ERC721',
-                refreshCache: false,
-            }),
-        });
+        );
 
         if (!res.ok) {
             const errorText = await res.text();
@@ -163,7 +166,7 @@ export async function getOrdersWithMetadata(orders: OrderListed[]) {
 export async function getSingleOrder(contract: string, tokenId: string, fetchOrderInfo?: boolean) {
     try {
         const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`,
+            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`,
         );
         if (!res.ok) {
             const errorText = await res.text();
