@@ -197,7 +197,10 @@ function SingleToken() {
                         {/* Description */}
                         <div className="mb-8">
                             <h2 className="text-xl font-semibold text-white mb-3">Description</h2>
-                            <p className="text-zinc-400 leading-relaxed">
+                            <p
+                                className="text-zinc-400 leading-relaxed wrap-anywhere
+                                    overflow-y-scroll max-h-[200px]"
+                            >
                                 {token.nft.description || 'No description available.'}
                             </p>
                         </div>

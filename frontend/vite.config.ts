@@ -6,7 +6,7 @@ import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
     plugins: [
-        tailwindcss(),
+        tailwindcss('./tailwind.config.ts'),
         reactRouter(),
         tsconfigPaths(),
         visualizer({

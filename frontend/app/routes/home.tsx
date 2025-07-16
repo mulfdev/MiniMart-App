@@ -17,7 +17,7 @@ function OpenListings() {
             {allOrders.nfts.map(({ nft, orderInfo }, index) => (
                 <div
                     key={`${nft.contract.address}+${nft.tokenId}`}
-                    className="snap-center shrink-0 w-80"
+                    className="snap-center shrink-0 w-[375px]"
                     style={{ animationDelay: `${index * 100}ms` }}
                 >
                     <NftCard nft={nft} orderInfo={orderInfo} variant="view" />

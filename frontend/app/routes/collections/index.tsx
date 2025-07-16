@@ -1,14 +1,17 @@
 import { useLoaderData, Link } from 'react-router';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
-import { NftCardSkeleton } from '~/components/NftCardSkeleton';
-import { Suspense } from 'react';
 
 interface Collection {
     contractAddress: string;
     name: string;
     image: string;
     description: string;
+}
+
+interface CollectionBannerProps {
+    collection: Collection;
+    index: number;
 }
 
 export async function clientLoader() {
@@ -27,64 +30,61 @@ export default function CollectionsPage() {
     const { collections } = useLoaderData<typeof clientLoader>();
 
     return (
-        <Page title="Browse Collections" description="">
-            <div className="flex flex-col items-center justify-center w-full">
-                {collections.length === 0 ? (
-                    <EmptyState message="No collections with active listings found." />
-                ) : (
-                    <div
-                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-                            gap-6 p-4 w-full max-w-6xl"
-                    >
-                        <Suspense fallback={<NftCardSkeleton />}>
-                            {collections.map((collection: Collection) => (
-                                <CollectionCard
-                                    key={collection.contractAddress}
-                                    collection={collection}
-                                />
-                            ))}
-                        </Suspense>
-                    </div>
-                )}
-            </div>
+        <Page title="Browse Collections" description="An evolving gallery of unique collections">
+            {collections.length === 0 ? (
+                <EmptyState message="No collections with active listings found." />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-22">
+                    {collections.map((collection: Collection, index: number) => (
+                        <CollectionBanner
+                            key={collection.contractAddress}
+                            collection={collection}
+                            index={index}
+                        />
+                    ))}
+                </div>
+            )}
         </Page>
     );
 }
 
-interface CollectionCardProps {
-    collection: Collection;
-}
-
-function CollectionCard({ collection }: CollectionCardProps) {
+function CollectionBanner({ collection, index }: CollectionBannerProps) {
     return (
-        <Link to={`/collections/${collection.contractAddress}`} className="block">
+        <Link
+            to={`/collections/${collection.contractAddress}`}
+            className="block group relative overflow-hidden rounded-2xl h-80 animate-slide-up-fade"
+            style={{ animationDelay: `${index * 100}ms` }}
+        >
+            {/* Background Image */}
+            <img
+                src={collection.image || '/placeholder-collection.svg'}
+                alt={collection.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform
+                    duration-500 ease-in-out group-hover:scale-105"
+                onError={(e) => {
+                    e.currentTarget.src = '/placeholder-collection.svg';
+                }}
+            />
+
+            {/* Gradient Overlay */}
             <div
-                className="bg-zinc-800 rounded-xl shadow-lg overflow-hidden transform transition-all
-                    duration-300 hover:scale-[1.03] hover:shadow-xl hover:ring-1
-                    hover:ring-blue-500"
-            >
-                <div
-                    className="w-full h-48 bg-zinc-700 flex items-center justify-center
-                        overflow-hidden"
-                >
-                    {collection.image && (
-                        <img
-                            src={collection.image}
-                            alt={collection.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                                e.currentTarget.src = '/placeholder-collection.svg'; // Fallback image
-                            }}
-                        />
-                    )}
-                </div>
-                <div className="p-4">
-                    <h3 className="text-white text-lg font-semibold truncate">{collection.name}</h3>
-                    <p className="text-zinc-400 text-sm mt-1 line-clamp-2">
-                        {collection.description || 'No description available.'}
-                    </p>
-                </div>
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40
+                    to-transparent"
+            />
+
+            {/* Content */}
+            <div className="relative h-full flex flex-col justify-end p-6">
+                <h3 className="text-2xl font-bold text-white drop-shadow-lg">{collection.name}</h3>
+                <p className="text-zinc-200 text-sm mt-2 line-clamp-2 drop-shadow-md max-w-lg">
+                    {collection.description || ''}
+                </p>
             </div>
+
+            {/* Hover Ring */}
+            <div
+                className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10
+                    group-hover:ring-blue-400 transition-all duration-300"
+            />
         </Link>
     );
 }
