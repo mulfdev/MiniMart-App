@@ -19,8 +19,8 @@ function ViewNftsContent() {
 
     return (
         <div
-            className="flex flex-col md:flex-row flex-wrap justify-center md:justify-start
-                items-center gap-8 mb-22"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-8
+                mb-22"
         >
             {data.nfts.map((nft) => (
                 <div key={`${nft.contract.address}+${nft.tokenId}`}>

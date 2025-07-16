@@ -27,16 +27,21 @@ export default function CollectionsPage() {
     const { collections } = useLoaderData<typeof clientLoader>();
 
     return (
-        <Page>
+        <Page title="Browse Collections" description="">
             <div className="flex flex-col items-center justify-center w-full">
-                <h1 className="text-4xl font-bold text-white mb-8">Browse Collections</h1>
                 {collections.length === 0 ? (
                     <EmptyState message="No collections with active listings found." />
                 ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 w-full max-w-6xl">
+                    <div
+                        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
+                            gap-6 p-4 w-full max-w-6xl"
+                    >
                         <Suspense fallback={<NftCardSkeleton />}>
                             {collections.map((collection: Collection) => (
-                                <CollectionCard key={collection.contractAddress} collection={collection} />
+                                <CollectionCard
+                                    key={collection.contractAddress}
+                                    collection={collection}
+                                />
                             ))}
                         </Suspense>
                     </div>
@@ -53,8 +58,15 @@ interface CollectionCardProps {
 function CollectionCard({ collection }: CollectionCardProps) {
     return (
         <Link to={`/collections/${collection.contractAddress}`} className="block">
-            <div className="bg-zinc-800 rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:ring-1 hover:ring-blue-500">
-                <div className="w-full h-48 bg-zinc-700 flex items-center justify-center overflow-hidden">
+            <div
+                className="bg-zinc-800 rounded-xl shadow-lg overflow-hidden transform transition-all
+                    duration-300 hover:scale-[1.03] hover:shadow-xl hover:ring-1
+                    hover:ring-blue-500"
+            >
+                <div
+                    className="w-full h-48 bg-zinc-700 flex items-center justify-center
+                        overflow-hidden"
+                >
                     {collection.image && (
                         <img
                             src={collection.image}
@@ -68,7 +80,9 @@ function CollectionCard({ collection }: CollectionCardProps) {
                 </div>
                 <div className="p-4">
                     <h3 className="text-white text-lg font-semibold truncate">{collection.name}</h3>
-                    <p className="text-zinc-400 text-sm mt-1 line-clamp-2">{collection.description || 'No description available.'}</p>
+                    <p className="text-zinc-400 text-sm mt-1 line-clamp-2">
+                        {collection.description || 'No description available.'}
+                    </p>
                 </div>
             </div>
         </Link>

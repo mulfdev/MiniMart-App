@@ -1,15 +1,8 @@
 import { Sparkles, Tag } from 'lucide-react';
 import type { Nft, OrderListed } from '@minimart/types';
-import { Link, useRevalidator } from 'react-router';
-import { miniMartAddr } from '~/utils';
-import { useAccount } from 'wagmi';
+import { Link } from 'react-router';
 import { formatEther } from 'viem';
-import { simulateContract, writeContract, waitForTransactionReceipt } from 'wagmi/actions';
-import { wagmiConfig } from '~/config';
-import minimartAbi from '~/minimartAbi';
 import { useState, useRef, type PropsWithChildren } from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
-import { fetchAllOrders, fetchNfts, fetchUserOrders } from '~/loaders';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
 
 const CardLinkWrapper = ({
@@ -40,43 +33,10 @@ export function NftCard({
     orderInfo?: OrderListed;
     variant?: 'list' | 'view' | 'remove';
 }) {
-    const { address } = useAccount();
-    const [inProgress, setInProgress] = useState(false);
     const [isActionsVisible, setActionsVisible] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     useOnClickOutside(cardRef, () => setActionsVisible(false));
-
-    const revalidator = useRevalidator();
-
-    async function removeOrder() {
-        try {
-            setInProgress(true);
-            if (!orderInfo?.id) {
-                return;
-            }
-            const simulateTx = await simulateContract(wagmiConfig, {
-                abi: minimartAbi,
-                address: miniMartAddr,
-                functionName: 'removeOrder',
-                args: [orderInfo.orderId as `0x${string}`],
-            });
-            if (!simulateTx.request) {
-                throw new Error('Transaction simulation failed');
-            }
-            const txHash = await writeContract(wagmiConfig, simulateTx.request);
-            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
-
-            fetchNfts(address!, true);
-            fetchAllOrders(true);
-            await fetchUserOrders(address!, true);
-            revalidator.revalidate();
-        } catch (e) {
-            console.log(e);
-        } finally {
-            setInProgress(false);
-        }
-    }
 
     return (
         <CardLinkWrapper variant={variant} nft={nft}>
@@ -87,12 +47,10 @@ export function NftCard({
                     e.preventDefault();
                     setActionsVisible(!isActionsVisible);
                 }}
-                className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[530px] w-80
-                    flex flex-col shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform hover:-translate-y-2
+                className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[530px] flex
+                    flex-col shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform hover:-translate-y-2
                     transition-transform duration-500 ease-out border border-zinc-800/50
-                    hover:border-zinc-700/80 ${
-                        variant === 'remove' && inProgress ? 'opacity-50' : ''
-                    }`}
+                    hover:border-zinc-700/80 max-w-[375px]`}
             >
                 <div className="relative overflow-hidden h-full bg-zinc-800">
                     <div className="relative w-full h-full flex items-center justify-center">
