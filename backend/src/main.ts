@@ -90,8 +90,6 @@ app.get('/collections', async (c) => {
             const data = await res.json();
             const contractMetadata = data.openSeaMetadata;
 
-            console.log({ contractMetadata });
-
             if (!contractMetadata) {
                 console.warn(
                     `No contract metadata found for ${contractAddress}. Using placeholders.`,
