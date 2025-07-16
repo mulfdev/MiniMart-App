@@ -59,8 +59,7 @@ app.get('/collections', async (c) => {
     c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
     try {
-        const orders = await getListedOrders(1000); // Fetch a larger number to get more collections
-
+        const orders = await getListedOrders(100);
         if (!orders || orders.length === 0) {
             return c.json({ collections: [] });
         }
@@ -79,7 +78,6 @@ app.get('/collections', async (c) => {
                 console.error(
                     `Error fetching collection metadata for ${contractAddress}: ${res.status} - ${errorText}`,
                 );
-                // Attempt to parse JSON even on error to get more details if available
                 try {
                     const errorData = JSON.parse(errorText);
                     console.error('Alchemy API Error Details:', errorData);
@@ -90,7 +88,9 @@ app.get('/collections', async (c) => {
                 return null;
             }
             const data = await res.json();
-            const contractMetadata = data.contractMetadata;
+            const contractMetadata = data.openSeaMetadata;
+
+            console.log({ contractMetadata });
 
             if (!contractMetadata) {
                 console.warn(
@@ -106,13 +106,14 @@ app.get('/collections', async (c) => {
 
             return {
                 contractAddress,
-                name: contractMetadata.name || 'This Collection',
+                name: contractMetadata.collectionName || 'This Collection',
                 image:
+                    contractMetadata.bannerImageUrl ||
                     contractMetadata.openSea?.imageUrl ||
                     contractMetadata.image?.cachedUrl ||
                     contractMetadata.image?.originalUrl ||
                     '/placeholder-collection.svg',
-                description: contractMetadata.openSea?.description || '',
+                description: contractMetadata?.description || '',
             };
         });
 

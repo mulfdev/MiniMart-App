@@ -1,7 +1,10 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import type { OrderListed, GetOrderListedEvents, Nft } from '@minimart/types';
 import { ALCHEMY_API_KEY } from '../main.js';
-import { HTTPException } from 'hono/http-exception';
+import assert from 'node:assert';
+
+const { SUBGRAPH_KEY } = process.env;
+assert(typeof SUBGRAPH_KEY === 'string', 'SUBGRAPH_KEY must be set');
 
 const GET_ORDERS = gql`
     query GetOrders($first: Int) {
@@ -58,9 +61,12 @@ const GET_COLLECTION_ORDERS = gql`
     }
 `;
 
-const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
-
+// const testnetEndpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
+const endpoint =
+    'https://gateway.thegraph.com/api/subgraphs/id/8CWYH3zkw2XPiYy52EZXSatMFUoVQgAQmvRAjttFFhkL';
 const client = new GraphQLClient(endpoint);
+
+client.setHeader('authorization', `Bearer ${SUBGRAPH_KEY}`);
 
 export async function getListedOrders(numItems: number) {
     try {
