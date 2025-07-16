@@ -108,10 +108,8 @@ app.get('/collections', async (c) => {
                 contractAddress,
                 name: contractMetadata.collectionName || 'This Collection',
                 image:
+                    contractMetadata.imageUrl ||
                     contractMetadata.bannerImageUrl ||
-                    contractMetadata.openSea?.imageUrl ||
-                    contractMetadata.image?.cachedUrl ||
-                    contractMetadata.image?.originalUrl ||
                     '/placeholder-collection.svg',
                 description: contractMetadata?.description || '',
             };
