@@ -5,10 +5,30 @@ import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
 import { NftCard } from '~/components/NftCard';
 import { useLoaderData } from 'react-router';
+import { useState } from 'react';
+import type { Nft } from '@minimart/types';
 
 export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     const nfts = await fetchNfts(params.address);
     return nfts;
+}
+
+function NftCardWrapper({ nft }: { nft: Nft }) {
+    const [isVisible, setIsVisible] = useState(true);
+
+    const handleImageError = () => {
+        setIsVisible(false);
+    };
+
+    if (!isVisible) {
+        return null;
+    }
+
+    return (
+        <div key={`${nft.contract.address}+${nft.tokenId}`}>
+            <NftCard nft={nft} variant="list" onImageError={handleImageError} />
+        </div>
+    );
 }
 
 function ViewNftsContent() {
@@ -19,13 +39,11 @@ function ViewNftsContent() {
 
     return (
         <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-8
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 place-items-center gap-8
                 mb-22"
         >
             {data.nfts.map((nft) => (
-                <div key={`${nft.contract.address}+${nft.tokenId}`}>
-                    <NftCard nft={nft} variant="list" />
-                </div>
+                <NftCardWrapper nft={nft} />
             ))}
         </div>
     );

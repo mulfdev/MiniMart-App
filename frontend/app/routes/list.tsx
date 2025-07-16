@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLoaderData, useParams } from 'react-router';
-import { type Address, parseEther } from 'viem';
+import { type Address, parseEther, type ReadContractErrorType } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 import { useWriteContract } from 'wagmi';
 import {
@@ -21,14 +21,22 @@ import { miniMartAddr, nftAbi } from '~/utils';
 import { wagmiConfig } from '~/config';
 import { fetchAllOrders, fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
 import { Toast } from '~/components/Toast';
-import { Loader } from '~/components/Loader';
+import type { QueryObserverResult } from '@tanstack/react-query';
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
     const nft = await fetchNft(params.contract, params.tokenId, false);
     return nft;
 }
 
-function ApproveButton({ nftContract, className }: { nftContract: Address; className?: string }) {
+function ApproveButton({
+    nftContract,
+    className,
+    refetch,
+}: {
+    nftContract: Address;
+    className?: string;
+    refetch: () => Promise<QueryObserverResult<boolean, ReadContractErrorType>>;
+}) {
     const { writeContractAsync, isPending, error } = useWriteContract();
 
     async function handleApprove() {
@@ -40,7 +48,8 @@ function ApproveButton({ nftContract, className }: { nftContract: Address; class
                 args: [miniMartAddr, true],
             });
             if (hash) {
-                await waitForTransactionReceipt(wagmiConfig, { hash });
+                await waitForTransactionReceipt(wagmiConfig, { hash, confirmations: 1 });
+                await refetch();
             }
         } catch (err) {
             console.error('Approval transaction failed:', err);
@@ -72,7 +81,12 @@ function SingleToken() {
     const params = useParams();
     const token = useLoaderData<typeof clientLoader>();
     const { address } = useAccount();
-    const { data: isApproved, isLoading: isCheckingApproval } = useReadContract({
+    const {
+        data: isApproved,
+        isLoading: isCheckingApproval,
+        refetch,
+        isRefetching,
+    } = useReadContract({
         abi: nftAbi,
         address: params.contract as `0x${string}`,
         functionName: 'isApprovedForAll',
@@ -190,7 +204,7 @@ function SingleToken() {
 
                         {status !== 'success' && (
                             <div className="mt-auto">
-                                {isCheckingApproval ? (
+                                {isCheckingApproval || isRefetching ? (
                                     <div className="flex items-center justify-center p-8">
                                         <LoadingSpinner />
                                         <span className="ml-2 text-zinc-400">
@@ -335,6 +349,7 @@ function SingleToken() {
                                         <ApproveButton
                                             nftContract={token.nft.contract.address as Address}
                                             className={defaultButtonStyles}
+                                            refetch={refetch}
                                         />
                                     </div>
                                 )}
