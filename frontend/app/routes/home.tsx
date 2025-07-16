@@ -17,7 +17,7 @@ function OpenListings() {
             {allOrders.nfts.map(({ nft, orderInfo }, index) => (
                 <div
                     key={`${nft.contract.address}+${nft.tokenId}`}
-                    className="snap-center shrink-0 w-[375px]"
+                    className="snap-center shrink-0"
                     style={{ animationDelay: `${index * 100}ms` }}
                 >
                     <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
@@ -31,24 +31,6 @@ export default function LandingPage() {
     const { address } = useAccount();
     const { setOpen } = useModal();
     const navigate = useNavigate();
-
-    const steps = [
-        {
-            number: '01',
-            title: 'Connect Wallet',
-            description: 'Link your wallet to access your NFT collection',
-        },
-        {
-            number: '02',
-            title: 'Select NFTs',
-            description: 'Choose which NFTs you want to list for sale',
-        },
-        {
-            number: '03',
-            title: 'Set Price & Share',
-            description: 'Set your price and share with your Farcaster network',
-        },
-    ];
 
     return (
         <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto overflow-y-scroll">
@@ -135,8 +117,8 @@ export default function LandingPage() {
                 </div>
 
                 <div
-                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 sm:gap-8 py-4
-                        desktop-order-feed"
+                    className="flex overflow-x-auto snap-x md:snap-none snap-mandatory gap-6
+                        sm:gap-8 py-4 desktop-order-feed"
                 >
                     <OpenListings />
                 </div>
