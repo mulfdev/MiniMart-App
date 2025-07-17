@@ -86,13 +86,13 @@ function OpenListings() {
             {/* Unified Mobile & Tablet View (below lg) */}
             <div className="lg:hidden">
                 <div
-                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 py-4 px-4
+                    className="flex overflow-x-auto snap-x snap-mandatory gap-x-4 py-4
                         desktop-order-feed"
                 >
                     {orders.map(({ nft, orderInfo }) => (
                         <div
                             key={`${nft.contract.address}+${nft.tokenId}`}
-                            className="snap-center shrink-0 w-[90vw] max-w-[310px]"
+                            className="snap-center shrink-0"
                         >
                             <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
                         </div>
