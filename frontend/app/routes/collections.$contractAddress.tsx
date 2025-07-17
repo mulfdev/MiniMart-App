@@ -58,7 +58,12 @@ function CollectionListingsContent() {
         setCurrentSort(newValue);
     };
 
-    if (nfts.length === 0) return <EmptyState message={`No active listings found for this collection (${contractAddress}).`} />;
+    if (nfts.length === 0)
+        return (
+            <EmptyState
+                message={`No active listings found for this collection (${contractAddress}).`}
+            />
+        );
 
     return (
         <Page
@@ -76,7 +81,7 @@ function CollectionListingsContent() {
 
                 <div
                     className="flex flex-col md:flex-row flex-wrap justify-center md:justify-start
-                        items-center gap-8 mb-22"
+                        items-center gap-8"
                 >
                     {sortedNfts.map((nft) => (
                         <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>

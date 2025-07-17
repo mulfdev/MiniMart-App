@@ -101,7 +101,7 @@ body {
         animation: progress 5s linear forwards;
     }
 
-    @media (min-width: 640px) {
+    @media (min-width: 200px) {
         .desktop-order-feed::-webkit-scrollbar {
             height: 16px;
         }

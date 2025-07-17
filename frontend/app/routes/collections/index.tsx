@@ -34,7 +34,7 @@ export default function CollectionsPage() {
             {collections.length === 0 ? (
                 <EmptyState message="No collections with active listings found." />
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-22">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     {collections.map((collection: Collection, index: number) => (
                         <CollectionBanner
                             key={collection.contractAddress}

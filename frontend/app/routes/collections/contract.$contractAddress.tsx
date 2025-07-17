@@ -80,7 +80,7 @@ function CollectionListingsContent() {
 
                 <div
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center
-                        gap-8 mb-22"
+                        gap-8"
                 >
                     {sortedNfts.map((nft) => (
                         <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>

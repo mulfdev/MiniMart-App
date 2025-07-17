@@ -176,7 +176,7 @@ function AllOrdersContent() {
 
                 <div
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center
-                        gap-8 mb-22"
+                        gap-y-8 gap-x-4"
                 >
                     {filteredNfts.map((nft) => (
                         <div key={`${nft.nft.contract.address}+${nft.nft.tokenId}`}>

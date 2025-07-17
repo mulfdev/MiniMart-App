@@ -49,10 +49,10 @@ export function NftCard({
                     e.preventDefault();
                     setActionsVisible(!isActionsVisible);
                 }}
-                className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[530px] flex
+                className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[500px] flex
                     flex-col shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform hover:-translate-y-2
                     transition-transform duration-500 ease-out border border-zinc-800/50
-                    hover:border-zinc-700/80 w-[375px]`}
+                    hover:border-zinc-700/80 w-[315px]`}
             >
                 <div className="relative overflow-hidden h-full bg-zinc-800">
                     <div className="relative w-full h-full flex items-center justify-center">

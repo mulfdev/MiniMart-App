@@ -1,9 +1,10 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { useNavigate, Link, useLoaderData } from 'react-router';
 import { fetchAllOrders } from '~/loaders';
+import { useState } from 'react';
 
 export async function clientLoader() {
     const allOrders = await fetchAllOrders();
@@ -11,18 +12,115 @@ export async function clientLoader() {
 }
 
 function OpenListings() {
-    let allOrders = useLoaderData<typeof clientLoader>();
+    const allOrders = useLoaderData<typeof clientLoader>();
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const orders = allOrders.nfts || [];
+    const totalOrders = orders.length;
+
+    const goToNext = () => setActiveIndex((i) => (i + 1) % totalOrders);
+    const goToPrev = () => setActiveIndex((i) => (i - 1 + totalOrders) % totalOrders);
+
+    if (totalOrders === 0) {
+        return (
+            <div className="text-center py-10 w-full">
+                <p className="text-zinc-400">No open listings at the moment.</p>
+            </div>
+        );
+    }
+
     return (
         <>
-            {allOrders.nfts.map(({ nft, orderInfo }, index) => (
-                <div
-                    key={`${nft.contract.address}+${nft.tokenId}`}
-                    className="snap-center shrink-0"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                >
-                    <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
+            {/* Desktop View (lg and up) */}
+            <div className="hidden lg:block relative w-full h-[550px] overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-full">
+                    {orders.map(({ nft, orderInfo }, index) => {
+                        const distance = (index - activeIndex + totalOrders) % totalOrders;
+                        const isFocused = distance === 0;
+                        const isInStack = distance > 0 && distance < 4;
+                        const hasLeft = distance >= totalOrders - 1 && totalOrders > 3;
+
+                        const style: React.CSSProperties = {
+                            position: 'absolute',
+                            width: '375px',
+                            height: '530px',
+                            top: '10px',
+                            left: '50%',
+                            transition: 'all 0.4s ease-out',
+                            transform: 'translateX(-50%) scale(1)', // Default to centered
+                            zIndex: totalOrders - distance,
+                            opacity: 0,
+                        };
+
+                        if (isFocused) {
+                            // Position on the left side of the container
+                            style.transform = 'translateX(calc(-50% - 250px)) scale(1)';
+                            style.opacity = 1;
+                        } else if (isInStack) {
+                            // Position in a stack on the right side
+                            style.transform = `translateX(calc(-50% + 200px + ${
+                                distance * 60
+                            }px)) scale(${1 - distance * 0.08})`;
+                            style.opacity = 1;
+                        } else {
+                            // Cards far in the stack are positioned off-screen
+                            style.transform = `translateX(calc(-50% + 200px + ${
+                                4 * 60
+                            }px)) scale(${1 - 4 * 0.08})`;
+                        }
+
+                        if (hasLeft) {
+                            // Cards that have moved past the focused view are positioned off-screen
+                            style.transform = 'translateX(calc(-50% - 500px)) scale(0.85)';
+                        }
+
+                        return (
+                            <div key={`${nft.contract.address}-${nft.tokenId}`} style={style}>
+                                <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
+                            </div>
+                        );
+                    })}
                 </div>
-            ))}
+            </div>
+
+            {/* Unified Mobile & Tablet View (below lg) */}
+            <div className="lg:hidden">
+                <div
+                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 py-4 px-4
+                        desktop-order-feed"
+                >
+                    {orders.map(({ nft, orderInfo }) => (
+                        <div
+                            key={`${nft.contract.address}+${nft.tokenId}`}
+                            className="snap-center shrink-0 w-[90vw] max-w-[310px]"
+                        >
+                            <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Desktop Controls (lg and up) */}
+            <div className="hidden lg:flex justify-center items-center gap-4 mt-8">
+                <button
+                    onClick={goToPrev}
+                    className="p-3 rounded-full bg-zinc-800/70 hover:bg-zinc-700/90 ring-1
+                        ring-inset ring-zinc-700/80 transition-colors disabled:opacity-50"
+                    aria-label="Previous"
+                    disabled={totalOrders <= 1}
+                >
+                    <ArrowLeft className="w-6 h-6 text-white" />
+                </button>
+                <button
+                    onClick={goToNext}
+                    className="p-3 rounded-full bg-zinc-800/70 hover:bg-zinc-700/90 ring-1
+                        ring-inset ring-zinc-700/80 transition-colors disabled:opacity-50"
+                    aria-label="Next"
+                    disabled={totalOrders <= 1}
+                >
+                    <ArrowRight className="w-6 h-6 text-white" />
+                </button>
+            </div>
         </>
     );
 }
@@ -116,12 +214,7 @@ export default function LandingPage() {
                     </Link>
                 </div>
 
-                <div
-                    className="flex overflow-x-auto snap-x md:snap-none snap-mandatory gap-6
-                        sm:gap-8 py-4 desktop-order-feed"
-                >
-                    <OpenListings />
-                </div>
+                <OpenListings />
             </section>
 
             {/* Footer */}
