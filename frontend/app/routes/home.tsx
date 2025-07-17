@@ -1,20 +1,135 @@
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles, ArrowUpRight, Zap, Shield, Users } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { useNavigate, Link, useLoaderData } from 'react-router';
 import { fetchAllOrders } from '~/loaders';
-import { useState } from 'react';
 
 export async function clientLoader() {
     const allOrders = await fetchAllOrders();
     return allOrders;
 }
 
+function FloatingShapes() {
+    return (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Animated floating shapes */}
+            <div
+                className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-500/20
+                    to-purple-500/20 rounded-full blur-xl animate-float-slow"
+            />
+            <div
+                className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-pink-500/20
+                    to-orange-500/20 rounded-full blur-lg animate-float-medium"
+            />
+            <div
+                className="absolute bottom-40 left-1/4 w-40 h-40 bg-gradient-to-br from-cyan-500/15
+                    to-blue-500/15 rounded-full blur-2xl animate-float-fast"
+            />
+            <div
+                className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-br
+                    from-violet-500/20 to-pink-500/20 rounded-full blur-lg animate-float-slow"
+            />
+
+            {/* Morphing blob shapes */}
+            <div className="absolute top-1/3 left-1/2 w-64 h-64 opacity-10">
+                <div
+                    className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-400
+                        rounded-full animate-morph blur-3xl"
+                />
+            </div>
+        </div>
+    );
+}
+
+function ParticleField() {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles: Array<{
+            x: number;
+            y: number;
+            vx: number;
+            vy: number;
+            size: number;
+            opacity: number;
+        }> = [];
+
+        // Create particles
+        for (let i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2 + 1,
+                opacity: Math.random() * 0.5 + 0.1,
+            });
+        }
+
+        function animate() {
+            if (!ctx || !canvas) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, i) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+
+                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(59, 130, 246, ${particle.opacity})`;
+                ctx.fill();
+
+                // Draw connections
+                particles.slice(i + 1).forEach((otherParticle) => {
+                    const dx = particle.x - otherParticle.x;
+                    const dy = particle.y - otherParticle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(particle.x, particle.y);
+                        ctx.lineTo(otherParticle.x, otherParticle.y);
+                        ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - distance / 100)})`;
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        const handleResize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none opacity-30" />;
+}
+
 function OpenListings() {
     const allOrders = useLoaderData<typeof clientLoader>();
     const [activeIndex, setActiveIndex] = useState(0);
-
     const orders = allOrders.nfts || [];
     const totalOrders = orders.length;
 
@@ -23,14 +138,25 @@ function OpenListings() {
 
     if (totalOrders === 0) {
         return (
-            <div className="text-center py-10 w-full">
-                <p className="text-zinc-400">No open listings at the moment.</p>
+            <div className="text-center py-20">
+                <div
+                    className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-zinc-800/50
+                        to-zinc-700/50 backdrop-blur-sm rounded-full flex items-center
+                        justify-center border border-white/10"
+                >
+                    <Sparkles className="w-12 h-12 text-zinc-400" />
+                </div>
+                <p className="text-xl text-zinc-400">No open listings at the moment.</p>
+                <div
+                    className="mt-4 w-32 h-1 bg-gradient-to-r from-transparent via-zinc-600
+                        to-transparent mx-auto rounded-full"
+                />
             </div>
         );
     }
 
     return (
-        <>
+        <div className="relative">
             {/* Desktop View (lg and up) */}
             <div className="hidden lg:block relative w-full h-[550px] overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full">
@@ -82,11 +208,10 @@ function OpenListings() {
                     })}
                 </div>
             </div>
-
             {/* Unified Mobile & Tablet View (below lg) */}
             <div className="lg:hidden">
                 <div
-                    className="flex overflow-x-auto snap-x snap-mandatory gap-x-4 py-4
+                    className="flex overflow-x-auto snap-x snap-mandatory gap-x-6 py-8 px-4
                         desktop-order-feed"
                 >
                     {orders.map(({ nft, orderInfo }) => (
@@ -94,143 +219,273 @@ function OpenListings() {
                             key={`${nft.contract.address}+${nft.tokenId}`}
                             className="snap-center shrink-0"
                         >
-                            <NftCard nft={nft} orderInfo={orderInfo} variant="view" />
+                            <NftCard nft={nft} orderInfo={orderInfo} />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* Desktop Controls (lg and up) */}
-            <div className="hidden lg:flex justify-center items-center gap-4 mt-8">
+            {/* Enhanced Desktop Controls (lg and up) */}
+            <div className="hidden lg:flex justify-center items-center gap-8 mt-12">
                 <button
                     onClick={goToPrev}
-                    className="p-3 rounded-full bg-zinc-800/70 hover:bg-zinc-700/90 ring-1
-                        ring-inset ring-zinc-700/80 transition-colors disabled:opacity-50"
+                    className="group p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
+                        border-white/20 rounded-full transition-all duration-300 hover:scale-110
+                        active:scale-95 shadow-lg hover:shadow-blue-500/25"
                     aria-label="Previous"
                     disabled={totalOrders <= 1}
                 >
-                    <ArrowLeft className="w-6 h-6 text-white" />
+                    <ArrowLeft
+                        className="w-6 h-6 text-white group-hover:text-blue-400 transition-colors
+                            duration-200"
+                    />
                 </button>
+
+                {/* Enhanced pagination dots */}
+                <div className="flex gap-3">
+                    {orders.map((_, index) => (
+                        <button
+                            key={index}
+                            onClick={() => setActiveIndex(index)}
+                            className={`relative transition-all duration-300 ${
+                                index === activeIndex
+                                    ? `w-8 h-3 bg-gradient-to-r from-blue-400 to-purple-400
+                                        rounded-full scale-125`
+                                    : `w-3 h-3 bg-white/30 hover:bg-white/50 rounded-full
+                                        hover:scale-110`
+                            }`}
+                        >
+                            {index === activeIndex && (
+                                <div
+                                    className="absolute inset-0 bg-gradient-to-r from-blue-400
+                                        to-purple-400 rounded-full blur animate-pulse"
+                                />
+                            )}
+                        </button>
+                    ))}
+                </div>
+
                 <button
                     onClick={goToNext}
-                    className="p-3 rounded-full bg-zinc-800/70 hover:bg-zinc-700/90 ring-1
-                        ring-inset ring-zinc-700/80 transition-colors disabled:opacity-50"
+                    className="group p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
+                        border-white/20 rounded-full transition-all duration-300 hover:scale-110
+                        active:scale-95 shadow-lg hover:shadow-blue-500/25"
                     aria-label="Next"
                     disabled={totalOrders <= 1}
                 >
-                    <ArrowRight className="w-6 h-6 text-white" />
+                    <ArrowRight
+                        className="w-6 h-6 text-white group-hover:text-blue-400 transition-colors
+                            duration-200"
+                    />
                 </button>
             </div>
-        </>
+        </div>
     );
 }
 
-export default function LandingPage() {
+export default function AdvancedHomepage() {
     const { address } = useAccount();
     const { setOpen } = useModal();
     const navigate = useNavigate();
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            setMousePosition({ x: e.clientX, y: e.clientY });
+        };
+
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     return (
-        <div className="max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto overflow-y-scroll">
-            {/* Hero Section */}
-            <section className="container mx-auto px-4 py-12">
-                <div className="text-center max-w-4xl mx-auto">
-                    {/* Badge */}
-                    <div
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-800/50 border
-                            border-zinc-700/50 rounded-full mb-8 backdrop-blur-sm"
-                    >
-                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-                        <span className="text-sm text-zinc-300 font-medium">Now in Beta</span>
-                    </div>
+        <>
+            {/* Animated background elements */}
+            <FloatingShapes />
+            <ParticleField />
 
-                    {/* Main Headline */}
-                    <h1
-                        className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white mb-6
-                            leading-tight"
-                    >
-                        Sell Your NFTs
-                        <br />
-                        <span
-                            className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400
-                                to-purple-400"
-                        >
-                            Directly on Farcaster
-                        </span>
-                    </h1>
+            {/* Interactive cursor glow */}
+            <div
+                className="fixed w-96 h-96 pointer-events-none z-0 opacity-20"
+                style={{
+                    left: mousePosition.x - 192,
+                    top: mousePosition.y - 192,
+                    background:
+                        'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
+                    transition: 'all 0.1s ease-out',
+                }}
+            />
 
-                    <p className="text-xl text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed">
-                        A Mini App that lets you list and sell your NFTs without leaving Farcaster.
-                        Simple, straightforward, and integrated with your social network.
-                    </p>
-
-                    {/* CTA Buttons */}
-                    <div
-                        className="flex flex-col sm:flex-row gap-4 justify-center items-center
-                            mb-16"
-                    >
-                        <button
-                            onClick={() => {
-                                if (address) {
-                                    navigate(`/user/${address}`);
-                                    return;
-                                }
-                                setOpen(true);
-                            }}
-                            className="group flex items-center gap-2 px-8 py-4 bg-blue-600
-                                hover:bg-blue-500 text-white font-semibold rounded-xl transform
-                                hover:scale-105 active:scale-95 transition-all duration-200 ease-out
-                                shadow-lg hover:shadow-xl hover:shadow-blue-500/25"
-                        >
-                            <span>Try It Now</span>
-                            <ArrowRight
-                                className="w-5 h-5 transform group-hover:translate-x-1
-                                    transition-transform duration-200"
-                            />
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            {/* Open Listings Section */}
-            <section className="container mx-auto px-4 py-8 md:py-16">
-                <div className="flex items-end justify-between md:items-center gap-4 mb-8">
-                    <div className="text-center md:text-left">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-                            Open Listings
-                        </h2>
-                        <p className="hidden md:inline text-lg text-zinc-400">
-                            Check out the latest NFTs available for purchase.
-                        </p>
-                    </div>
-                    <Link
-                        to="/orders"
-                        className="flex-shrink-0 md:mt-0 group flex items-start gap-2 px-6 py-3
-                            bg-zinc-800 hover:bg-zinc-700 text-white font-semibold rounded-xl
-                            transform hover:scale-105 active:scale-95 transition-all duration-200
-                            ease-out"
-                    >
-                        <span>View All</span>
-                    </Link>
-                </div>
-
-                <OpenListings />
-            </section>
-
-            {/* Footer */}
-            <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-2">
+            <div
+                className="relative z-10 max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto
+                    overflow-y-scroll"
+            >
+                {/* Hero Section */}
+                <section className="container mx-auto px-4 py-20 lg:py-32">
+                    <div className="text-center max-w-5xl mx-auto">
+                        {/* Floating badge */}
                         <div
-                            className="w-6 h-6 bg-blue-500 rounded-md flex items-center
-                                justify-center"
+                            className="inline-flex items-center gap-3 px-6 py-3 mb-12
+                                bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-xl
+                                border border-white/20 rounded-full shadow-2xl animate-float-slow"
                         >
-                            <Sparkles className="w-4 h-4 text-white" />
+                            <div className="relative">
+                                <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse" />
+                                <div
+                                    className="absolute inset-0 w-3 h-3 bg-blue-400 rounded-full
+                                        animate-ping"
+                                />
+                            </div>
+                            <span
+                                className="text-sm font-semibold bg-gradient-to-r from-blue-400
+                                    to-purple-400 bg-clip-text text-transparent"
+                            >
+                                Now in Beta
+                            </span>
                         </div>
-                        <span className="text-white font-semibold">MiniMart</span>
+
+                        {/* Main headline with advanced typography */}
+                        <h1
+                            className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6
+                                leading-tight"
+                        >
+                            <span className="block">Sell Your NFTs</span>
+                            <span className="block relative">
+                                <span
+                                    className="relative z-10 bg-gradient-to-r from-blue-400
+                                        via-purple-400 to-pink-400 bg-clip-text text-transparent
+                                        animate-gradient-x"
+                                >
+                                    Directly on Farcaster
+                                </span>
+                                <div
+                                    className="absolute inset-0 bg-gradient-to-r from-blue-400
+                                        via-purple-400 to-pink-400 blur-3xl opacity-30
+                                        animate-pulse"
+                                />
+                            </span>
+                        </h1>
+
+                        <p className="text-xl text-zinc-400 mb-12 max-w-2xl mx-auto leading-relaxed">
+                            A Mini App that lets you list and sell your NFTs without leaving
+                            Farcaster. Simple, straightforward, and integrated with your social
+                            network.
+                        </p>
+
+                        {/* Enhanced CTA section */}
+                        <div
+                            className="flex flex-col sm:flex-row gap-4 justify-center items-center
+                                mb-16"
+                        >
+                            <button
+                                onClick={() => {
+                                    if (address) {
+                                        navigate(`/user/${address}`);
+                                        return;
+                                    }
+                                    setOpen(true);
+                                }}
+                                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600
+                                    to-purple-600 text-white font-semibold rounded-xl
+                                    overflow-hidden transition-all duration-300 hover:scale-105
+                                    active:scale-95 shadow-2xl hover:shadow-blue-500/25"
+                            >
+                                <div
+                                    className="absolute inset-0 bg-gradient-to-r from-blue-500
+                                        to-purple-500 opacity-0 group-hover:opacity-100
+                                        transition-opacity duration-300"
+                                />
+                                <div className="relative flex items-center gap-2">
+                                    <span>Try It Now</span>
+                                    <ArrowRight
+                                        className="w-5 h-5 transform group-hover:translate-x-1
+                                            transition-transform duration-200"
+                                    />
+                                </div>
+                            </button>
+                        </div>
+
+                        {/* Feature highlights */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                            {[
+                                {
+                                    icon: Zap,
+                                    title: 'Lightning Fast',
+                                    desc: 'Instant transactions',
+                                },
+                                {
+                                    icon: Shield,
+                                    title: 'Secure Trading',
+                                    desc: 'Protected by blockchain',
+                                },
+                                {
+                                    icon: Users,
+                                    title: 'Social First',
+                                    desc: 'Built for communities',
+                                },
+                            ].map((feature, index) => (
+                                <div
+                                    key={index}
+                                    className="group p-6 bg-white/5 backdrop-blur-sm border
+                                        border-white/10 rounded-2xl hover:bg-white/10 transition-all
+                                        duration-300 hover:scale-105"
+                                >
+                                    <feature.icon
+                                        className="w-8 h-8 text-blue-400 mb-4 mx-auto
+                                            group-hover:scale-110 transition-transform duration-200"
+                                    />
+                                    <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
+                                    <p className="text-zinc-400">{feature.desc}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </footer>
-        </div>
+                </section>
+
+                {/* Open Listings Section */}
+                <section className="container mx-auto px-4 py-8 md:py-16">
+                    <div className="flex items-end justify-between md:items-center gap-4 mb-8">
+                        <div className="text-center md:text-left">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+                                Open Listings
+                            </h2>
+                            <p className="hidden md:inline text-lg text-zinc-400">
+                                Check out the latest NFTs available for purchase.
+                            </p>
+                        </div>
+                        <Link
+                            to="/orders"
+                            className="flex-shrink-0 md:mt-0 group flex items-start gap-2 px-6 py-3
+                                bg-zinc-800/50 hover:bg-zinc-700/50 backdrop-blur-sm border
+                                border-white/10 text-white font-semibold rounded-xl transform
+                                hover:scale-105 active:scale-95 transition-all duration-200
+                                ease-out"
+                        >
+                            <span>View All</span>
+                            <ArrowUpRight
+                                className="w-5 h-5 transform group-hover:translate-x-1
+                                    group-hover:-translate-y-1 transition-transform duration-200"
+                            />
+                        </Link>
+                    </div>
+                    <OpenListings />
+                </section>
+
+                {/* Footer */}
+                <footer className="max-w-7xl mx-auto px-4 py-8 border-t border-zinc-800/50">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div className="flex items-center gap-2">
+                            <div
+                                className="w-6 h-6 bg-blue-500 rounded-md flex items-center
+                                    justify-center"
+                            >
+                                <Sparkles className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-white font-semibold">MiniMart</span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </>
     );
 }

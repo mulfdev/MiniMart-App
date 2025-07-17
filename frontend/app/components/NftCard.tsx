@@ -1,4 +1,3 @@
-import { Sparkles, Tag } from 'lucide-react';
 import type { Nft, OrderListed } from '@minimart/types';
 import { Link } from 'react-router';
 import { formatEther } from 'viem';
@@ -14,7 +13,6 @@ const CardLinkWrapper = ({
         variant === 'list'
             ? `/list/${nft.contract.address}/${nft.tokenId}`
             : `/token/${nft.contract.address}/${nft.tokenId}`;
-
     return variant === 'remove' ? (
         <>{children}</>
     ) : (
@@ -36,6 +34,7 @@ export function NftCard({
     onImageError?: () => void;
 }) {
     const [isActionsVisible, setActionsVisible] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
     useOnClickOutside(cardRef, () => setActionsVisible(false));
@@ -49,82 +48,86 @@ export function NftCard({
                     e.preventDefault();
                     setActionsVisible(!isActionsVisible);
                 }}
-                className={`group relative bg-zinc-900 rounded-2xl overflow-hidden h-[500px] flex
-                    flex-col shadow-[0_8px_30px_rgb(0,0,0,0.12)] transform hover:-translate-y-2
-                    transition-transform duration-500 ease-out border border-zinc-800/50
-                    hover:border-zinc-700/80 w-[315px]`}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className="group relative w-80 h-96 perspective-1000"
             >
-                <div className="relative overflow-hidden h-full bg-zinc-800">
-                    <div className="relative w-full h-full flex items-center justify-center">
-                        <img
-                            loading="lazy"
-                            src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
-                            className="w-full h-full object-cover"
-                            onError={onImageError}
-                        />
-                    </div>
-                </div>
+                {/* outer glow chassis */}
+                <div
+                    className={`absolute inset-0
+                        bg-[radial-gradient(ellipse_at_50%_-20%,_#5B22E5_0%,_#21B9CE_12%,_transparent_26%)]
+                        rounded-2xl opacity-10 group-hover:opacity-20 blur-2xl transition-all
+                        duration-500`}
+                />
 
-                <div className="p-4 flex flex-col justify-between">
-                    {/* Top Text Section */}
-                    <div className="space-y-2 sm:space-y-3">
-                        <div className="flex items-start justify-between gap-2">
-                            <h2
-                                className="truncate text-lg sm:text-xl font-bold text-white
-                                    leading-normal group-hover:text-blue-100 transition-colors
-                                    duration-300 drop-shadow-sm"
-                            >
-                                {nft.contract.name} #{nft.tokenId}
-                            </h2>
-                            <Sparkles
-                                className="w-4 h-4 text-yellow-400/60 group-hover:text-yellow-400
-                                    transition-all duration-300 flex-shrink-0 mt-1
-                                    group-hover:rotate-12 group-hover:scale-110"
+                <div
+                    className={`relative w-full h-full transition-all duration-500
+                        transform-style-preserve-3d ${isHovered ? 'rotate-y-12 scale-[1.02]' : ''}`}
+                >
+                    {/* icy glass card body */}
+                    <div
+                        className="absolute inset-0
+                            [background:linear-gradient(145deg,rgba(8,19,35,0.35),rgba(18,26,46,0.1))]
+                            backdrop-blur-xl border border-cyan-300/25 rounded-2xl
+                            shadow-[0_8px_14px_rgba(0,200,255,.06)]"
+                    />
+
+                    {/* holo border (new) */}
+                    <div
+                        className="absolute inset-0 rounded-2xl
+                            [background:linear-gradient(120deg,#0891B2,transparent,#0891B2)]
+                            opacity-0 group-hover:opacity-60 p-0.5 group-hover:p-[1px]
+                            transition-all duration-500"
+                    />
+
+                    {/* inner plating (bevel) */}
+                    <div
+                        className="absolute rounded-2xl
+                            [background:linear-gradient(115deg,#04101A,#02131F)]"
+                    />
+
+                    {/* content */}
+                    <div className="relative z-10 p-5 h-full flex flex-col justify-between">
+                        {/* image */}
+                        <div
+                            className="relative -mx-[1px] -mt-[1px] rounded-t-2xl overflow-hidden
+                                flex-1"
+                        >
+                            <img
+                                loading="lazy"
+                                src={nft.image.originalUrl || nft.tokenUri || '/placeholder.svg'}
+                                alt={`${nft.contract.name} #${nft.tokenId}`}
+                                className="w-full h-full object-cover group-hover:scale-[1.06]
+                                    transition-transform duration-500"
+                                onError={onImageError}
                             />
                         </div>
-                        {orderInfo ? (
-                            <div
-                                className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-2
-                                    mb-4"
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <Tag className="w-5 h-5 text-zinc-500" />
-                                        <p className="text-sm text-zinc-400">Price</p>
-                                    </div>
-                                    <p className="font-mono text-xl text-white font-bold">
-                                        {formatEther(BigInt(orderInfo.price))} ETH
-                                    </p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div
-                                className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl p-2
-                                    mb-4"
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center gap-3">
-                                        <Tag className="w-5 h-5 text-zinc-500" />
-                                        <p className="text-sm text-zinc-400">Price</p>
-                                    </div>
-                                    <p className="font-mono text-xl text-white font-bold">
-                                        Not Listed
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Footer */}
+                        {/* footer */}
+                        <div className="pt-4 space-y-3">
+                            <h3
+                                className="text-xl font-bold text-cyan-100/90
+                                    group-hover:text-cyan-50 truncate"
+                            >
+                                {nft.contract.name} #{nft.tokenId}
+                            </h3>
+
+                            {orderInfo ? (
+                                <div
+                                    className="flex items-center justify-between bg-cyan-900/20
+                                        border border-cyan-300/20 rounded-lg px-3 py-2"
+                                >
+                                    <span className="text-sm text-cyan-300/80">Price</span>
+                                    <span className="font-mono text-cyan-100 font-semibold">
+                                        {formatEther(BigInt(orderInfo.price))} ETH
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="text-sm text-cyan-400/50 italic">Not Listed</div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                <div
-                    className={`absolute bottom-0 left-0 w-full bg-zinc-900/80 transform
-                        transition-transform duration-300 ease-in-out will-change-transform ${
-                            isActionsVisible
-                                ? 'translate-y-0'
-                                : 'translate-y-full group-hover:translate-y-0'
-                        }`}
-                ></div>
             </div>
         </CardLinkWrapper>
     );

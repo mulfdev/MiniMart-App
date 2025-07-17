@@ -17,6 +17,7 @@ const FcConnect = lazy(() => import('~/components/FcConnect'));
 
 import { Navigation } from './components/Navigation';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { blackIceStyle } from './backgroundStyles';
 
 const Web3Provider = lazy(() =>
     import('./components/Web3Provider').then(({ Web3Provider }) => ({
@@ -51,16 +52,6 @@ if (typeof ALCHEMY_API_KEY !== 'string') {
 if (typeof API_URL !== 'string') {
     throw new Error('API_URL must be set');
 }
-
-const backgroundStyle = {
-    backgroundColor: '#0a0a0a',
-    backgroundImage: `
-            radial-gradient(ellipse 80% 50% at 50% -20%, hsla(220, 100%, 50%, 0.05), transparent),
-            radial-gradient(ellipse 60% 80% at 80% 50%, hsla(280, 100%, 50%, 0.03), transparent),
-            radial-gradient(ellipse 40% 60% at 20% 80%, hsla(300, 100%, 50%, 0.02), transparent),
-            url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="rgb(255,255,255,0.05)"%3E%3Cpath d="M0 .5H31.5V32"/%3E%3C/svg%3E')
-        `,
-};
 
 export const links: Route.LinksFunction = () => [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -110,7 +101,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     }, [isNavigating]);
 
     return (
-        <html lang="en" style={backgroundStyle}>
+        <html lang="en" style={blackIceStyle}>
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -125,7 +116,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     <div
                         className="fixed inset-0 flex flex-col justify-center items-center
                             h-[100svh] w-[100svw] z-50"
-                        style={backgroundStyle}
+                        style={blackIceStyle}
                     >
                         <h1 className="text-4xl mb-12">MiniMart</h1>
                         <LoadingSpinner className="w-32 h-32" />
