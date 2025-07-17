@@ -5,15 +5,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-    plugins: [
-        tailwindcss('./tailwind.config.ts'),
-        reactRouter(),
-        tsconfigPaths(),
-        visualizer({
-            open: true,
-            filename: 'bundle-stats.html',
-        }),
-    ],
+    plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
     ssr: {
         external: [
             'wagmi',

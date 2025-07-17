@@ -1,4 +1,4 @@
-import type { Route } from '../+types/view';
+import type { Route } from '../+types/list';
 import { fetchUserOrders } from '~/loaders';
 import { useLoaderData } from 'react-router';
 import { EmptyState } from '~/components/EmptyState';
