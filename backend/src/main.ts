@@ -36,7 +36,7 @@ app.get('/all-orders', async (c) => {
     c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
 
     try {
-        const orders = await getListedOrders(6);
+        const orders = await getListedOrders(20);
 
         if (!orders || orders.length === 0) {
             console.log('No orders found from the subgraph. Returning empty list.');
