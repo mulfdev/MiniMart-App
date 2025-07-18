@@ -12,16 +12,9 @@ import { wagmiConfig } from '~/config';
 import { fetchAllOrders, fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
 import { Toast } from '~/components/Toast';
 import type { QueryObserverResult } from '@tanstack/react-query';
-import {
-    ChevronLeft,
-    AlertCircle,
-    Shield,
-    Hash,
-    FileText,
-    Fingerprint,
-    Tag,
-    ExternalLink,
-} from 'lucide-react';
+import { ChevronLeft, AlertCircle, Tag } from 'lucide-react';
+import { TokenPageLayout } from '~/components/TokenPageLayout';
+import { TokenProperties } from '~/components/TokenProperties';
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
     const nft = await fetchNft(params.contract, params.tokenId, false);
@@ -120,309 +113,192 @@ function SingleToken() {
         );
     }
 
-    const properties = [
-        {
-            icon: Fingerprint,
-            label: 'Contract Address',
-            value: token.nft.contract.address,
-            isAddress: true,
-        },
-        {
-            icon: Hash,
-            label: 'Token ID',
-            value: token.nft.tokenId,
-        },
-        {
-            icon: Shield,
-            label: 'Token Standard',
-            value: token.nft.contract.tokenType,
-        },
-        {
-            icon: FileText,
-            label: 'Symbol',
-            value: token.nft.contract.symbol,
-        },
-    ];
-
     const defaultButtonStyles =
         'w-full group flex items-center justify-center gap-2 px-8 py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:shadow-sky-500/25 disabled:opacity-50 disabled:cursor-not-allowed';
 
     return (
-        <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
-            {/* Left side: Image with background effect */}
-            <div
-                className="lg:w-2/3 h-1/2 lg:h-[calc(100svh-64px)] flex items-center justify-center
-                    relative"
-            >
-                <div className="w-full h-full relative">
-                    <div className="relative h-full bg-transparent">
-                        <div className="absolute inset-0 md:overflow-hidden">
-                            <img
-                                src={
-                                    token.nft.image.originalUrl ||
-                                    token.nft.tokenUri ||
-                                    '/placeholder.svg'
-                                }
-                                alt=""
-                                className="w-full h-full object-cover scale-110 blur-xl opacity-30"
-                            />
-                            <div className="absolute inset-0 bg-black/40" />
-                        </div>
-
-                        <div className="relative w-full h-full flex items-center justify-center p-4">
-                            <img
-                                src={
-                                    token.nft.image.originalUrl ||
-                                    token.nft.tokenUri ||
-                                    '/placeholder.svg'
-                                }
-                                className="max-w-full max-h-full object-contain transform
-                                    transition-transform duration-700 ease-out drop-shadow-2xl"
-                            />
-                        </div>
-                    </div>
+        <>
+            <TokenPageLayout nft={token.nft}>
+                {/* Header */}
+                <div className="my-6">
+                    <p className="text-sky-400 text-3xl font-semibold mb-2">
+                        {token.nft.contract.name}
+                    </p>
+                    <h1 className="text-2xl font-bold text-white">
+                        {token.nft.name || `#${token.nft.tokenId}`}
+                    </h1>
                 </div>
-            </div>
-            <div className="lg:w-1/3">
-                <div className="mx-auto w-full px-8">
-                    <div className="flex flex-col pt-8 pb-20 sm:py-0">
-                        {/* Header */}
-                        <div className="my-6">
-                            <p className="text-sky-400 text-3xl font-semibold mb-2">
-                                {token.nft.contract.name}
-                            </p>
-                            <h1 className="text-2xl font-bold text-white">
-                                {token.nft.name || `#${token.nft.tokenId}`}
-                            </h1>
-                        </div>
 
-                        {/* Description */}
-                        <div className="mb-8">
-                            <h2 className="text-xl font-semibold text-white mb-3">Description</h2>
-                            <p
-                                className="text-zinc-400 leading-relaxed wrap-anywhere
+                {/* Description */}
+                <div className="mb-8">
+                    <h2 className="text-xl font-semibold text-white mb-3">Description</h2>
+                    <p
+                        className="text-zinc-400 leading-relaxed wrap-anywhere
                                     overflow-y-scroll max-h-[200px]"
-                            >
-                                {token.nft.description || 'No description available.'}
-                            </p>
-                        </div>
+                    >
+                        {token.nft.description || 'No description available.'}
+                    </p>
+                </div>
 
-                        {status !== 'success' && (
-                            <div className="mt-auto">
-                                {isCheckingApproval || isRefetching ? (
-                                    <div className="flex items-center justify-center p-8">
-                                        <LoadingSpinner />
-                                        <span className="ml-2 text-zinc-400">
-                                            Checking approval status...
-                                        </span>
-                                    </div>
-                                ) : isApproved || isApprovedOptimistic ? (
-                                    <div className="space-y-6">
-                                        <div
-                                            className="bg-slate-900/70 border border-sky-800/80
+                {status !== 'success' && (
+                    <div className="mt-auto">
+                        {isCheckingApproval || isRefetching ? (
+                            <div className="flex items-center justify-center p-8">
+                                <LoadingSpinner />
+                                <span className="ml-2 text-zinc-400">
+                                    Checking approval status...
+                                </span>
+                            </div>
+                        ) : isApproved || isApprovedOptimistic ? (
+                            <div className="space-y-6">
+                                <div
+                                    className="bg-slate-900/70 border border-sky-800/80
                                                 rounded-xl p-6"
-                                        >
-                                            <h3
-                                                className="text-xl font-semibold text-white mb-4
+                                >
+                                    <h3
+                                        className="text-xl font-semibold text-white mb-4
                                                     flex items-center gap-2"
-                                            >
-                                                <Tag className="w-5 h-5 text-zinc-500" />
-                                                Set Listing Price
-                                            </h3>
-                                            <div className="space-y-4">
-                                                <div>
-                                                    <label
-                                                        htmlFor="price"
-                                                        className="block text-zinc-300 font-medium
+                                    >
+                                        <Tag className="w-5 h-5 text-zinc-500" />
+                                        Set Listing Price
+                                    </h3>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label
+                                                htmlFor="price"
+                                                className="block text-zinc-300 font-medium
                                                             text-sm mb-2"
-                                                    >
-                                                        Price (ETH)
-                                                    </label>
-                                                    <input
-                                                        type="text"
-                                                        inputMode="decimal"
-                                                        id="price"
-                                                        value={price}
-                                                        onChange={(e) => {
-                                                            const val = e.target.value;
-                                                            if (val === '') {
-                                                                setPrice('');
-                                                                return;
-                                                            }
-                                                            let dotCount = 0;
-                                                            const validChars = '0123456789.';
-                                                            let isValid = true;
-                                                            for (const char of val) {
-                                                                if (char === '.') {
-                                                                    dotCount++;
-                                                                }
-                                                                if (
-                                                                    !validChars.includes(char) ||
-                                                                    dotCount > 1
-                                                                ) {
-                                                                    isValid = false;
-                                                                    break;
-                                                                }
-                                                            }
-                                                            if (isValid) {
-                                                                setPrice(val);
-                                                            }
-                                                        }}
-                                                        placeholder="e.g., 0.05"
-                                                        className="w-full px-4 py-3 rounded-xl
+                                            >
+                                                Price (ETH)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                id="price"
+                                                value={price}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    if (val === '') {
+                                                        setPrice('');
+                                                        return;
+                                                    }
+                                                    let dotCount = 0;
+                                                    const validChars = '0123456789.';
+                                                    let isValid = true;
+                                                    for (const char of val) {
+                                                        if (char === '.') {
+                                                            dotCount++;
+                                                        }
+                                                        if (
+                                                            !validChars.includes(char) ||
+                                                            dotCount > 1
+                                                        ) {
+                                                            isValid = false;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (isValid) {
+                                                        setPrice(val);
+                                                    }
+                                                }}
+                                                placeholder="e.g., 0.05"
+                                                className="w-full px-4 py-3 rounded-xl
                                                             bg-slate-800 border border-sky-700
                                                             text-white placeholder-zinc-500
                                                             focus:ring-2 focus:ring-sky-500
                                                             outline-none"
-                                                    />
-                                                </div>
+                                            />
+                                        </div>
 
-                                                {price &&
-                                                !isNaN(Number.parseFloat(price)) &&
-                                                Number.parseFloat(price) > 0 ? (
-                                                    <div
-                                                        className="p-4 bg-slate-800/50 border
+                                        {price &&
+                                        !isNaN(Number.parseFloat(price)) &&
+                                        Number.parseFloat(price) > 0 ? (
+                                            <div
+                                                className="p-4 bg-slate-800/50 border
                                                             border-sky-700 rounded-xl space-y-2
                                                             text-sm"
-                                                    >
-                                                        <div className="flex justify-between">
-                                                            <p className="text-zinc-400">
-                                                                Fee (3%)
-                                                            </p>
-                                                            <p className="text-zinc-300 font-mono">
-                                                                {(
-                                                                    Number.parseFloat(price) * 0.03
-                                                                ).toFixed(6)}{' '}
-                                                                ETH
-                                                            </p>
-                                                        </div>
-                                                        <div
-                                                            className="flex justify-between
-                                                                font-semibold"
-                                                        >
-                                                            <p className="text-zinc-300">
-                                                                You receive
-                                                            </p>
-                                                            <p className="text-white font-mono">
-                                                                {(
-                                                                    Number.parseFloat(price) * 0.97
-                                                                ).toFixed(6)}{' '}
-                                                                ETH
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        </div>
-
-                                        <AddOrderButton
-                                            price={parseEther(price)}
-                                            nftContract={token.nft.contract.address}
-                                            tokenId={token.nft.tokenId}
-                                            onSuccess={() => {
-                                                setStatus('success');
-                                                fetchNfts(address!, true);
-                                                fetchUserOrders(address!, true);
-                                                fetchAllOrders(true);
-                                            }}
-                                            onError={(err: Error) =>
-                                                setErrorInfo({
-                                                    isError: true,
-                                                    message: err.message.split('.')[0],
-                                                })
-                                            }
-                                            className={defaultButtonStyles}
-                                        >
-                                            List NFT
-                                        </AddOrderButton>
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="bg-slate-900/70 border border-sky-800/80
-                                            rounded-xl p-6"
-                                    >
-                                        <div className="text-center mb-6">
-                                            <h3 className="text-xl font-bold text-white mb-2">
-                                                Approve Marketplace
-                                            </h3>
-                                            <p className="text-zinc-400">
-                                                To list this NFT, you first need to grant the
-                                                MiniMart marketplace permission to transfer it on
-                                                your behalf.
-                                            </p>
-                                        </div>
-                                        <ApproveButton
-                                            nftContract={token.nft.contract.address as Address}
-                                            className={defaultButtonStyles}
-                                            refetch={refetch}
-                                            onApprovalSuccess={() => {
-                                                setIsApprovedOptimistic(true);
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        )}
-
-                        {/* Properties */}
-                        <div className="flex flex-col mt-6">
-                            <div className="order-last lg:order-first">
-                                <h2 className="text-xl font-semibold text-white mb-4">
-                                    Properties
-                                </h2>
-                                <div className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
-                                    {properties.map((prop) => (
-                                        <div
-                                            key={prop.label}
-                                            className="bg-slate-900/70 border border-sky-800/80
-                                                rounded-xl p-4"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <prop.icon className="w-5 h-5 text-zinc-500" />
-                                                <div>
-                                                    <p className="text-sm text-zinc-400">
-                                                        {prop.label}
+                                            >
+                                                <div className="flex justify-between">
+                                                    <p className="text-zinc-400">Fee (3%)</p>
+                                                    <p className="text-zinc-300 font-mono">
+                                                        {(
+                                                            Number.parseFloat(price) * 0.03
+                                                        ).toFixed(6)}{' '}
+                                                        ETH
                                                     </p>
-                                                    {prop.isAddress ? (
-                                                        <a
-                                                            href={`https://basescan.org/address/${prop.value}`}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="font-mono text-sm
-                                                                text-zinc-300 break-all
-                                                                hover:text-sky-400 transition-colors
-                                                                duration-200 flex items-center
-                                                                gap-1"
-                                                        >
-                                                            <span>{`${prop.value.slice(
-                                                                0,
-                                                                6
-                                                            )}...${prop.value.slice(-6)}`}</span>
-                                                            <ExternalLink className="w-3 h-3" />
-                                                        </a>
-                                                    ) : (
-                                                        <p
-                                                            className="font-mono text-sm
-                                                                text-zinc-300 break-all"
-                                                        >
-                                                            {prop.value}
-                                                        </p>
-                                                    )}
+                                                </div>
+                                                <div
+                                                    className="flex justify-between
+                                                                font-semibold"
+                                                >
+                                                    <p className="text-zinc-300">You receive</p>
+                                                    <p className="text-white font-mono">
+                                                        {(
+                                                            Number.parseFloat(price) * 0.97
+                                                        ).toFixed(6)}{' '}
+                                                        ETH
+                                                    </p>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ) : null}
+                                    </div>
                                 </div>
+
+                                <AddOrderButton
+                                    price={parseEther(price)}
+                                    nftContract={token.nft.contract.address}
+                                    tokenId={token.nft.tokenId}
+                                    onSuccess={() => {
+                                        setStatus('success');
+                                        fetchNfts(address!, true);
+                                        fetchUserOrders(address!, true);
+                                        fetchAllOrders(true);
+                                    }}
+                                    onError={(err: Error) =>
+                                        setErrorInfo({
+                                            isError: true,
+                                            message: err.message.split('.')[0],
+                                        })
+                                    }
+                                    className={defaultButtonStyles}
+                                >
+                                    List NFT
+                                </AddOrderButton>
                             </div>
-                        </div>
+                        ) : (
+                            <div
+                                className="bg-slate-900/70 border border-sky-800/80
+                                            rounded-xl p-6"
+                            >
+                                <div className="text-center mb-6">
+                                    <h3 className="text-xl font-bold text-white mb-2">
+                                        Approve Marketplace
+                                    </h3>
+                                    <p className="text-zinc-400">
+                                        To list this NFT, you first need to grant the MiniMart
+                                        marketplace permission to transfer it on your behalf.
+                                    </p>
+                                </div>
+                                <ApproveButton
+                                    nftContract={token.nft.contract.address as Address}
+                                    className={defaultButtonStyles}
+                                    refetch={refetch}
+                                    onApprovalSuccess={() => {
+                                        setIsApprovedOptimistic(true);
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
-                </div>
-            </div>
+                )}
+
+                <TokenProperties nft={token.nft} />
+            </TokenPageLayout>
             {status === 'success' ? (
                 <Toast variant="success" message="NFT Listed Successfully!" />
             ) : null}
             {errorInfo.isError ? <Toast variant="error" message={errorInfo.message} /> : null}
-        </div>
+        </>
     );
 }
 

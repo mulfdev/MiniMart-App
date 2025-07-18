@@ -1,12 +1,12 @@
 import { ErrorBoundary } from '~/components/ErrorBoundary';
-import { useEffect, useState } from 'react';
-import type { Nft, OrderListed } from '@minimart/types';
+import { useState } from 'react';
 import { Loader } from '~/components/Loader';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
-import { SortDropdown, type SortOption, type SortValue } from '~/components/SortDropdown';
+import { Dropdown, type DropdownOption } from '~/components/Dropdown';
 import { NftCard } from '~/components/NftCard';
-import { useLoaderData, useParams } from 'react-router';
+import { useLoaderData } from 'react-router';
+import { useSortedNfts } from '~/hooks/useSortedNfts';
 
 export async function clientLoader({ params }: { params: Record<string, string | undefined> }) {
     const { contractAddress } = params;
@@ -22,39 +22,22 @@ export async function clientLoader({ params }: { params: Record<string, string |
 }
 
 function CollectionListingsContent() {
-    const { nfts, contractAddress, collectionName } = useLoaderData<typeof clientLoader>();
+    const { nfts, collectionName } = useLoaderData<typeof clientLoader>();
     const displayCollectionName = collectionName || 'This Collection';
-    const sortOptions: SortOption[] = [
+    const sortOptions: DropdownOption[] = [
         { value: 'listedAt_desc', label: 'Recently Listed' },
         { value: 'price_asc', label: 'Price: Low to High' },
         { value: 'price_desc', label: 'Price: High to Low' },
-    ] as const;
+    ];
 
-    const [currentSort, setCurrentSort] = useState<SortValue>(sortOptions[0].value);
-    const [sortedNfts, setSortedNfts] = useState<{ nft: Nft; orderInfo: OrderListed }[]>([]);
-
-    useEffect(() => {
-        if (nfts) {
-            const sorted = [...nfts].sort((a, b) => {
-                switch (currentSort) {
-                    case 'price_asc':
-                        return BigInt(a.orderInfo.price) > BigInt(b.orderInfo.price) ? 1 : -1;
-                    case 'price_desc':
-                        return BigInt(b.orderInfo.price) > BigInt(a.orderInfo.price) ? 1 : -1;
-                    case 'listedAt_desc':
-                    default:
-                        return b.orderInfo.blockTimestamp - a.orderInfo.blockTimestamp;
-                }
-            });
-            setSortedNfts(sorted);
-        }
-    }, [nfts, currentSort]);
+    const [currentSort, setCurrentSort] = useState<string>(sortOptions[0].value);
+    const sortedNfts = useSortedNfts(nfts, currentSort);
 
     if (!nfts) {
         return <Loader text="Loading collection listings..." />;
     }
 
-    const handleSortChange = (newValue: SortValue) => {
+    const handleSortChange = (newValue: string) => {
         setCurrentSort(newValue);
     };
 
@@ -72,10 +55,11 @@ function CollectionListingsContent() {
         >
             <>
                 <div className="flex justify-end mb-8 gap-4">
-                    <SortDropdown
+                    <Dropdown
                         options={sortOptions}
-                        currentSort={currentSort}
-                        onSortChange={handleSortChange}
+                        currentValue={currentSort}
+                        onValueChange={handleSortChange}
+                        placeholder="Sort by"
                     />
                 </div>
 
