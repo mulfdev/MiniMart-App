@@ -1,10 +1,9 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import type { OrderListed, GetOrderListedEvents, Nft } from '@minimart/types';
 import { ALCHEMY_API_KEY } from '../main.js';
-import assert from 'node:assert';
-
-const { SUBGRAPH_KEY } = process.env;
-assert(typeof SUBGRAPH_KEY === 'string', 'SUBGRAPH_KEY must be set');
+import { HTTPException } from 'hono/http-exception';
+import type { QueryResult } from 'pg';
+import { connect } from '../db.js';
 
 const GET_ORDERS = gql`
     query GetOrders($first: Int) {
@@ -61,20 +60,54 @@ const GET_COLLECTION_ORDERS = gql`
     }
 `;
 
-// const testnetEndpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
-const endpoint =
-    'https://gateway.thegraph.com/api/subgraphs/id/8CWYH3zkw2XPiYy52EZXSatMFUoVQgAQmvRAjttFFhkL';
-const client = new GraphQLClient(endpoint);
+const endpoint = 'https://api.studio.thegraph.com/query/29786/minimart/version/latest';
 
-client.setHeader('authorization', `Bearer ${SUBGRAPH_KEY}`);
+const client = new GraphQLClient(endpoint);
 
 export async function getListedOrders(numItems: number) {
     try {
-        const req = await client.request<GetOrderListedEvents>(GET_ORDERS, {
-            first: numItems,
-        });
+        const db = await connect();
+        const orders: QueryResult<OrderListed> = await db.query(`
+WITH latest_events AS (
+    SELECT
+        event_name,
+        args,
+        block_number,
+        transaction_hash,
+        -- This is the magic:
+        -- 1. Group all events by their orderId.
+        -- 2. Sort the events within each group from newest to oldest by block number.
+        -- 3. Assign a row number, with '1' being the absolute latest event.
+        ROW_NUMBER() OVER (
+            PARTITION BY (args ->> 'orderId')
+            ORDER BY
+                CAST(block_number AS BIGINT) DESC
+        ) AS rn
+    FROM
+        events
+    WHERE
+        event_name IN ('OrderListed', 'OrderFulfilled', 'OrderRemoved')
+)
+SELECT
+    event_name,
+    args,
+    block_number,
+    transaction_hash
+FROM
+    latest_events
+WHERE
+    -- We only want the single latest event for each order
+    rn = 1
+    -- And from that set of latest events, we only want the ones that are listings
+    AND event_name = 'OrderListed'
+LIMIT 20;
 
-        return req.orderListeds;
+`);
+        if (orders.rows.length === 0) {
+            return [];
+        }
+
+        return orders.rows;
     } catch (e) {
         console.log(e);
         if (e instanceof Error) {
@@ -119,12 +152,12 @@ export async function getCollectionOrders(nftContract: string) {
 export async function getOrdersWithMetadata(orders: OrderListed[]) {
     try {
         const tokens = orders.map((order) => ({
-            contractAddress: order.nftContract,
-            tokenId: order.tokenId,
+            contractAddress: order.args.nftContract,
+            tokenId: order.args.tokenId,
         }));
 
         const res = await fetch(
-            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadataBatch`,
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadataBatch`,
             {
                 method: 'POST',
                 headers: {
@@ -156,13 +189,14 @@ export async function getOrdersWithMetadata(orders: OrderListed[]) {
 
         const ordersWithMetadata = orders
             .map((order) => {
-                const nft = nftsMap[`${order.nftContract.toLowerCase()}-${order.tokenId}`];
+                const nft =
+                    nftsMap[`${order.args.nftContract.toLowerCase()}-${order.args.tokenId}`];
                 if (!nft) return null;
-                return { nft: nft, orderInfo: order };
+                return { nft: nft, orderInfo: order.args };
             })
             .filter(Boolean);
 
-        return ordersWithMetadata as { nft: Nft; orderInfo: OrderListed }[];
+        return ordersWithMetadata as { nft: Nft; orderInfo: OrderListed['args'] }[];
     } catch (e) {
         console.log(e);
         return null;
@@ -172,7 +206,7 @@ export async function getOrdersWithMetadata(orders: OrderListed[]) {
 export async function getSingleOrder(contract: string, tokenId: string, fetchOrderInfo?: boolean) {
     try {
         const res = await fetch(
-            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`,
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTMetadata?contractAddress=${contract}&tokenId=${tokenId}&tokenType=ERC721&refreshCache=false`,
         );
         if (!res.ok) {
             const errorText = await res.text();
