@@ -1,12 +1,11 @@
-import assert from 'node:assert';
-import { createClient } from '@libsql/client';
+import { Pool } from 'pg';
 
-const { TURSO_TOKEN, TURSO_DB_URL } = process.env;
-
-assert(typeof TURSO_TOKEN !== 'undefined', 'TURSO_TOKEN must be defined');
-assert(typeof TURSO_DB_URL !== 'undefined', 'TURSO_DB_URL must be defined');
-
-export const db = createClient({
-    url: TURSO_DB_URL,
-    authToken: TURSO_TOKEN,
-});
+export async function connect() {
+    try {
+        const pool = new Pool();
+        return pool;
+    } catch (e) {
+        console.log(e);
+        throw e;
+    }
+}
