@@ -1,24 +1,8 @@
 import { GraphQLClient, gql } from 'graphql-request';
 import type { OrderListed, GetOrderListedEvents, Nft } from '@minimart/types';
 import { ALCHEMY_API_KEY } from '../main.js';
-import { HTTPException } from 'hono/http-exception';
 import type { QueryResult } from 'pg';
 import { connect } from '../db.js';
-
-const GET_ORDERS = gql`
-    query GetOrders($first: Int) {
-        orderListeds(first: $first) {
-            id
-            orderId
-            seller
-            blockNumber
-            tokenId
-            nftContract
-            price
-            blockTimestamp
-        }
-    }
-`;
 
 const GET_USER_ORDERS = gql`
     query GetUserOrders($seller: String!) {
@@ -67,17 +51,14 @@ const client = new GraphQLClient(endpoint);
 export async function getListedOrders(numItems: number) {
     try {
         const db = await connect();
-        const orders: QueryResult<OrderListed> = await db.query(`
+        const orders: QueryResult<OrderListed> = await db.query(
+            `
 WITH latest_events AS (
     SELECT
         event_name,
         args,
         block_number,
         transaction_hash,
-        -- This is the magic:
-        -- 1. Group all events by their orderId.
-        -- 2. Sort the events within each group from newest to oldest by block number.
-        -- 3. Assign a row number, with '1' being the absolute latest event.
         ROW_NUMBER() OVER (
             PARTITION BY (args ->> 'orderId')
             ORDER BY
@@ -96,13 +77,12 @@ SELECT
 FROM
     latest_events
 WHERE
-    -- We only want the single latest event for each order
     rn = 1
-    -- And from that set of latest events, we only want the ones that are listings
     AND event_name = 'OrderListed'
-LIMIT 20;
-
-`);
+LIMIT $1;
+`,
+            [numItems],
+        );
         if (orders.rows.length === 0) {
             return [];
         }
@@ -239,11 +219,45 @@ export async function getSingleOrder(contract: string, tokenId: string, fetchOrd
 
 export async function getUserTokens(address: string) {
     try {
-        const req = await client.request<GetOrderListedEvents>(GET_USER_ORDERS, {
-            seller: address,
-        });
+        const db = await connect();
 
-        return req.orderListeds;
+        const orders: QueryResult<OrderListed> = await db.query(
+            `
+WITH latest_events AS (
+    SELECT
+        event_name,
+        args,
+        block_number,
+        transaction_hash,
+        ROW_NUMBER() OVER (
+            PARTITION BY (args ->> 'orderId')
+            ORDER BY
+                CAST(block_number AS BIGINT) DESC
+        ) AS rn
+    FROM
+        events
+    WHERE
+        event_name IN ('OrderListed', 'OrderFulfilled', 'OrderRemoved')
+)
+SELECT
+    event_name,
+    args,
+    block_number,
+    transaction_hash
+FROM
+    latest_events
+WHERE
+    rn = 1
+    AND event_name = 'OrderListed'
+    AND args->>'seller' = $1
+`,
+            [address],
+        );
+
+        if (orders.rows.length === 0) {
+            return [];
+        }
+        return orders.rows;
     } catch (e) {
         if (e instanceof Error) {
             throw new Error(e.message);

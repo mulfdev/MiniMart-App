@@ -6,13 +6,13 @@ import {
     getListedOrders,
     getUserTokens,
     getOrdersWithMetadata,
-    getBatchOrders,
     getSingleOrder,
     getCollectionOrders,
 } from './queries/orderListed.js';
 import type { Nft, OrderListed } from '@minimart/types';
 import assert from 'node:assert';
-
+import { connect } from './db.js';
+import type { QueryResult } from 'pg';
 //////////// Startup checks
 
 export const { ALCHEMY_API_KEY } = process.env;
@@ -65,12 +65,12 @@ app.get('/collections', async (c) => {
         }
 
         const uniqueContractAddresses = Array.from(
-            new Set(orders.map((order) => order.nftContract)),
+            new Set(orders.map((order) => order.args.nftContract)),
         );
 
         const collectionPromises = uniqueContractAddresses.map(async (contractAddress) => {
             const res = await fetch(
-                `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
             );
 
             if (!res.ok) {
@@ -147,7 +147,7 @@ app.get('/collections/:contractAddress', async (c) => {
         const tokenData = await getOrdersWithMetadata(orders);
 
         const res = await fetch(
-            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
         );
 
         let collectionName = 'This Collection';
@@ -210,10 +210,45 @@ app.get('/user-inventory', async (c) => {
     }
 
     const res = fetch(
-        `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
+        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
     );
 
-    const ordersPromise = getUserTokens(address);
+    const db = await connect();
+
+    const ordersPromise: Promise<QueryResult<OrderListed>> = db.query(
+        `
+WITH latest_events AS (
+    SELECT
+        event_name,
+        args,
+        block_number,
+        transaction_hash,
+        ROW_NUMBER() OVER (
+            PARTITION BY (args ->> 'orderId')
+            ORDER BY
+                CAST(block_number AS BIGINT) DESC
+        ) AS rn
+    FROM
+        events
+    WHERE
+        event_name IN ('OrderListed', 'OrderFulfilled', 'OrderRemoved')
+)
+SELECT
+    event_name,
+    args,
+    block_number,
+    transaction_hash
+FROM
+    latest_events
+WHERE
+    rn = 1
+    AND event_name = 'OrderListed'
+    AND args->>'seller' = $1
+`,
+        [address],
+    );
+
+    //const ordersPromise = getUserTokens(address);
 
     const [fetchedNfts, orders] = await Promise.allSettled([res, ordersPromise]);
 
@@ -230,6 +265,8 @@ app.get('/user-inventory', async (c) => {
     const data = await fetchedNfts.value.json();
 
     const nfts = data.ownedNfts as Nft[];
+
+    console.log(orders.value.rows);
 
     const filteredNfts = nfts
         .filter((nft) => !nft.contract.isSpam)
@@ -251,10 +288,10 @@ app.get('/user-inventory', async (c) => {
 
     const difference = filteredNfts.filter(
         (nftA) =>
-            !orders.value.some(
+            !orders.value.rows.some(
                 (nftB) =>
-                    nftA.contract.address.toLowerCase() === nftB.nftContract.toLowerCase() &&
-                    nftA.tokenId === nftB.tokenId,
+                    nftA.contract.address.toLowerCase() === nftB.args.nftContract.toLowerCase() &&
+                    nftA.tokenId === nftB.args.tokenId.toString(),
             ),
     );
     c.header('Cache-Control', 'private, max-age=120, stale-while-revalidate=60');
