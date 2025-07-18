@@ -4,11 +4,11 @@ import { fetchNft, fetchUserOrders } from '~/loaders';
 import { ExternalLink, Shield, Hash, FileText, Fingerprint, Tag } from 'lucide-react';
 import { wagmiConfig } from '~/config';
 
-import { useSimulateMinimartFulfillOrder, useWriteMinimartFulfillOrder } from 'src/generated';
+import { useWriteMinimartFulfillOrder } from 'src/generated';
 import { miniMartAddr } from '~/utils';
 import { Toast } from '~/components/Toast';
 import minimartAbi from '~/minimartAbi';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { formatEther } from 'viem';
 import { waitForTransactionReceipt, simulateContract } from 'wagmi/actions';
 import { LoadingSpinner } from '~/components/LoadingSpinner';
@@ -30,7 +30,6 @@ function Token() {
     const [isPurchaseComplete, setIsPurchaseComplete] = useState(false);
 
     const { writeContractAsync, isPending } = useWriteMinimartFulfillOrder();
-    
 
     if (!token?.nft) {
         return (
@@ -80,14 +79,14 @@ function Token() {
                 return;
             }
 
-            console.log("Order ID:", token.orderData.orderId);
-            console.log("Price:", token.orderData.price);
+            console.log('Order ID:', token.orderData.orderId);
+            console.log('Price:', token.orderData.price);
 
             const { request } = await simulateContract(wagmiConfig, {
                 address: miniMartAddr,
                 abi: minimartAbi,
                 functionName: 'fulfillOrder',
-                args: [token.orderData.orderId],
+                args: [token.orderData.orderId as `0x${string}`],
                 value: BigInt(token.orderData.price),
             });
 
@@ -156,7 +155,7 @@ function Token() {
                     <div className="flex flex-col pt-8 pb-20 sm:py-0">
                         {/* Header */}
                         <div className="my-6">
-                            <p className="text-blue-400 text-3xl font-semibold mb-2">
+                            <p className="text-sky-400 text-3xl font-semibold mb-2">
                                 {token.nft.contract.name}
                             </p>
                             <h1 className="text-2xl font-bold text-white">
@@ -182,7 +181,7 @@ function Token() {
                                     {properties.map((prop) => (
                                         <div
                                             key={prop.label}
-                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                            className="bg-slate-900/70 border border-sky-800/80
                                                 rounded-xl p-4"
                                         >
                                             <div className="flex items-center gap-3">
@@ -198,9 +197,9 @@ function Token() {
                                                             rel="noopener noreferrer"
                                                             className="font-mono text-sm
                                                                 text-zinc-300 break-all
-                                                                hover:text-blue-400
-                                                                transition-colors duration-200 flex
-                                                                items-center gap-1"
+                                                                hover:text-sky-400 transition-colors
+                                                                duration-200 flex items-center
+                                                                gap-1"
                                                         >
                                                             <span>{`${prop.value.slice(
                                                                 0,
@@ -224,7 +223,7 @@ function Token() {
                             </div>
                             <div className="mt-auto py-4 order-first lg:order-last">
                                 <div
-                                    className="bg-zinc-900/70 border border-zinc-800/80 rounded-xl
+                                    className="bg-slate-900/70 border border-sky-800/80 rounded-xl
                                         p-4 mb-4"
                                 >
                                     <div className="flex justify-between items-center">
@@ -244,13 +243,18 @@ function Token() {
                                 {!isPurchaseComplete && (
                                     <button
                                         className="w-full lg:w-64 group flex items-center
-                                            justify-center gap-2 px-8 py-4 bg-blue-600
-                                            hover:bg-blue-500 text-white font-semibold rounded-xl
+                                            justify-center gap-2 px-8 py-4 bg-sky-600
+                                            hover:bg-sky-500 text-white font-semibold rounded-xl
                                             transform hover:scale-105 active:scale-95 transition-all
                                             duration-200 ease-out shadow-lg hover:shadow-xl
-                                            hover:shadow-blue-500/25 disabled:opacity-50
+                                            hover:shadow-sky-500/25 disabled:opacity-50
                                             disabled:cursor-not-allowed"
-                                        disabled={!token?.orderData?.orderId || !token.orderData.price || isPending || isPurchasing}
+                                        disabled={
+                                            !token?.orderData?.orderId ||
+                                            !token.orderData.price ||
+                                            isPending ||
+                                            isPurchasing
+                                        }
                                         onClick={handlePurchase}
                                     >
                                         {isPurchasing ? (

@@ -3,6 +3,15 @@ import { Link, useLoaderData, useParams } from 'react-router';
 import { type Address, parseEther, type ReadContractErrorType } from 'viem';
 import { useAccount, useReadContract } from 'wagmi';
 import { useWriteContract } from 'wagmi';
+import { waitForTransactionReceipt } from 'wagmi/actions';
+import { AddOrderButton } from '~/components/AddOrderButton';
+import { LoadingSpinner } from '~/components/LoadingSpinner';
+import type { Route } from './+types/list';
+import { miniMartAddr, nftAbi } from '~/utils';
+import { wagmiConfig } from '~/config';
+import { fetchAllOrders, fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
+import { Toast } from '~/components/Toast';
+import type { QueryObserverResult } from '@tanstack/react-query';
 import {
     ChevronLeft,
     AlertCircle,
@@ -13,15 +22,6 @@ import {
     Tag,
     ExternalLink,
 } from 'lucide-react';
-import { waitForTransactionReceipt } from 'wagmi/actions';
-import { AddOrderButton } from '~/components/AddOrderButton';
-import { LoadingSpinner } from '~/components/LoadingSpinner';
-import type { Route } from './+types/list';
-import { miniMartAddr, nftAbi } from '~/utils';
-import { wagmiConfig } from '~/config';
-import { fetchAllOrders, fetchNft, fetchNfts, fetchUserOrders } from '~/loaders';
-import { Toast } from '~/components/Toast';
-import type { QueryObserverResult } from '@tanstack/react-query';
 
 export async function clientLoader({ params }: Route.LoaderArgs) {
     const nft = await fetchNft(params.contract, params.tokenId, false);
@@ -31,11 +31,12 @@ export async function clientLoader({ params }: Route.LoaderArgs) {
 function ApproveButton({
     nftContract,
     className,
-    refetch,
+    onApprovalSuccess,
 }: {
     nftContract: Address;
     className?: string;
     refetch: () => Promise<QueryObserverResult<boolean, ReadContractErrorType>>;
+    onApprovalSuccess: () => void;
 }) {
     const { writeContractAsync, isPending, error } = useWriteContract();
 
@@ -48,8 +49,8 @@ function ApproveButton({
                 args: [miniMartAddr, true],
             });
             if (hash) {
+                onApprovalSuccess();
                 await waitForTransactionReceipt(wagmiConfig, { hash, confirmations: 1 });
-                await refetch();
             }
         } catch (err) {
             console.error('Approval transaction failed:', err);
@@ -99,6 +100,7 @@ function SingleToken() {
     const [price, setPrice] = useState<string>('');
     const [status, setStatus] = useState<'checking' | 'success'>('checking');
     const [errorInfo, setErrorInfo] = useState({ isError: false, message: '' });
+    const [isApprovedOptimistic, setIsApprovedOptimistic] = useState(false);
 
     if (!token?.nft) {
         return (
@@ -109,7 +111,7 @@ function SingleToken() {
                     <p className="text-zinc-400 font-medium">Could not load NFT details.</p>
                     <Link
                         to={`/user/${address || ''}`}
-                        className="text-blue-500 hover:underline inline-flex items-center mt-4"
+                        className="text-sky-500 hover:underline inline-flex items-center mt-4"
                     >
                         <ChevronLeft className="w-5 h-5 mr-1" /> Go back to my collection
                     </Link>
@@ -143,7 +145,7 @@ function SingleToken() {
     ];
 
     const defaultButtonStyles =
-        'w-full group flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed';
+        'w-full group flex items-center justify-center gap-2 px-8 py-4 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-xl transform hover:scale-105 active:scale-95 transition-all duration-200 ease-out shadow-lg hover:shadow-xl hover:shadow-sky-500/25 disabled:opacity-50 disabled:cursor-not-allowed';
 
     return (
         <div className="flex-grow flex flex-col lg:flex-row overflow-hidden">
@@ -186,7 +188,7 @@ function SingleToken() {
                     <div className="flex flex-col pt-8 pb-20 sm:py-0">
                         {/* Header */}
                         <div className="my-6">
-                            <p className="text-blue-400 text-3xl font-semibold mb-2">
+                            <p className="text-sky-400 text-3xl font-semibold mb-2">
                                 {token.nft.contract.name}
                             </p>
                             <h1 className="text-2xl font-bold text-white">
@@ -214,10 +216,10 @@ function SingleToken() {
                                             Checking approval status...
                                         </span>
                                     </div>
-                                ) : isApproved ? (
+                                ) : isApproved || isApprovedOptimistic ? (
                                     <div className="space-y-6">
                                         <div
-                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                            className="bg-slate-900/70 border border-sky-800/80
                                                 rounded-xl p-6"
                                         >
                                             <h3
@@ -268,9 +270,9 @@ function SingleToken() {
                                                         }}
                                                         placeholder="e.g., 0.05"
                                                         className="w-full px-4 py-3 rounded-xl
-                                                            bg-zinc-800 border border-zinc-700
+                                                            bg-slate-800 border border-sky-700
                                                             text-white placeholder-zinc-500
-                                                            focus:ring-2 focus:ring-blue-500
+                                                            focus:ring-2 focus:ring-sky-500
                                                             outline-none"
                                                     />
                                                 </div>
@@ -279,8 +281,8 @@ function SingleToken() {
                                                 !isNaN(Number.parseFloat(price)) &&
                                                 Number.parseFloat(price) > 0 ? (
                                                     <div
-                                                        className="p-4 bg-zinc-800/50 border
-                                                            border-zinc-700 rounded-xl space-y-2
+                                                        className="p-4 bg-slate-800/50 border
+                                                            border-sky-700 rounded-xl space-y-2
                                                             text-sm"
                                                     >
                                                         <div className="flex justify-between">
@@ -336,7 +338,7 @@ function SingleToken() {
                                     </div>
                                 ) : (
                                     <div
-                                        className="bg-zinc-900/70 border border-zinc-800/80
+                                        className="bg-slate-900/70 border border-sky-800/80
                                             rounded-xl p-6"
                                     >
                                         <div className="text-center mb-6">
@@ -353,6 +355,9 @@ function SingleToken() {
                                             nftContract={token.nft.contract.address as Address}
                                             className={defaultButtonStyles}
                                             refetch={refetch}
+                                            onApprovalSuccess={() => {
+                                                setIsApprovedOptimistic(true);
+                                            }}
                                         />
                                     </div>
                                 )}
@@ -369,7 +374,7 @@ function SingleToken() {
                                     {properties.map((prop) => (
                                         <div
                                             key={prop.label}
-                                            className="bg-zinc-900/70 border border-zinc-800/80
+                                            className="bg-slate-900/70 border border-sky-800/80
                                                 rounded-xl p-4"
                                         >
                                             <div className="flex items-center gap-3">
@@ -385,9 +390,9 @@ function SingleToken() {
                                                             rel="noopener noreferrer"
                                                             className="font-mono text-sm
                                                                 text-zinc-300 break-all
-                                                                hover:text-blue-400
-                                                                transition-colors duration-200 flex
-                                                                items-center gap-1"
+                                                                hover:text-sky-400 transition-colors
+                                                                duration-200 flex items-center
+                                                                gap-1"
                                                         >
                                                             <span>{`${prop.value.slice(
                                                                 0,

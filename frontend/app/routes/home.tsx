@@ -1,10 +1,11 @@
-import { ArrowLeft, ArrowRight, Sparkles, ArrowUpRight, Zap, Shield, Users } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, ArrowRight, Sparkles, ArrowUpRight } from 'lucide-react';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { useNavigate, Link, useLoaderData } from 'react-router';
 import { fetchAllOrders } from '~/loaders';
+import { ParticleField } from '~/components/ParticleField';
 
 export async function clientLoader() {
     const allOrders = await fetchAllOrders();
@@ -41,90 +42,6 @@ function FloatingShapes() {
             </div>
         </div>
     );
-}
-
-function ParticleField() {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const particles: Array<{
-            x: number;
-            y: number;
-            vx: number;
-            vy: number;
-            size: number;
-            opacity: number;
-        }> = [];
-
-        // Create particles
-        for (let i = 0; i < 50; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                vx: (Math.random() - 0.5) * 0.5,
-                vy: (Math.random() - 0.5) * 0.5,
-                size: Math.random() * 2 + 1,
-                opacity: Math.random() * 0.5 + 0.1,
-            });
-        }
-
-        function animate() {
-            if (!ctx || !canvas) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            particles.forEach((particle, i) => {
-                particle.x += particle.vx;
-                particle.y += particle.vy;
-
-                if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-                if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-
-                ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(59, 130, 246, ${particle.opacity})`;
-                ctx.fill();
-
-                // Draw connections
-                particles.slice(i + 1).forEach((otherParticle) => {
-                    const dx = particle.x - otherParticle.x;
-                    const dy = particle.y - otherParticle.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 100) {
-                        ctx.beginPath();
-                        ctx.moveTo(particle.x, particle.y);
-                        ctx.lineTo(otherParticle.x, otherParticle.y);
-                        ctx.strokeStyle = `rgba(59, 130, 246, ${0.1 * (1 - distance / 100)})`;
-                        ctx.stroke();
-                    }
-                });
-            });
-
-            requestAnimationFrame(animate);
-        }
-
-        animate();
-
-        const handleResize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none opacity-30" />;
 }
 
 function OpenListings() {
@@ -283,46 +200,23 @@ function OpenListings() {
     );
 }
 
-export default function AdvancedHomepage() {
+export default function Home() {
     const { address } = useAccount();
     const { setOpen } = useModal();
     const navigate = useNavigate();
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
 
     return (
         <>
-            {/* Animated background elements */}
             <FloatingShapes />
             <ParticleField />
-
-            {/* Interactive cursor glow */}
-            <div
-                className="fixed w-96 h-96 pointer-events-none z-0 opacity-20"
-                style={{
-                    left: mousePosition.x - 192,
-                    top: mousePosition.y - 192,
-                    background:
-                        'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)',
-                    transition: 'all 0.1s ease-out',
-                }}
-            />
 
             <div
                 className="relative z-10 max-w-7xl mx-auto md:snap-none md:h-auto md:overflow-auto
                     overflow-y-scroll"
             >
                 {/* Hero Section */}
-                <section className="container mx-auto px-4 py-20 lg:py-32">
-                    <div className="text-center max-w-5xl mx-auto">
+                <section className="container mx-auto px-4 py-10">
+                    <div className="text-center max-w-5xl mx-auto mt-12">
                         {/* Floating badge */}
                         <div
                             className="inline-flex items-center gap-3 px-6 py-3 mb-12
@@ -403,41 +297,6 @@ export default function AdvancedHomepage() {
                                     />
                                 </div>
                             </button>
-                        </div>
-
-                        {/* Feature highlights */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-                            {[
-                                {
-                                    icon: Zap,
-                                    title: 'Lightning Fast',
-                                    desc: 'Instant transactions',
-                                },
-                                {
-                                    icon: Shield,
-                                    title: 'Secure Trading',
-                                    desc: 'Protected by blockchain',
-                                },
-                                {
-                                    icon: Users,
-                                    title: 'Social First',
-                                    desc: 'Built for communities',
-                                },
-                            ].map((feature, index) => (
-                                <div
-                                    key={index}
-                                    className="group p-6 bg-white/5 backdrop-blur-sm border
-                                        border-white/10 rounded-2xl hover:bg-white/10 transition-all
-                                        duration-300 hover:scale-105"
-                                >
-                                    <feature.icon
-                                        className="w-8 h-8 text-blue-400 mb-4 mx-auto
-                                            group-hover:scale-110 transition-transform duration-200"
-                                    />
-                                    <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
-                                    <p className="text-zinc-400">{feature.desc}</p>
-                                </div>
-                            ))}
                         </div>
                     </div>
                 </section>
