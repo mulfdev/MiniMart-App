@@ -33,7 +33,7 @@ function SidebarLink({
     );
 }
 
-function ConnectedNav({ onClose }: { onClose: () => void }) {
+function NavContent({ onClose }: { onClose: () => void }) {
     const { address } = useAccount();
 
     return (
@@ -50,46 +50,28 @@ function ConnectedNav({ onClose }: { onClose: () => void }) {
                 icon={<LayoutGrid className="h-6 w-6 text-slate-400" />}
                 onClick={onClose}
             />
-            <SidebarLink
-                url={address ? `/user/${address}` : `/`}
-                label="Your Tokens"
-                icon={<Shapes className="h-6 w-6 text-slate-400" />}
-                onClick={onClose}
-            />
-            <SidebarLink
-                url={address ? `/user/listings/${address}` : `/`}
-                label="Your Listings"
-                icon={<NotebookTabs className="h-6 w-6 text-slate-400" />}
-                onClick={onClose}
-            />
-            <SidebarLink
-                url="/orders"
-                label="All Orders"
-                icon={<Logs className="h-6 w-6 text-slate-400" />}
-                onClick={onClose}
-            />
-            <span className="mt-auto">
-                <ConnectButton />
-            </span>
-        </div>
-    );
-}
-
-function DisconnectedNav({ onClose }: { onClose: () => void }) {
-    return (
-        <div className="pt-2 flex flex-col gap-y-4 h-full">
-            <SidebarLink
-                url="/"
-                label="Home"
-                icon={<Home className="h-6 w-6 text-slate-400" />}
-                onClick={onClose}
-            />
-            <SidebarLink
-                url="/collections"
-                label="Collections"
-                icon={<LayoutGrid className="h-6 w-6 text-slate-400" />}
-                onClick={onClose}
-            />
+            {address && (
+                <>
+                    <SidebarLink
+                        url={`/user/${address}`}
+                        label="Your Tokens"
+                        icon={<Shapes className="h-6 w-6 text-slate-400" />}
+                        onClick={onClose}
+                    />
+                    <SidebarLink
+                        url={`/user/listings/${address}`}
+                        label="Your Listings"
+                        icon={<NotebookTabs className="h-6 w-6 text-slate-400" />}
+                        onClick={onClose}
+                    />
+                    <SidebarLink
+                        url="/orders"
+                        label="All Orders"
+                        icon={<Logs className="h-6 w-6 text-slate-400" />}
+                        onClick={onClose}
+                    />
+                </>
+            )}
             <span className="mt-auto">
                 <ConnectButton />
             </span>
@@ -99,7 +81,6 @@ function DisconnectedNav({ onClose }: { onClose: () => void }) {
 
 export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const ref = useRef<HTMLDivElement>(null);
-    const { address } = useAccount();
     useOnClickOutside(ref, onClose);
 
     return (
@@ -125,7 +106,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
                 border: '1px solid rgba(71, 85, 105, 0.3)',
             }}
         >
-            {address ? <ConnectedNav onClose={onClose} /> : <DisconnectedNav onClose={onClose} />}
+            <NavContent onClose={onClose} />
         </div>
     );
 }
