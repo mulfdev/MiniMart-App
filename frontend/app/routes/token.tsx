@@ -52,20 +52,17 @@ function Token() {
         setIsPurchasing(true);
 
         try {
-            if (!token?.orderData?.orderId || !token.orderData.price) {
+            if (!token?.orderData?.args.orderId || !token.orderData.args.price) {
                 setShowErrorToast(true);
                 return;
             }
-
-            console.log('Order ID:', token.orderData.orderId);
-            console.log('Price:', token.orderData.price);
 
             const { request } = await simulateContract(wagmiConfig, {
                 address: miniMartAddr,
                 abi: minimartAbi,
                 functionName: 'fulfillOrder',
-                args: [token.orderData.orderId as `0x${string}`],
-                value: BigInt(token.orderData.price),
+                args: [token.orderData.args.orderId as `0x${string}`],
+                value: BigInt(token.orderData.args.price),
             });
 
             const hash = await writeContractAsync(request);
@@ -117,34 +114,31 @@ function Token() {
                         <TokenProperties nft={token.nft} />
                     </div>
                     <div className="mt-auto py-4 order-first lg:order-last">
-                        <div
-                            className="bg-slate-900/70 border border-sky-800/80 rounded-xl
-                                        p-4 mb-4"
-                        >
+                        <div className="bg-slate-900/70 border border-sky-800/80 rounded-xl p-4
+                            mb-4">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center gap-3">
                                     <Tag className="w-5 h-5 text-zinc-500" />
                                     <p className="text-sm text-zinc-400">Price</p>
                                 </div>
                                 <p className="font-mono text-xl text-white font-bold">
-                                    {token.orderData?.price
-                                        ? `${formatEther(BigInt(token.orderData.price))} ETH`
+                                    {token.orderData?.args.price
+                                        ? `${formatEther(BigInt(token.orderData.args.price))} ETH`
                                         : 'Not Listed'}
                                 </p>
                             </div>
                         </div>
                         {!isPurchaseComplete && (
                             <button
-                                className="w-full lg:w-64 group flex items-center
-                                            justify-center gap-2 px-8 py-4 bg-sky-600
-                                            hover:bg-sky-500 text-white font-semibold rounded-xl
-                                            transform hover:scale-105 active:scale-95 transition-all
-                                            duration-200 ease-out shadow-lg hover:shadow-xl
-                                            hover:shadow-sky-500/25 disabled:opacity-50
-                                            disabled:cursor-not-allowed"
+                                className="w-full lg:w-64 group flex items-center justify-center
+                                    gap-2 px-8 py-4 bg-sky-600 hover:bg-sky-500 text-white
+                                    font-semibold rounded-xl transform hover:scale-105
+                                    active:scale-95 transition-all duration-200 ease-out shadow-lg
+                                    hover:shadow-xl hover:shadow-sky-500/25 disabled:opacity-50
+                                    disabled:cursor-not-allowed"
                                 disabled={
-                                    !token?.orderData?.orderId ||
-                                    !token.orderData.price ||
+                                    !token?.orderData?.args.orderId ||
+                                    !token.orderData.args.price ||
                                     isPending ||
                                     isPurchasing
                                 }

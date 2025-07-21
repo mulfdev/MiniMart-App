@@ -70,7 +70,7 @@ app.get('/collections', async (c) => {
 
         const collectionPromises = uniqueContractAddresses.map(async (contractAddress) => {
             const res = await fetch(
-                `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+                `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
             );
 
             if (!res.ok) {
@@ -147,7 +147,7 @@ app.get('/collections/:contractAddress', async (c) => {
         const tokenData = await getOrdersWithMetadata(orders);
 
         const res = await fetch(
-            `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
+            `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getContractMetadata?contractAddress=${contractAddress}`,
         );
 
         let collectionName = 'This Collection';
@@ -210,7 +210,7 @@ app.get('/user-inventory', async (c) => {
     }
 
     const res = fetch(
-        `https://base-sepolia.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
+        `https://base-mainnet.g.alchemy.com/nft/v3/${ALCHEMY_API_KEY}/getNFTsForOwner?owner=${address}&withMetadata=true&pageSize=100`,
     );
 
     const db = await connect();
@@ -265,8 +265,6 @@ WHERE
     const data = await fetchedNfts.value.json();
 
     const nfts = data.ownedNfts as Nft[];
-
-    console.log(orders.value.rows);
 
     const filteredNfts = nfts
         .filter((nft) => !nft.contract.isSpam)

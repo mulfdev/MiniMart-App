@@ -15,14 +15,14 @@
         "splashBackgroundColor": "#6960d7",
         "requiredChains": ["eip155:8453", "eip155:84532"],
         "requiredCapabilities": ["wallet.getEthereumProvider", "actions.signIn"],
-        "primaryCategory": "utility",
-        "tagline": "Sell NFTs On Farcaster",
+        "primaryCategory": "finance",
+        "tagline": "Sell NFTs from the feed",
         "ogTitle": "MiniMart",
-        "ogDescription": "Sell NFTs On Farcaster",
+        "ogDescription": "Sell NFTs from the feed",
         "ogImageUrl": "https://minimart.mulf.wtf/og-image.png",
-        "tags": ["nfts", "market", "marketplace", "sell"],
+        "tags": ["nfts", "nft", "market", "marketplace", "sell"],
         "heroImageUrl": "https://minimart.mulf.wtf/og-image.png",
-        "description": "Sell NFTs On Farcaster",
+        "description": "Sell NFTs from the feed",
         "subtitle": "Mini App NFT Marketplace"
     }
 }
