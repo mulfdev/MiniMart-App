@@ -1,4 +1,4 @@
-import type { OrderListed, GetOrderListedEvents, Nft } from '@minimart/types';
+import type { OrderListed, Nft } from '@minimart/types';
 import { ALCHEMY_API_KEY } from '../main.js';
 import type { Pool, QueryResult } from 'pg';
 import { connect } from '../db.js';
@@ -26,29 +26,13 @@ export async function getListedOrders(numItems: number) {
     }
 }
 
-export async function getBatchOrders(orders: { contract: string; tokenId: string }[]) {
-    try {
-        const tokenIds = orders.map((order) => order.tokenId);
-        const nftContracts = orders.map((order) => order.contract);
-
-        const orderInfo = await client.request<GetOrderListedEvents>(GET_ORDER, {
-            tokenIds,
-            nftContracts,
-        });
-
-        return orderInfo.orderListeds;
-    } catch (e) {
-        console.log(e);
-        return null;
-    }
-}
-
 export async function getCollectionOrders(nftContract: string) {
+    let db = null;
     try {
-        const req = await client.request<GetOrderListedEvents>(GET_COLLECTION_ORDERS, {
-            nftContract,
-        });
-        return req.orderListeds;
+        db = await connect();
+
+        const orderInfo = await db.query(`SELECT * FROM get_active_orders(1, $1)`, [nftContract]);
+        return orderInfo.rows;
     } catch (e) {
         console.log(e);
         if (e instanceof Error) {
