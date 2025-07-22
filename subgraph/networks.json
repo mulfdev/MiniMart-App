@@ -1,8 +1,0 @@
-{
-  "base-sepolia": {
-    "MiniMart": {
-      "address": "0xD752F23C1C5b82c1b749ff048B7edc0b70AC5C5A",
-      "startBlock": 27556726
-    }
-  }
-}
