@@ -7,6 +7,8 @@ app = 'indexer-bitter-dust-8407'
 primary_region = 'atl'
 
 [build]
+  build_context = "."
+  dockerfile = "./Dockerfile"
 
 [[services]]
   auto_stop_machines = false

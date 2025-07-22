@@ -7,6 +7,8 @@ app = 'backend-dawn-tree-7134'
 primary_region = 'atl'
 
 [build]
+  build_context = "."
+  dockerfile = "./Dockerfile"
 
 [http_service]
   internal_port = 3000

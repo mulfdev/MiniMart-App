@@ -24,12 +24,12 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules
-COPY package.json pnpm-lock.yaml* ./
+# Copy lockfile from monorepo root
+COPY ../pnpm-lock.yaml ./pnpm-lock.yaml
+COPY package.json ./
 RUN pnpm install --frozen-lockfile --prod=false
 
 # Copy application code
-# This step is why your .dockerignore file matters!
 COPY . .
 
 # Build application
@@ -42,15 +42,10 @@ RUN pnpm prune --prod
 # Final stage for app image
 FROM base
 
-# Instead of copying the entire /app folder, copy only what's needed for production.
-# This is more explicit and less prone to errors.
+# Copy production files
 COPY --from=build /app/package.json /app/package.json
 COPY --from=build /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
 
-# Start the server by default, this can be overwritten at runtime
-EXPOSE 3000
 
-# Remember to use the updated start script from the previous step!
-# "start": "node ./dist/main.js"
-CMD [ "pnpm", "run", "start" ]
+CMD ["pnpm", "--filter", "indexer", "start"]

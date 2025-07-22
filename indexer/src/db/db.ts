@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { Pool, type PoolClient } from 'pg';
-import type { MiniMartEvents } from '../../types/events.js';
+import type { MiniMartEvents } from '@minimart/types';
 import format from 'pg-format';
 
 export const pool = new Pool();

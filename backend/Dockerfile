@@ -1,4 +1,3 @@
-# Use Node.js 20 LTS as base image
 FROM node:22-alpine AS base
 
 # Install pnpm globally
@@ -7,22 +6,21 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Copy pnpm workspace files
+# Copy pnpm workspace files from monorepo root
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 
-# Copy all package.json files for workspace dependencies
-COPY frontend/package.json ./frontend/
+# Copy only required package.json files
 COPY backend/package.json ./backend/
 COPY types/package.json ./types/
-COPY subgraph/package.json ./subgraph/
 
-# Install all dependencies (including dev dependencies for build)
+# Install all dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY . .
+# Copy only backend and types source code
+COPY backend ./backend
+COPY types ./types
 
 # Build stage
 FROM base AS builder
@@ -46,22 +44,19 @@ COPY pnpm-workspace.yaml ./
 COPY package.json ./
 COPY pnpm-lock.yaml ./
 
-# Copy backend and types package.json (types needed for workspace resolution)
+# Copy package.json files
 COPY --from=builder /app/backend/package.json ./backend/
 COPY --from=builder /app/types/package.json ./types/
 
 # Install only production dependencies
 RUN pnpm install --frozen-lockfile --prod
 
-# Copy built application and types package (needed for workspace resolution)
+# Copy built application and types package
 COPY --from=builder /app/backend/dist ./backend/dist
-COPY --from=builder /app/types ./types
+COPY --from=builder /app/types/dist ./types/dist
 
-# Set working directory to backend
-WORKDIR /app/backend
-
-# Expose port (adjust if your app uses a different port)
+# Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["pnpm", "start"]
+CMD ["pnpm", "--filter", "backend", "start"]

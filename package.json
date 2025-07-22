@@ -9,7 +9,8 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "deploy:frontend": "cd frontend && pnpm run deploy",
-    "deploy:backend": "fly deploy"
+    "deploy:backend": "fly deploy -c backend/fly.toml",
+    "deploy:indexer": "fly deploy -c indexer/fly.toml"
   },
   "keywords": [],
   "author": "",

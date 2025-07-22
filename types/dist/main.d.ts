@@ -33,6 +33,7 @@ export interface GetOrderListedEvents {
 interface EventBase {
     blockNumber: bigint;
     transactionHash: string;
+    logIndex: number;
 }
 export interface EIP712DomainChanged extends EventBase {
     eventName: 'EIP712DomainChanged';
@@ -80,5 +81,12 @@ export interface Unpaused extends EventBase {
         account: string;
     };
 }
-export type MiniMartEvents = EIP712DomainChanged | OrderFulfilled | OrderListed | OrderRemoved | OwnershipTransferred | Paused | Unpaused;
+export type MiniMartEvents =
+    | EIP712DomainChanged
+    | OrderFulfilled
+    | OrderListed
+    | OrderRemoved
+    | OwnershipTransferred
+    | Paused
+    | Unpaused;
 export {};
