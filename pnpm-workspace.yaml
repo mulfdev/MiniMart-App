@@ -2,9 +2,9 @@ packages:
   - frontend
   - backend
   - types
-  - subgraph
+  - indexer
 onlyBuiltDependencies:
-  - '@tailwindcss/oxide'
+  - "@tailwindcss/oxide"
   - bufferutil
   - esbuild
   - keccak
