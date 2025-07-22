@@ -52,22 +52,31 @@ function WalletConnect() {
         return (
             <div
                 className="flex items-center gap-x-3 rounded-lg border border-slate-700/50
-    bg-slate-800/60 backdrop-blur-sm px-3 py-2 text-base font-semibold text-slate-100"
+                    bg-slate-800/60 backdrop-blur-sm px-3 py-2 text-base font-semibold
+                    text-slate-100"
             >
                 <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span
+                        className="animate-ping absolute inline-flex h-full w-full rounded-full
+                            bg-green-400 opacity-75"
+                    ></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                 </span>
                 <span className="text-sm font-mono text-slate-300 mr-auto">
                     {truncateAddress(address)}
                 </span>
-                <button
-                    onClick={() => disconnect()}
-                    className="p-1 text-slate-400 hover:text-white transition-colors"
-                    aria-label="Disconnect"
-                >
-                    <LogOut className="h-5 w-5" />
-                </button>
+                {connectors.map((connector) => {
+                    if (connector.name.includes('Farcaster')) return null;
+                    return (
+                        <button
+                            onClick={() => disconnect()}
+                            className="p-1 text-slate-400 hover:text-white transition-colors"
+                            aria-label="Disconnect"
+                        >
+                            <LogOut className="h-5 w-5" />
+                        </button>
+                    );
+                })}
             </div>
         );
     }

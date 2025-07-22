@@ -1,7 +1,6 @@
 import { ArrowLeft, ArrowRight, Sparkles, ArrowUpRight } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAccount } from 'wagmi';
-import { useModal } from 'connectkit';
 import { NftCard } from '~/components/NftCard';
 import { useNavigate, Link, useLoaderData } from 'react-router';
 import { fetchAllOrders } from '~/loaders';
