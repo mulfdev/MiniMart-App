@@ -4,8 +4,6 @@ import { Link } from 'react-router';
 import { useAccount } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
 
-const ConnectButton = lazy(() => import('./ConnectButton'));
-
 function SidebarLink({
     url,
     label,
@@ -73,7 +71,7 @@ function NavContent({ onClose }: { onClose: () => void }) {
                 </>
             )}
             <span className="mt-auto">
-                <ConnectButton />
+                <InlineConnectButton />
             </span>
         </div>
     );

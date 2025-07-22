@@ -264,7 +264,6 @@ function OpenListings() {
 
 export default function Home() {
     const { address } = useAccount();
-    const { setOpen } = useModal();
     const navigate = useNavigate();
 
     return (
@@ -339,7 +338,6 @@ export default function Home() {
                                         navigate(`/user/${address}`);
                                         return;
                                     }
-                                    setOpen(true);
                                 }}
                                 className="group relative px-8 py-4 bg-gradient-to-r from-blue-600
                                     to-purple-600 text-white font-semibold rounded-xl

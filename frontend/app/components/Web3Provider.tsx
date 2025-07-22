@@ -22,13 +22,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     return (
         <WagmiProvider config={wagmiConfig}>
             <QueryClientProvider client={queryClient}>
-                <ConnectKitProvider
-                    options={{
-                        language: 'en-US',
-                    }}
-                >
-                    {isMounted ? children : null}
-                </ConnectKitProvider>
+                {isMounted ? children : null}
             </QueryClientProvider>
         </WagmiProvider>
     );
