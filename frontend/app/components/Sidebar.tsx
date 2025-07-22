@@ -1,8 +1,96 @@
-import { lazy, type JSX, useRef } from 'react';
-import { Home, Shapes, NotebookTabs, Logs, LayoutGrid } from 'lucide-react';
+import { type JSX, useRef, forwardRef } from 'react';
+import { Home, Shapes, NotebookTabs, Logs, LayoutGrid, Wallet, LogOut } from 'lucide-react';
 import { Link } from 'react-router';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useOnClickOutside } from '~/hooks/useOnClickOutside';
+
+const Button = forwardRef<
+    HTMLButtonElement,
+    {
+        onClick: () => void;
+        variant: 'ghost' | 'outline' | 'primary';
+        size?: 'sm';
+        children: React.ReactNode;
+    }
+>(({ onClick, variant, size, children }, ref) => {
+    const baseClasses =
+        'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background';
+
+    const variantClasses = {
+        ghost: 'hover:bg-accent hover:text-accent-foreground text-slate-300',
+        outline: 'border border-input hover:bg-accent hover:text-accent-foreground text-slate-300',
+        primary:
+            'bg-blue-600/80 text-white hover:bg-blue-700/90 border border-blue-500/50 shadow-lg shadow-blue-500/10',
+    };
+
+    const sizeClasses = {
+        sm: 'h-9 px-3',
+        default: 'h-10 py-2 px-4',
+    };
+
+    const classes = `${baseClasses} ${variantClasses[variant]} ${
+        size ? sizeClasses[size] : sizeClasses.default
+    }`;
+
+    return (
+        <button onClick={onClick} className={classes} ref={ref}>
+            {children}
+        </button>
+    );
+});
+
+function truncateAddress(address: string) {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function WalletConnect() {
+    const { address, isConnected } = useAccount();
+    const { connect, connectors } = useConnect();
+    const { disconnect } = useDisconnect();
+
+    if (isConnected && address) {
+        return (
+            <div
+                className="flex items-center gap-x-3 rounded-lg border border-slate-700/50
+    bg-slate-800/60 backdrop-blur-sm px-3 py-2 text-base font-semibold text-slate-100"
+            >
+                <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                </span>
+                <span className="text-sm font-mono text-slate-300 mr-auto">
+                    {truncateAddress(address)}
+                </span>
+                <button
+                    onClick={() => disconnect()}
+                    className="p-1 text-slate-400 hover:text-white transition-colors"
+                    aria-label="Disconnect"
+                >
+                    <LogOut className="h-5 w-5" />
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-y-2">
+            {connectors.map((connector) => {
+                if (connector.name.includes('Farcaster')) return null;
+                return (
+                    <Button
+                        key={connector.uid}
+                        onClick={() => connect({ connector })}
+                        variant="primary"
+                        size="sm"
+                    >
+                        <Wallet className="h-4 w-4 mr-2" />
+                        Connect {connector.name}
+                    </Button>
+                );
+            })}
+        </div>
+    );
+}
 
 function SidebarLink({
     url,
@@ -71,6 +159,7 @@ function NavContent({ onClose }: { onClose: () => void }) {
                 </>
             )}
             <span className="mt-auto"></span>
+            <WalletConnect />
         </div>
     );
 }
