@@ -4,7 +4,7 @@ import { createPublicClient, http } from 'viem';
 import { baseSepolia } from 'viem/chains';
 
 import { pool } from './db/db.js';
-import type { MiniMartEvents } from '../types/events.js';
+import type { MiniMartEvents } from '@minimart/types';
 import { minimartAbi } from './abi/MiniMart.js';
 import { enque, eventQueue } from './queue.js';
 
