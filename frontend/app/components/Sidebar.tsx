@@ -70,9 +70,7 @@ function NavContent({ onClose }: { onClose: () => void }) {
                     />
                 </>
             )}
-            <span className="mt-auto">
-                <InlineConnectButton />
-            </span>
+            <span className="mt-auto"></span>
         </div>
     );
 }
