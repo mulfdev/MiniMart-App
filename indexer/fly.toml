@@ -1,0 +1,19 @@
+# fly.toml app configuration file generated for indexer-bitter-dust-8407 on 2025-07-21T16:46:45-05:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'indexer-bitter-dust-8407'
+primary_region = 'atl'
+
+[build]
+
+[[services]]
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
