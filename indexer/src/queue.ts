@@ -1,4 +1,4 @@
-import type { MiniMartEvents } from '../types/events.js';
+import type { MiniMartEvents } from '@minimart/types';
 import { writeBatchToDB } from './db/db.js';
 import { setTimeout } from 'timers/promises';
 
