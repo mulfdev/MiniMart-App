@@ -33,6 +33,13 @@ WHERE "event_name" = 'OrderListed';
 CREATE INDEX "idx_events_token_id" ON "events"((args ->> 'tokenId')) 
 WHERE "event_name" = 'OrderListed';
 
+-- Drop any existing function versions
+DROP FUNCTION IF EXISTS get_active_orders(INTEGER, TEXT, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS get_active_orders(INTEGER, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS get_active_orders(INTEGER, TEXT, TEXT);
+DROP FUNCTION IF EXISTS get_active_orders(INTEGER);
+DROP FUNCTION IF EXISTS get_active_orders();
+
 -- Create stored function
 CREATE OR REPLACE FUNCTION get_active_orders(
     p_limit INTEGER DEFAULT 100,

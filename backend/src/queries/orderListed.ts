@@ -8,7 +8,7 @@ export async function getListedOrders(numItems: number) {
     try {
         db = await connect();
         const orders: QueryResult<OrderListed> = await db.query(
-            `SELECT * FROM get_active_orders(p_limit := $1);`,
+            `SELECT * FROM get_active_orders(p_limit := $1::INTEGER);`,
             [numItems],
         );
         if (orders.rows.length === 0) {
