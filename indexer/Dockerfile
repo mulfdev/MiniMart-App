@@ -1,51 +1,62 @@
-# syntax = docker/dockerfile:1
+FROM node:22-alpine AS base
 
-# Adjust NODE_VERSION as desired
-ARG NODE_VERSION=22.17.0
-FROM node:${NODE_VERSION}-slim AS base
+# Install pnpm globally
+RUN npm install -g pnpm
 
-LABEL fly_launch_runtime="Node.js"
-
-# Node.js app lives here
+# Set working directory
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
+# Copy pnpm workspace files from monorepo root
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+
+# Copy only required package.json files
+COPY indexer/package.json ./indexer/
+COPY types/package.json ./types/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy only indexer and types source code
+COPY indexer ./indexer
+COPY types ./types
+
+# Build stage
+FROM base AS builder
+
+# Build the types package first (dependency)
+RUN pnpm --filter types build
+
+# Build the indexer
+RUN pnpm --filter indexer build
+
+# Production stage
+FROM node:22-alpine AS production
 
 # Install pnpm
-ARG PNPM_VERSION=10.13.1
-RUN npm install -g pnpm@$PNPM_VERSION
+RUN npm install -g pnpm
 
+WORKDIR /app
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
-
-# Install packages needed to build node modules
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-
-# Copy lockfile from monorepo root
-COPY ../pnpm-lock.yaml ./pnpm-lock.yaml
+# Copy package files
+COPY pnpm-workspace.yaml ./
 COPY package.json ./
-RUN pnpm install --frozen-lockfile --prod=false
+COPY pnpm-lock.yaml ./
 
-# Copy application code
-COPY . .
+# Copy package.json files
+COPY --from=builder /app/indexer/package.json ./indexer/
+COPY --from=builder /app/types/package.json ./types/
 
-# Build application
-RUN pnpm run build
+# Install only production dependencies
+RUN pnpm install --frozen-lockfile --prod
 
-# Remove development dependencies
-RUN pnpm prune --prod
+# Copy built application and types package
+COPY --from=builder /app/indexer/dist ./indexer/dist
+COPY --from=builder /app/types/dist ./types/dist
 
+# Expose port (adjust if indexer uses different port)
+EXPOSE 3000
 
-# Final stage for app image
-FROM base
-
-# Copy production files
-COPY --from=build /app/package.json /app/package.json
-COPY --from=build /app/node_modules /app/node_modules
-COPY --from=build /app/dist /app/dist
-
-
+# Start the application
 CMD ["pnpm", "--filter", "indexer", "start"]
