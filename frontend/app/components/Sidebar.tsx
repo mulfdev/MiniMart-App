@@ -40,7 +40,7 @@ const Button = forwardRef<
 });
 
 function truncateAddress(address: string) {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    return `${address.slice(0, 7)}...${address.slice(-6)}`;
 }
 
 function WalletConnect() {
@@ -50,30 +50,36 @@ function WalletConnect() {
 
     if (isConnected && address) {
         return (
-            <div
-                className="flex items-center gap-x-3 rounded-lg border border-slate-700/50
-                    bg-slate-800/60 backdrop-blur-sm px-3 py-2 text-base font-semibold
-                    text-slate-100"
-            >
-                <span className="relative flex h-3 w-3">
-                    <span
-                        className="animate-ping absolute inline-flex h-full w-full rounded-full
-                            bg-green-400 opacity-75"
-                    ></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                <span className="text-sm font-mono text-slate-300 mr-auto">
-                    {truncateAddress(address)}
-                </span>
+            <div className="flex flex-col gap-y-2">
+                <div
+                    className="flex items-center gap-x-2 rounded-lg border border-slate-700/50
+                        bg-slate-800/60 backdrop-blur-sm px-3 py-2 text-base font-semibold
+                        text-slate-100"
+                >
+                    <span className="relative flex h-3 w-3">
+                        <span
+                            className="animate-ping absolute inline-flex h-full w-full rounded-full
+                                bg-green-400 opacity-75"
+                        ></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span className="text-sm font-mono text-slate-300">{truncateAddress(address)}</span>
+                </div>
                 {connectors.map((connector) => {
-                    if (connector.name.includes('Farcaster')) return null;
+                    if (!connector.name.includes('Farcaster')) return null;
                     return (
                         <button
+                            key={connector.uid}
                             onClick={() => disconnect()}
-                            className="p-1 text-slate-400 hover:text-white transition-colors"
+                            className="flex items-center gap-x-3 rounded-lg border border-slate-700/50
+                                bg-slate-800/60 backdrop-blur-sm px-4 py-3 text-base font-semibold text-slate-100
+                                transition-all duration-200 ease-in-out hover:bg-slate-700/70
+                                hover:border-red-600/30 hover:shadow-lg hover:shadow-red-500/10
+                                active:bg-slate-600/80 active:border-red-500/40 w-full"
                             aria-label="Disconnect"
                         >
-                            <LogOut className="h-5 w-5" />
+                            <LogOut className="h-6 w-6 text-slate-400" />
+                            <span>Disconnect</span>
                         </button>
                     );
                 })}
