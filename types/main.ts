@@ -37,6 +37,7 @@ export interface GetOrderListedEvents {
 interface EventBase {
     blockNumber: bigint;
     transactionHash: string;
+    logIndex: number;
 }
 
 export interface EIP712DomainChanged extends EventBase {
