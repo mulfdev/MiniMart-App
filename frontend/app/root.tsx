@@ -81,24 +81,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
     const isNavigating = Boolean(navigation.location);
 
-    useEffect(() => {
-        if (showLoader) {
-            document.body.classList.add('noscroll');
-        } else {
-            document.body.classList.remove('noscroll');
-        }
-    }, [showLoader]);
-
-    useEffect(() => {
-        if (isNavigating) {
-            const timer = setTimeout(() => {
-                setShowLoader(true);
-            }, 250);
-            return () => clearTimeout(timer);
-        } else {
-            setShowLoader(false);
-        }
-    }, [isNavigating]);
+    // useEffect(() => {
+    //     if (showLoader) {
+    //         document.body.classList.add('noscroll');
+    //     } else {
+    //         document.body.classList.remove('noscroll');
+    //     }
+    // }, [showLoader]);
+    //
+    // useEffect(() => {
+    //     if (isNavigating) {
+    //         const timer = setTimeout(() => {
+    //             setShowLoader(true);
+    //         }, 250);
+    //         return () => clearTimeout(timer);
+    //     } else {
+    //         setShowLoader(false);
+    //     }
+    // }, [isNavigating]);
 
     return (
         <html lang="en" style={blackIceStyle}>
@@ -112,16 +112,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <Links />
             </head>
             <body className="min-h-[100svh] mx-auto">
-                {showLoader && (
-                    <div
-                        className="fixed inset-0 flex flex-col justify-center items-center
-                            h-[100svh] w-[100svw] z-50"
-                        style={blackIceStyle}
-                    >
-                        <h1 className="text-4xl mb-12">MiniMart</h1>
-                        <LoadingSpinner className="w-32 h-32" />
-                    </div>
-                )}
                 {children}
                 <ScrollRestoration />
                 <Scripts />
