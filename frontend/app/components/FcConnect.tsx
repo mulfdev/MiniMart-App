@@ -8,9 +8,9 @@ export default function FcConnect() {
     async function loadFcSDK() {
         const isMiniApp = await sdk.isInMiniApp();
 
+        await sdk.actions.ready({ disableNativeGestures: true });
         if (isMiniApp) {
             connect({ connector: connectors[0] });
-            await sdk.actions.ready({ disableNativeGestures: true });
         }
     }
 
