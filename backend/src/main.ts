@@ -216,39 +216,9 @@ app.get('/user-inventory', async (c) => {
     const db = await connect();
 
     const ordersPromise: Promise<QueryResult<OrderListed>> = db.query(
-        `
-WITH latest_events AS (
-    SELECT
-        event_name,
-        args,
-        block_number,
-        transaction_hash,
-        ROW_NUMBER() OVER (
-            PARTITION BY (args ->> 'orderId')
-            ORDER BY
-                CAST(block_number AS BIGINT) DESC
-        ) AS rn
-    FROM
-        events
-    WHERE
-        event_name IN ('OrderListed', 'OrderFulfilled', 'OrderRemoved')
-)
-SELECT
-    event_name,
-    args,
-    block_number,
-    transaction_hash
-FROM
-    latest_events
-WHERE
-    rn = 1
-    AND event_name = 'OrderListed'
-    AND args->>'seller' = $1
-`,
+        `SELECT * FROM get_active_orders(p_wallet_address := $1);`,
         [address],
     );
-
-    //const ordersPromise = getUserTokens(address);
 
     const [fetchedNfts, orders] = await Promise.allSettled([res, ordersPromise]);
 
@@ -261,6 +231,8 @@ WHERE
         console.log(orders.reason);
         throw new HTTPException(500, { message: 'there was a problem fetchng your orders' });
     }
+
+    console.log(orders);
 
     const data = await fetchedNfts.value.json();
 
