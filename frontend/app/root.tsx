@@ -21,21 +21,6 @@ import { Web3Provider } from './components/Web3Provider';
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const API_URL = import.meta.env.VITE_API_URL;
 
-const frameConfig = {
-    version: 'next',
-    imageUrl: 'https://minimart.mulf.wtf/og-image.png',
-    button: {
-        title: 'List Now',
-        action: {
-            type: 'launch_frame',
-            url: 'https://minimart.mulf.wtf',
-            name: 'MiniMart',
-            splashImageUrl: 'https://minimart.mulf.wtf/splash-img.png',
-            splashBackgroundColor: '#6960d7',
-        },
-    },
-};
-
 if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
 }
@@ -179,20 +164,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta
                     name="fc:frame"
-                    content={`{
- "version": "next",
- "imageUrl": "https://minimart.mulf.wtf/og-image.png",
- "button": {
-   "title": "List Now",
-   "action": {
-     "type": "launch_frame",
-     "url": "https://minimart.mulf.wtf",
-     "name": "MiniMart",
-     "splashImageUrl": "https://minimart.mulf.wtf/splash-img.png",
-     "splashBackgroundColor": "#6960d7"
-   }
- }
-`}
+                    content={`
+                        {
+                         "version": "next",
+                         "imageUrl": "https://minimart.mulf.wtf/og-image.png",
+                         "button": {
+                           "title": "List Now",
+                           "action": {
+                             "type": "launch_frame",
+                             "url": "https://minimart.mulf.wtf",
+                             "name": "MiniMart",
+                             "splashImageUrl": "https://minimart.mulf.wtf/splash-img.png",
+                             "splashBackgroundColor": "#6960d7"
+                           }
+                         }
+                        }
+                    `}
                 />
                 <title>MiniMart</title>
 
