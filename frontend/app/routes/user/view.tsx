@@ -3,8 +3,7 @@ import type { Route } from './+types/view';
 import { fetchNfts } from '~/loaders';
 import { Page } from '~/components/Page';
 import { EmptyState } from '~/components/EmptyState';
-import { NftCard } from '~/components/NftCard';
-import { useLoaderData } from 'react-router';
+import { useLoaderData, Link } from 'react-router';
 import { useState } from 'react';
 import type { Nft } from '@minimart/types';
 
@@ -13,7 +12,7 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     return nfts;
 }
 
-function NftCardWrapper({ nft }: { nft: Nft }) {
+function TokenTableRow({ nft }: { nft: Nft }) {
     const [isVisible, setIsVisible] = useState(true);
 
     const handleImageError = () => {
@@ -25,8 +24,45 @@ function NftCardWrapper({ nft }: { nft: Nft }) {
     }
 
     return (
-        <div key={`${nft.contract.address}+${nft.tokenId}`}>
-            <NftCard nft={nft} variant="list" onImageError={handleImageError} />
+        <div
+            className="group relative flex items-center space-x-4 p-4 rounded-2xl transition-all
+                duration-300
+                [background:linear-gradient(145deg,rgba(8,19,35,0.35),rgba(18,26,46,0.1))]
+                hover:[background:linear-gradient(145deg,rgba(8,19,35,0.55),rgba(18,26,46,0.3))]
+                border border-cyan-300/25 shadow-[0_8px_14px_rgba(0,200,255,.06)]"
+        >
+            <img
+                src={nft.image.thumbnailUrl || '/placeholder.svg'}
+                alt={nft.name || `Token ${nft.tokenId}`}
+                onError={handleImageError}
+                className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+            />
+            <div className="flex-grow min-w-0">
+                <div
+                    className="text-lg font-bold text-cyan-100/90 group-hover:text-cyan-50 truncate"
+                >
+                    {nft.name || `Token #${nft.tokenId}`}
+                </div>
+                <div className="text-sm text-cyan-400/70 truncate">{nft.contract.name}</div>
+            </div>
+
+            <div className="hidden md:flex items-center space-x-8 flex-shrink-0">
+                <div className="text-sm text-gray-400 w-24 truncate" title={nft.tokenId}>
+                    <span className="font-semibold text-gray-300">Token ID:</span> {nft.tokenId}
+                </div>
+                <div className="text-sm text-gray-400 w-24 truncate">
+                    <span className="font-semibold text-gray-300">Type:</span> {nft.tokenType}
+                </div>
+            </div>
+
+            <Link
+                to={`/list/${nft.contract.address}/${nft.tokenId}`}
+                className="px-4 py-2 text-sm font-semibold text-cyan-100 bg-cyan-900/50 border
+                    border-cyan-300/30 rounded-lg hover:bg-cyan-800/70 transition-colors
+                    flex-shrink-0"
+            >
+                List
+            </Link>
         </div>
     );
 }
@@ -38,9 +74,9 @@ function ViewNftsContent() {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-items-center gap-8">
+        <div className="space-y-4">
             {data.nfts.map((nft) => (
-                <NftCardWrapper nft={nft} />
+                <TokenTableRow key={`${nft.contract.address}-${nft.tokenId}`} nft={nft} />
             ))}
         </div>
     );
