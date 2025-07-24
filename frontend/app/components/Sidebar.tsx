@@ -46,7 +46,6 @@ function truncateAddress(address: string) {
 function WalletConnect() {
     const { address, isConnected } = useAccount();
     const { connect, connectors } = useConnect();
-    const { disconnect } = useDisconnect();
 
     if (isConnected && address) {
         return (
@@ -67,25 +66,6 @@ function WalletConnect() {
                         {truncateAddress(address)}
                     </span>
                 </div>
-                {connectors.map((connector) => {
-                    if (!connector.name.includes('Farcaster')) return null;
-                    return (
-                        <button
-                            key={connector.uid}
-                            onClick={() => disconnect()}
-                            className="flex items-center gap-x-3 rounded-lg border
-                                border-slate-700/50 bg-slate-800/60 backdrop-blur-sm px-4 py-3
-                                text-base font-semibold text-slate-100 transition-all duration-200
-                                ease-in-out hover:bg-slate-700/70 hover:border-red-600/30
-                                hover:shadow-lg hover:shadow-red-500/10 active:bg-slate-600/80
-                                active:border-red-500/40 w-full"
-                            aria-label="Disconnect"
-                        >
-                            <LogOut className="h-6 w-6 text-slate-400" />
-                            <span>Disconnect</span>
-                        </button>
-                    );
-                })}
             </div>
         );
     }
