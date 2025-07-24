@@ -35,7 +35,7 @@ function TokenTableRow({ nft }: { nft: Nft }) {
                 src={nft.image.thumbnailUrl || '/placeholder.svg'}
                 alt={nft.name || `Token ${nft.tokenId}`}
                 onError={handleImageError}
-                className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
+                className="h-20 w-20 rounded-lg object-cover flex-shrink-0"
             />
             <div className="flex-grow min-w-0">
                 <div
@@ -47,11 +47,18 @@ function TokenTableRow({ nft }: { nft: Nft }) {
             </div>
 
             <div className="hidden md:flex items-center space-x-8 flex-shrink-0">
-                <div className="text-sm text-gray-400 w-24 truncate" title={nft.tokenId}>
-                    <span className="font-semibold text-gray-300">Token ID:</span> {nft.tokenId}
+                <div className="flex items-baseline text-sm text-gray-400 w-40" title={nft.tokenId}>
+                    <span className="font-semibold text-gray-300 mr-1.5 whitespace-nowrap">
+                        Token ID:
+                    </span>
+                    <span className="truncate">{nft.tokenId}</span>
                 </div>
-                <div className="text-sm text-gray-400 w-24 truncate">
-                    <span className="font-semibold text-gray-300">Type:</span> {nft.tokenType}
+                <div
+                    className="flex items-baseline text-sm text-gray-400 w-32"
+                    title={nft.tokenType}
+                >
+                    <span className="font-semibold text-gray-300 mr-1.5">Type:</span>
+                    <span className="truncate">{nft.tokenType}</span>
                 </div>
             </div>
 
