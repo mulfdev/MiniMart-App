@@ -7,8 +7,7 @@ import { useLoaderData, Link, Await } from 'react-router';
 import { useState, Suspense } from 'react';
 import type { Nft } from '@minimart/types';
 
-export async function clientLoader({ params }: Route.ClientLoaderArgs) {
-    // Return promise directly without awaiting - defer is deprecated in v7
+export function clientLoader({ params }: Route.ClientLoaderArgs) {
     return {
         nfts: fetchNfts(params.address), // Promise returned without await
     };

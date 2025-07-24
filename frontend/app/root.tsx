@@ -12,11 +12,10 @@ import {
     ScrollRestoration,
 } from 'react-router';
 
-const FcConnect = lazy(() => import('~/components/FcConnect'));
-
 import { Navigation } from './components/Navigation';
 import { blackIceStyle } from './backgroundStyles';
 import { Web3Provider } from './components/Web3Provider';
+import FcConnect from '~/components/FcConnect';
 
 export const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY;
 export const API_URL = import.meta.env.VITE_API_URL;
@@ -42,120 +41,120 @@ export const links: Route.LinksFunction = () => [
     },
 ];
 
-export function HydrateFallback() {
-    const [progress, setProgress] = useState(0);
-    const [stage, setStage] = useState('Initializing');
-
-    useEffect(() => {
-        const stages = ['Initializing', 'Loading assets', 'Discovering your NFTs', 'Finalizing'];
-
-        let currentStage = 0;
-        let currentProgress = 0;
-
-        const interval = setInterval(() => {
-            currentProgress += Math.random() * 15 + 5;
-
-            if (currentProgress >= 25 * (currentStage + 1) && currentStage < stages.length - 1) {
-                currentStage++;
-                setStage(stages[currentStage]);
-            }
-
-            if (currentProgress >= 100) {
-                currentProgress = 100;
-                clearInterval(interval);
-            }
-
-            setProgress(currentProgress);
-        }, 300);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div
-            className="flex flex-col items-center justify-center py-16 relative overflow-hidden
-                min-h-[100svh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
-        >
-            {/* Enhanced floating particles */}
-            <div className="absolute inset-0 overflow-hidden">
-                {[...Array(12)].map((_, i) => (
-                    <div
-                        key={i}
-                        className={`absolute w-1 h-1 bg-gradient-to-r from-cyan-400 to-blue-400
-                        rounded-full opacity-60 animate-float`}
-                        style={{
-                            left: `${10 + ((i * 7) % 80)}%`,
-                            top: `${15 + ((i * 11) % 70)}%`,
-                            animationDelay: `${i * 0.5}s`,
-                            animationDuration: `${3 + (i % 3)}s`,
-                        }}
-                    />
-                ))}
-            </div>
-
-            {/* Orbital rings backdrop */}
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative">
-                    <div
-                        className="absolute w-96 h-96 border border-cyan-500/10 rounded-full
-                            animate-spin-slow"
-                    />
-                    <div
-                        className="absolute w-80 h-80 border border-blue-500/10 rounded-full
-                            animate-spin-slow-reverse top-8 left-8"
-                    />
-                    <div
-                        className="absolute w-64 h-64 border border-cyan-400/5 rounded-full
-                            animate-spin-slower top-16 left-16"
-                    />
-                </div>
-            </div>
-
-            {/* Main spinner */}
-            <div className="relative mb-8 z-10">
-                <div
-                    className="animate-spin rounded-full h-16 w-16 border-2 border-transparent
-                        border-t-cyan-400 border-r-cyan-400"
-                ></div>
-                <div
-                    className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-2
-                        border-transparent border-b-blue-400 border-l-blue-400"
-                    style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
-                ></div>
-
-                {/* Center logo/icon */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <div
-                        className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg
-                            flex items-center justify-center animate-pulse"
-                    >
-                        <div className="w-3 h-3 bg-white rounded opacity-90" />
-                    </div>
-                </div>
-            </div>
-
-            {/* Stage indicator */}
-            <div className="text-slate-400 mb-4 text-center">
-                <div className="text-lg font-medium mb-3">{stage}</div>
-                <div className="flex items-center justify-center space-x-1">
-                    {[...Array(4)].map((_, i) => (
-                        <div
-                            key={i}
-                            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                i <= Math.floor(progress / 25)
-                                    ? 'bg-cyan-400 animate-pulse'
-                                    : 'bg-slate-600'
-                            }`}
-                            style={{
-                                animationDelay: `${i * 0.2}s`,
-                            }}
-                        />
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-}
+// export function HydrateFallback() {
+//     const [progress, setProgress] = useState(0);
+//     const [stage, setStage] = useState('Initializing');
+//
+//     useEffect(() => {
+//         const stages = ['Initializing', 'Loading assets', 'Discovering your NFTs', 'Finalizing'];
+//
+//         let currentStage = 0;
+//         let currentProgress = 0;
+//
+//         const interval = setInterval(() => {
+//             currentProgress += Math.random() * 15 + 5;
+//
+//             if (currentProgress >= 25 * (currentStage + 1) && currentStage < stages.length - 1) {
+//                 currentStage++;
+//                 setStage(stages[currentStage]);
+//             }
+//
+//             if (currentProgress >= 100) {
+//                 currentProgress = 100;
+//                 clearInterval(interval);
+//             }
+//
+//             setProgress(currentProgress);
+//         }, 300);
+//
+//         return () => clearInterval(interval);
+//     }, []);
+//
+//     return (
+//         <div
+//             className="flex flex-col items-center justify-center py-16 relative overflow-hidden
+//                 min-h-[100svh] bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
+//         >
+//             {/* Enhanced floating particles */}
+//             <div className="absolute inset-0 overflow-hidden">
+//                 {[...Array(12)].map((_, i) => (
+//                     <div
+//                         key={i}
+//                         className={`absolute w-1 h-1 bg-gradient-to-r from-cyan-400 to-blue-400
+//                         rounded-full opacity-60 animate-float`}
+//                         style={{
+//                             left: `${10 + ((i * 7) % 80)}%`,
+//                             top: `${15 + ((i * 11) % 70)}%`,
+//                             animationDelay: `${i * 0.5}s`,
+//                             animationDuration: `${3 + (i % 3)}s`,
+//                         }}
+//                     />
+//                 ))}
+//             </div>
+//
+//             {/* Orbital rings backdrop */}
+//             <div className="absolute inset-0 flex items-center justify-center">
+//                 <div className="relative">
+//                     <div
+//                         className="absolute w-96 h-96 border border-cyan-500/10 rounded-full
+//                             animate-spin-slow"
+//                     />
+//                     <div
+//                         className="absolute w-80 h-80 border border-blue-500/10 rounded-full
+//                             animate-spin-slow-reverse top-8 left-8"
+//                     />
+//                     <div
+//                         className="absolute w-64 h-64 border border-cyan-400/5 rounded-full
+//                             animate-spin-slower top-16 left-16"
+//                     />
+//                 </div>
+//             </div>
+//
+//             {/* Main spinner */}
+//             <div className="relative mb-8 z-10">
+//                 <div
+//                     className="animate-spin rounded-full h-16 w-16 border-2 border-transparent
+//                         border-t-cyan-400 border-r-cyan-400"
+//                 ></div>
+//                 <div
+//                     className="absolute inset-0 animate-spin rounded-full h-16 w-16 border-2
+//                         border-transparent border-b-blue-400 border-l-blue-400"
+//                     style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
+//                 ></div>
+//
+//                 {/* Center logo/icon */}
+//                 <div className="absolute inset-0 flex items-center justify-center">
+//                     <div
+//                         className="w-6 h-6 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg
+//                             flex items-center justify-center animate-pulse"
+//                     >
+//                         <div className="w-3 h-3 bg-white rounded opacity-90" />
+//                     </div>
+//                 </div>
+//             </div>
+//
+//             {/* Stage indicator */}
+//             <div className="text-slate-400 mb-4 text-center">
+//                 <div className="text-lg font-medium mb-3">{stage}</div>
+//                 <div className="flex items-center justify-center space-x-1">
+//                     {[...Array(4)].map((_, i) => (
+//                         <div
+//                             key={i}
+//                             className={`w-2 h-2 rounded-full transition-all duration-300 ${
+//                                 i <= Math.floor(progress / 25)
+//                                     ? 'bg-cyan-400 animate-pulse'
+//                                     : 'bg-slate-600'
+//                             }`}
+//                             style={{
+//                                 animationDelay: `${i * 0.2}s`,
+//                             }}
+//                         />
+//                     ))}
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// }
 export function Layout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" style={blackIceStyle}>
