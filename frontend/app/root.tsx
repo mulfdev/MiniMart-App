@@ -10,13 +10,11 @@ import {
     Outlet,
     Scripts,
     ScrollRestoration,
-    useNavigation,
 } from 'react-router';
 
 const FcConnect = lazy(() => import('~/components/FcConnect'));
 
 import { Navigation } from './components/Navigation';
-import { LoadingSpinner } from './components/LoadingSpinner';
 import { blackIceStyle } from './backgroundStyles';
 import { Web3Provider } from './components/Web3Provider';
 
@@ -37,8 +35,6 @@ const frameConfig = {
         },
     },
 };
-
-const stringifiedConfig = JSON.stringify(frameConfig);
 
 if (typeof ALCHEMY_API_KEY !== 'string') {
     throw new Error('ALCHEMY_API_KEY must be set');
@@ -181,7 +177,23 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="fc:frame" content={stringifiedConfig} />
+                <meta
+                    name="fc:frame"
+                    content={`{
+ "version": "next",
+ "imageUrl": "https://minimart.mulf.wtf/og-image.png",
+ "button": {
+   "title": "List Now",
+   "action": {
+     "type": "launch_frame",
+     "url": "https://minimart.mulf.wtf",
+     "name": "MiniMart",
+     "splashImageUrl": "https://minimart.mulf.wtf/splash-img.png",
+     "splashBackgroundColor": "#6960d7"
+   }
+ }
+`}
+                />
                 <title>MiniMart</title>
 
                 <Meta />
