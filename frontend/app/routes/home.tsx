@@ -5,6 +5,7 @@ import { useNavigate, Link, useLoaderData, Await } from 'react-router';
 import { fetchAllOrders } from '~/loaders';
 import { ParticleField } from '~/components/ParticleField';
 import { OpenListingsContent } from '~/components/OpenListingsContent';
+import { NftCardSkeleton } from '~/components/NftCardSkeleton';
 
 export function clientLoader() {
     return {
@@ -41,6 +42,41 @@ function FloatingShapes() {
             </div>
         </div>
     );
+}
+
+function OpenListingsSkeleton() {
+    return (
+        <>
+            {/* Desktop Skeleton */}
+            <div className="hidden lg:block relative w-full h-[520px]" style={{ perspective: '1200px' }}>
+                <div className="relative w-full h-full flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
+                    <div style={{ transform: 'translateX(-120%) translateZ(0) rotateY(0deg) scale(1.1)'}}>
+                        <NftCardSkeleton />
+                    </div>
+                    <div className="absolute" style={{ transform: 'translateX(calc(-50% + 80px + 110px)) translateZ(-100px) rotateY(-10deg) scale(0.9)', filter: 'brightness(0.9)' }}>
+                        <NftCardSkeleton />
+                    </div>
+                    <div className="absolute" style={{ transform: 'translateX(calc(-50% + 80px + 220px)) translateZ(-200px) rotateY(-20deg) scale(0.8)', filter: 'brightness(0.8)' }}>
+                        <NftCardSkeleton />
+                    </div>
+                </div>
+            </div>
+            {/* Mobile Skeleton */}
+            <div className="lg:hidden">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-x-6 py-8 px-4 desktop-order-feed">
+                    <div className="snap-center shrink-0">
+                        <NftCardSkeleton />
+                    </div>
+                    <div className="snap-center shrink-0">
+                        <NftCardSkeleton />
+                    </div>
+                    <div className="snap-center shrink-0">
+                        <NftCardSkeleton />
+                    </div>
+                </div>
+            </div>
+        </>
+    )
 }
 
 function OpenListings() {
@@ -178,7 +214,7 @@ export default function Home() {
                             />
                         </Link>
                     </div>
-                    <Suspense fallback={'loading orders'}>
+                    <Suspense fallback={<OpenListingsSkeleton />}>
                         <OpenListings />
                     </Suspense>
                 </section>

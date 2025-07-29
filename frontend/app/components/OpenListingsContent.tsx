@@ -165,7 +165,7 @@ export function OpenListingsContent({ resolvedOrders }: { resolvedOrders: any })
             <div className="hidden lg:flex justify-center items-center gap-8 mt-12">
                 <button
                     onClick={goToPrev}
-                    className="group p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
+                    className="group p-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
                         border-white/20 rounded-full transition-all duration-300 hover:scale-110
                         active:scale-95 shadow-lg hover:shadow-blue-500/25"
                     aria-label="Previous"
@@ -183,27 +183,19 @@ export function OpenListingsContent({ resolvedOrders }: { resolvedOrders: any })
                         <button
                             key={index}
                             onClick={() => !isAnimating && setActiveIndex(index)}
-                            className={`relative transition-all duration-300 ${
+                            className={`relative ${
                                 index === activeIndex
-                                    ? `w-8 h-3 bg-gradient-to-r from-blue-400 to-purple-400
+                                    ? `w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-400
                                         rounded-full`
-                                    : `w-3 h-3 bg-white/30 hover:bg-white/50 rounded-full
-                                        hover:scale-110`
+                                    : 'w-3 h-3 bg-white/30 hover:bg-white/50 rounded-full'
                             }`}
-                        >
-                            {index === activeIndex && (
-                                <div
-                                    className="absolute inset-0 bg-gradient-to-r from-blue-400
-                                        to-purple-400 rounded-full blur"
-                                />
-                            )}
-                        </button>
+                        />
                     ))}
                 </div>
 
                 <button
                     onClick={goToNext}
-                    className="group p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
+                    className="group p-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border
                         border-white/20 rounded-full transition-all duration-300 hover:scale-110
                         active:scale-95 shadow-lg hover:shadow-blue-500/25"
                     aria-label="Next"
