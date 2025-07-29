@@ -15,7 +15,6 @@ export function clientLoader() {
 function FloatingShapes() {
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Animated floating shapes */}
             <div
                 className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-blue-500/20
                     to-purple-500/20 rounded-full blur-xl animate-float-slow"

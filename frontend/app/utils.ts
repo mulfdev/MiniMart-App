@@ -1,18 +1,13 @@
-export const CACHE_KEYS = {
-    frontpageOrders: 'frontpageOrders',
-    orderData: 'orderData',
-} as const;
-
-export const miniMartAddr = '0xD752F23C1C5b82c1b749ff048B7edc0b70AC5C5A' as `0x${string}`;
+export const miniMartAddr = '0x3e8B8b44cC9bf47e25dEF41aCf8bB43e1f36adBE' as `0x${string}`;
 
 export const ORDER_COMPONENTS = [
+    { name: 'tokenId', type: 'uint256' },
     { name: 'seller', type: 'address' },
     { name: 'price', type: 'uint96' },
     { name: 'nftContract', type: 'address' },
     { name: 'expiration', type: 'uint64' },
     { name: 'taker', type: 'address' },
     { name: 'nonce', type: 'uint64' },
-    { name: 'tokenId', type: 'uint256' },
 ] as const;
 
 export const nftAbi = [

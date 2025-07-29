@@ -3,7 +3,6 @@ import { useAccount, useChainId, useSignTypedData, useWriteContract, usePublicCl
 import { type Address, zeroAddress } from 'viem';
 import { miniMartAddr, ORDER_COMPONENTS } from '~/utils';
 import minimartAbi from '~/minimartAbi';
-import { API_URL } from '~/root';
 import { LoadingSpinner } from './LoadingSpinner';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { wagmiConfig } from '~/config';
@@ -66,7 +65,12 @@ export function AddOrderButton({
             nonce: currentNonce,
             tokenId: BigInt(tokenId),
         };
-        const domain = { name: 'MiniMart', version: '1', chainId, verifyingContract: miniMartAddr };
+        const domain = {
+            name: 'MiniMart',
+            version: '1.1',
+            chainId,
+            verifyingContract: miniMartAddr,
+        };
 
         try {
             const sig = await signTypedDataAsync({
@@ -82,7 +86,7 @@ export function AddOrderButton({
                 args: [msg, sig],
             });
 
-            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 5 });
+            await waitForTransactionReceipt(wagmiConfig, { hash: txHash, confirmations: 3 });
             onSuccess?.();
         } catch (err) {
             onError?.(

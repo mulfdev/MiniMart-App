@@ -186,7 +186,7 @@ export function OpenListingsContent({ resolvedOrders }: { resolvedOrders: any })
                             className={`relative transition-all duration-300 ${
                                 index === activeIndex
                                     ? `w-8 h-3 bg-gradient-to-r from-blue-400 to-purple-400
-                                        rounded-full scale-125`
+                                        rounded-full`
                                     : `w-3 h-3 bg-white/30 hover:bg-white/50 rounded-full
                                         hover:scale-110`
                             }`}
@@ -194,7 +194,7 @@ export function OpenListingsContent({ resolvedOrders }: { resolvedOrders: any })
                             {index === activeIndex && (
                                 <div
                                     className="absolute inset-0 bg-gradient-to-r from-blue-400
-                                        to-purple-400 rounded-full blur animate-pulse"
+                                        to-purple-400 rounded-full blur"
                                 />
                             )}
                         </button>

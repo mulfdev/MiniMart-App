@@ -8,9 +8,11 @@ export const minimartAbi = [
         stateMutability: 'nonpayable',
         type: 'constructor',
     },
+    { inputs: [], name: 'AddressIsNotContract', type: 'error' },
     { inputs: [], name: 'AlreadyListed', type: 'error' },
     { inputs: [], name: 'CallNotSupported', type: 'error' },
-    { inputs: [], name: 'CouldNotPaySeller', type: 'error' },
+    { inputs: [], name: 'ClaimFailed', type: 'error' },
+    { inputs: [], name: 'DuplicateOrderHash', type: 'error' },
     { inputs: [], name: 'ECDSAInvalidSignature', type: 'error' },
     {
         inputs: [{ internalType: 'uint256', name: 'length', type: 'uint256' }],
@@ -27,16 +29,17 @@ export const minimartAbi = [
     { inputs: [], name: 'FeeWithdrawlFailed', type: 'error' },
     { inputs: [], name: 'InvalidBatchSize', type: 'error' },
     { inputs: [], name: 'InvalidShortString', type: 'error' },
-    { inputs: [], name: 'InvalidTaker', type: 'error' },
     { inputs: [], name: 'MarketplaceNotApproved', type: 'error' },
+    { inputs: [], name: 'NoProceedsToClaim', type: 'error' },
     { inputs: [], name: 'NonERC721Interface', type: 'error' },
     { inputs: [], name: 'NonceIncorrect', type: 'error' },
     { inputs: [], name: 'NotListingCreator', type: 'error' },
     { inputs: [], name: 'NotTokenOwner', type: 'error' },
     { inputs: [], name: 'OrderExpired', type: 'error' },
-    { inputs: [], name: 'OrderNotFound', type: 'error' },
+    { inputs: [], name: 'OrderFulfillmentFailed', type: 'error' },
     { inputs: [], name: 'OrderPriceTooLow', type: 'error' },
     { inputs: [], name: 'OrderPriceWrong', type: 'error' },
+    { inputs: [], name: 'OrderRemovalFailed', type: 'error' },
     {
         inputs: [{ internalType: 'address', name: 'owner', type: 'address' }],
         name: 'OwnableInvalidOwner',
@@ -56,27 +59,13 @@ export const minimartAbi = [
         type: 'error',
     },
     { inputs: [], name: 'ZeroAddress', type: 'error' },
-    {
-        anonymous: false,
-        inputs: [],
-        name: 'EIP712DomainChanged',
-        type: 'event',
-    },
+    { anonymous: false, inputs: [], name: 'EIP712DomainChanged', type: 'event' },
+    { anonymous: false, inputs: [], name: 'FeesWithdrawn', type: 'event' },
     {
         anonymous: false,
         inputs: [
-            {
-                indexed: true,
-                internalType: 'bytes32',
-                name: 'orderId',
-                type: 'bytes32',
-            },
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'buyer',
-                type: 'address',
-            },
+            { indexed: true, internalType: 'bytes32', name: 'orderId', type: 'bytes32' },
+            { indexed: true, internalType: 'address', name: 'buyer', type: 'address' },
         ],
         name: 'OrderFulfilled',
         type: 'event',
@@ -84,99 +73,49 @@ export const minimartAbi = [
     {
         anonymous: false,
         inputs: [
-            {
-                indexed: true,
-                internalType: 'bytes32',
-                name: 'orderId',
-                type: 'bytes32',
-            },
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'seller',
-                type: 'address',
-            },
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'nftContract',
-                type: 'address',
-            },
-            {
-                indexed: false,
-                internalType: 'uint256',
-                name: 'tokenId',
-                type: 'uint256',
-            },
-            {
-                indexed: false,
-                internalType: 'uint256',
-                name: 'price',
-                type: 'uint256',
-            },
+            { indexed: true, internalType: 'bytes32', name: 'orderId', type: 'bytes32' },
+            { indexed: true, internalType: 'address', name: 'seller', type: 'address' },
+            { indexed: false, internalType: 'address', name: 'nftContract', type: 'address' },
+            { indexed: false, internalType: 'uint256', name: 'tokenId', type: 'uint256' },
+            { indexed: false, internalType: 'uint256', name: 'price', type: 'uint256' },
         ],
         name: 'OrderListed',
         type: 'event',
     },
     {
         anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: 'bytes32',
-                name: 'orderId',
-                type: 'bytes32',
-            },
-        ],
+        inputs: [{ indexed: true, internalType: 'bytes32', name: 'orderId', type: 'bytes32' }],
         name: 'OrderRemoved',
         type: 'event',
     },
     {
         anonymous: false,
         inputs: [
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'previousOwner',
-                type: 'address',
-            },
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'newOwner',
-                type: 'address',
-            },
+            { indexed: true, internalType: 'address', name: 'previousOwner', type: 'address' },
+            { indexed: true, internalType: 'address', name: 'newOwner', type: 'address' },
         ],
         name: 'OwnershipTransferred',
         type: 'event',
     },
     {
         anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'account',
-                type: 'address',
-            },
-        ],
+        inputs: [{ indexed: false, internalType: 'address', name: 'account', type: 'address' }],
         name: 'Paused',
         type: 'event',
     },
     {
         anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'account',
-                type: 'address',
-            },
-        ],
+        inputs: [{ indexed: true, internalType: 'address', name: 'claimant', type: 'address' }],
+        name: 'ProceedsClaimed',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [{ indexed: false, internalType: 'address', name: 'account', type: 'address' }],
         name: 'Unpaused',
         type: 'event',
     },
-    { stateMutability: 'payable', type: 'fallback' },
+    { stateMutability: 'nonpayable', type: 'fallback' },
     {
         inputs: [],
         name: 'FEE_BPS',
@@ -205,17 +144,13 @@ export const minimartAbi = [
         inputs: [
             {
                 components: [
+                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                     { internalType: 'address', name: 'seller', type: 'address' },
                     { internalType: 'uint96', name: 'price', type: 'uint96' },
-                    {
-                        internalType: 'address',
-                        name: 'nftContract',
-                        type: 'address',
-                    },
+                    { internalType: 'address', name: 'nftContract', type: 'address' },
                     { internalType: 'uint64', name: 'expiration', type: 'uint64' },
                     { internalType: 'address', name: 'taker', type: 'address' },
                     { internalType: 'uint64', name: 'nonce', type: 'uint64' },
-                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                 ],
                 internalType: 'struct MiniMart.Order',
                 name: 'order',
@@ -229,16 +164,51 @@ export const minimartAbi = [
         type: 'function',
     },
     {
-        inputs: [
+        inputs: [{ internalType: 'bytes32[]', name: 'orderHashes', type: 'bytes32[]' }],
+        name: 'batchRemoveOrder',
+        outputs: [
             {
-                internalType: 'bytes32[]',
-                name: 'orderHashes',
-                type: 'bytes32[]',
+                components: [
+                    { internalType: 'bytes32', name: 'orderHash', type: 'bytes32' },
+                    { internalType: 'bool', name: 'success', type: 'bool' },
+                ],
+                internalType: 'struct MiniMart.OrderResult[]',
+                name: 'results',
+                type: 'tuple[]',
             },
         ],
-        name: 'batchRemoveOrder',
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'bytes32[]', name: 'orderHashes', type: 'bytes32[]' }],
+        name: 'batchfulfillOrder',
+        outputs: [
+            {
+                components: [
+                    { internalType: 'bytes32', name: 'orderHash', type: 'bytes32' },
+                    { internalType: 'bool', name: 'success', type: 'bool' },
+                ],
+                internalType: 'struct MiniMart.OrderResult[]',
+                name: 'results',
+                type: 'tuple[]',
+            },
+        ],
+        stateMutability: 'payable',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'claimProceeds',
         outputs: [],
         stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [{ internalType: 'address', name: '', type: 'address' }],
+        name: 'claimableProceeds',
+        outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -256,11 +226,7 @@ export const minimartAbi = [
             { internalType: 'string', name: 'name', type: 'string' },
             { internalType: 'string', name: 'version', type: 'string' },
             { internalType: 'uint256', name: 'chainId', type: 'uint256' },
-            {
-                internalType: 'address',
-                name: 'verifyingContract',
-                type: 'address',
-            },
+            { internalType: 'address', name: 'verifyingContract', type: 'address' },
             { internalType: 'bytes32', name: 'salt', type: 'bytes32' },
             { internalType: 'uint256[]', name: 'extensions', type: 'uint256[]' },
         ],
@@ -280,17 +246,13 @@ export const minimartAbi = [
         outputs: [
             {
                 components: [
+                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                     { internalType: 'address', name: 'seller', type: 'address' },
                     { internalType: 'uint96', name: 'price', type: 'uint96' },
-                    {
-                        internalType: 'address',
-                        name: 'nftContract',
-                        type: 'address',
-                    },
+                    { internalType: 'address', name: 'nftContract', type: 'address' },
                     { internalType: 'uint64', name: 'expiration', type: 'uint64' },
                     { internalType: 'address', name: 'taker', type: 'address' },
                     { internalType: 'uint64', name: 'nonce', type: 'uint64' },
-                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                 ],
                 internalType: 'struct MiniMart.Order',
                 name: '',
@@ -304,17 +266,13 @@ export const minimartAbi = [
         inputs: [
             {
                 components: [
+                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                     { internalType: 'address', name: 'seller', type: 'address' },
                     { internalType: 'uint96', name: 'price', type: 'uint96' },
-                    {
-                        internalType: 'address',
-                        name: 'nftContract',
-                        type: 'address',
-                    },
+                    { internalType: 'address', name: 'nftContract', type: 'address' },
                     { internalType: 'uint64', name: 'expiration', type: 'uint64' },
                     { internalType: 'address', name: 'taker', type: 'address' },
                     { internalType: 'uint64', name: 'nonce', type: 'uint64' },
-                    { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
                 ],
                 internalType: 'struct MiniMart.Order',
                 name: 'order',
@@ -337,13 +295,13 @@ export const minimartAbi = [
         inputs: [{ internalType: 'bytes32', name: 'orderHash', type: 'bytes32' }],
         name: 'orders',
         outputs: [
+            { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
             { internalType: 'address', name: 'seller', type: 'address' },
             { internalType: 'uint96', name: 'price', type: 'uint96' },
             { internalType: 'address', name: 'nftContract', type: 'address' },
             { internalType: 'uint64', name: 'expiration', type: 'uint64' },
             { internalType: 'address', name: 'taker', type: 'address' },
             { internalType: 'uint64', name: 'nonce', type: 'uint64' },
-            { internalType: 'uint256', name: 'tokenId', type: 'uint256' },
         ],
         stateMutability: 'view',
         type: 'function',
@@ -355,13 +313,7 @@ export const minimartAbi = [
         stateMutability: 'view',
         type: 'function',
     },
-    {
-        inputs: [],
-        name: 'pause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
+    { inputs: [], name: 'pause', outputs: [], stateMutability: 'nonpayable', type: 'function' },
     {
         inputs: [],
         name: 'paused',
@@ -397,13 +349,7 @@ export const minimartAbi = [
         stateMutability: 'nonpayable',
         type: 'function',
     },
-    {
-        inputs: [],
-        name: 'unpause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
+    { inputs: [], name: 'unpause', outputs: [], stateMutability: 'nonpayable', type: 'function' },
     {
         inputs: [],
         name: 'withdrawFees',
@@ -411,5 +357,4 @@ export const minimartAbi = [
         stateMutability: 'nonpayable',
         type: 'function',
     },
-    { stateMutability: 'payable', type: 'receive' },
 ] as const;

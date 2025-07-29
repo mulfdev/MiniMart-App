@@ -17,15 +17,15 @@ const publicClient = createPublicClient({
     transport: http(RPC_URL),
 });
 
-const CONTRACT_ADDRESS = '0xD752F23C1C5b82c1b749ff048B7edc0b70AC5C5A';
+const CONTRACT_ADDRESS = '0x3e8B8b44cC9bf47e25dEF41aCf8bB43e1f36adBE';
 
 interface MaxBlockResult {
     rows: { max: string | null }[];
 }
 
 async function main() {
-    const batchSize = 480n;
-    let startBlock = 32908523n;
+    const batchSize = 250n;
+    let startBlock = 33510766n;
     let blockHeight = await publicClient.getBlockNumber();
 
     console.log('indexer running\n');
@@ -62,7 +62,7 @@ async function main() {
 
             const filter = await publicClient.createContractEventFilter({
                 abi: minimartAbi,
-                address: '0xD752F23C1C5b82c1b749ff048B7edc0b70AC5C5A',
+                address: CONTRACT_ADDRESS,
                 fromBlock: startBlock,
                 toBlock: toBlock,
             });
