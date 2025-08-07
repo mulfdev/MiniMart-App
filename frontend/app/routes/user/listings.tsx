@@ -110,7 +110,7 @@ function Listings() {
             <div className="space-y-4">
                 {data.map((item) => (
                     <ListingRow
-                        key={item.orderInfo.transactionHash}
+                        key={`${item.nft.contract}/${item.nft.tokenId}`}
                         item={item}
                         onCheckboxChange={handleCheckboxChange}
                         isChecked={selectedOrderIds.includes(item.orderInfo.orderId)}
