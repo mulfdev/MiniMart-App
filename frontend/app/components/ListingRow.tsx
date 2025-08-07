@@ -42,25 +42,25 @@ export function ListingRow({
                 onChange={(e) => onCheckboxChange(orderInfo.orderId, e.target.checked)}
                 disabled={inProgress}
             />
+            <Link to={`/token/${item.nft.contract.address}/${item.nft.tokenId}`}>
+                <div className="flex justify-between">
+                    <img
+                        loading="lazy"
+                        src={nft.image.thumbnailUrl || '/placeholder.svg'}
+                        alt={nft.name || `Token ${nft.tokenId}`}
+                        onError={handleImageError}
+                        className="h-20 w-20 mr-2 rounded-lg object-cover flex-shrink-0"
+                    />
 
-            <img
-                src={nft.image.thumbnailUrl || '/placeholder.svg'}
-                alt={nft.name || `Token ${nft.tokenId}`}
-                onError={handleImageError}
-                className="h-16 w-16 rounded-lg object-cover flex-shrink-0"
-            />
-
-            <div className="flex-grow min-w-0">
-                <div
-                    className="text-lg font-bold text-cyan-100/90 group-hover:text-cyan-50 truncate"
-                >
-                    {nft.name || `Token #${nft.tokenId}`}
+                    <div className="flex flex-col text-wrap">
+                        <div className="text-lg font-bold text-cyan-100/90 group-hover:text-cyan-50">
+                            {nft.name || `Token #${nft.tokenId}`}
+                        </div>
+                        <div className="text-sm text-cyan-400/70">{nft.contract.name}</div>
+                    </div>
                 </div>
-                <div className="text-sm text-cyan-400/70 truncate">{nft.contract.name}</div>
-            </div>
 
-            <div className="hidden md:flex items-center space-x-8 flex-shrink-0">
-                <div className="flex items-baseline text-sm text-cyan-300/80 w-40">
+                <div className="flex items-baseline text-sm text-cyan-300/80 w-40 mt-2">
                     <span className="font-semibold text-cyan-300 mr-1.5 whitespace-nowrap">
                         Price:
                     </span>
@@ -68,21 +68,6 @@ export function ListingRow({
                         {formatEther(BigInt(orderInfo.price))} ETH
                     </span>
                 </div>
-                <div className="flex items-baseline text-sm text-gray-400 w-32">
-                    <span className="font-semibold text-gray-300 mr-1.5">Listed:</span>
-                    <span className="truncate">
-                        {new Date(orderInfo.blockTimestamp * 1000).toLocaleDateString()}
-                    </span>
-                </div>
-            </div>
-
-            <Link
-                to={`/token/${orderInfo.orderId}`}
-                className="px-4 py-2 text-sm font-semibold text-cyan-100 bg-cyan-900/50 border
-                    border-cyan-300/30 rounded-lg hover:bg-cyan-800/70 transition-colors
-                    flex-shrink-0"
-            >
-                View
             </Link>
         </div>
     );
